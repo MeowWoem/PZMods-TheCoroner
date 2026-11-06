@@ -1,0 +1,5 @@
+version=1
+title=The Coroner: Autopsy
+description=
+tags=Build 42;Multiplayer;Silly/Fun
+visibility=public

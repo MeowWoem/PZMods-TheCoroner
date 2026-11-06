@@ -1,0 +1,7 @@
+{
+    "ContextMenu_TCA_PlaceOnTable": "Poser le cadavre sur la table",
+    "ContextMenu_TCA_RemoveFromTable": "Retirer le cadavre de la table",
+    "ContextMenu_TCA_Autopsy": "Pratiquer une autopsie",
+    "ContextMenu_TCA_DebugReset": "[DEBUG] Réinitialiser l'autopsie",
+    "ContextMenu_TCA_DebugReference": "[DEBUG] Image de référence 1:1"
+}

@@ -1,0 +1,9 @@
+{
+    "Tooltip_TCA_TableOccupied": "There is already a corpse on this table.",
+    "Tooltip_TCA_TableTooSmall": "This table is too small: it must be at least 2 tiles long.",
+    "Tooltip_TCA_NeedScalpel": "Requires a scalpel.",
+    "Tooltip_TCA_AlreadyAutopsied": "This corpse has already been autopsied.",
+    "Tooltip_TCA_MustUndress": "Undress the corpse first (still wearing: %1).",
+    "Tooltip_TCA_NeedForceps": "Requires forceps or tweezers.",
+    "Tooltip_TCA_NeedRibTool": "Requires bolt cutters or a saw."
+}

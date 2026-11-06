@@ -1,0 +1,9 @@
+{
+    "Tooltip_TCA_TableOccupied": "Il y a deja un cadavre sur cette table.",
+    "Tooltip_TCA_TableTooSmall": "Cette table est trop petite : il faut au moins 2 cases de long.",
+    "Tooltip_TCA_NeedScalpel": "Nécessite un scalpel.",
+    "Tooltip_TCA_AlreadyAutopsied": "Ce cadavre a déjà été autopsié.",
+    "Tooltip_TCA_MustUndress": "Déshabille d'abord le cadavre (porte encore : %1).",
+    "Tooltip_TCA_NeedForceps": "Nécessite une pince (forceps ou pince à épiler).",
+    "Tooltip_TCA_NeedRibTool": "Nécessite un coupe-boulon ou une scie."
+}
