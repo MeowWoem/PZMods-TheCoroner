@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pose d'autopsie : etat ajoute au jeu d'animations vanilla "player-avatar"
-     (un mod ne peut pas fournir de groupe d'actions, donc pas de jeu d'animations a lui).
-     Animation : media/anims_X/Bob/TCA_AutopsyPose.X -->
 <animNode>
     <m_Name>TCA_AutopsyPose</m_Name>
     <m_AnimName>TCA_AutopsyPose</m_AnimName>

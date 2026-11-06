@@ -1,10 +1,3 @@
---***********************************************************
---**  Action locale : lacher le cadavre traine pres de la  **
---**  table, puis enchainer sur la pose (via TCA_Client).  **
---**  Pas de complete() : l'action reste cote client,      **
---**  comme le "lacher" vanilla.                           **
---***********************************************************
-
 require "TimedActions/ISBaseTimedAction";
 
 TCA_LetGoForTableAction = ISBaseTimedAction:derive("TCA_LetGoForTableAction");
@@ -25,7 +18,6 @@ end
 function TCA_LetGoForTableAction:perform()
     TCA_Client.waitForDroppedBody(self.character, self.tableObject);
     self.character:setDoGrappleLetGo();
-    -- needed to remove from queue / start next.
     ISBaseTimedAction.perform(self);
 end
 

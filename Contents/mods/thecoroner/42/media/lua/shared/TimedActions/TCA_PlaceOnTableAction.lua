@@ -1,8 +1,3 @@
---***********************************************************
---**  Action : poser un cadavre sur une table              **
---**  Partagee pour que complete() tourne sur le serveur   **
---***********************************************************
-
 require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
 
@@ -45,7 +40,6 @@ function TCA_PlaceOnTableAction:stop()
 end
 
 function TCA_PlaceOnTableAction:perform()
-    -- needed to remove from queue / start next.
     ISBaseTimedAction.perform(self);
 end
 
@@ -64,8 +58,6 @@ function TCA_PlaceOnTableAction:getDuration()
     return 80;
 end
 
--- Les noms des parametres doivent correspondre aux champs de "o"
--- (le serveur reconstruit l'action a partir de ces champs).
 function TCA_PlaceOnTableAction:new(character, tableObject)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;

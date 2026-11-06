@@ -1,9 +1,3 @@
---***********************************************************
---**  Action : retirer un cadavre d'une table              **
---**  Le corps est redescendu au sol aux pieds du joueur,  **
---**  d'ou il peut etre saisi normalement.                 **
---***********************************************************
-
 require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
 
@@ -40,7 +34,6 @@ function TCA_RemoveFromTableAction:stop()
 end
 
 function TCA_RemoveFromTableAction:perform()
-    -- needed to remove from queue / start next.
     ISBaseTimedAction.perform(self);
 end
 

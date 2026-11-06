@@ -1,14 +1,3 @@
---***********************************************************
---**  Action : enregistrer le resultat du mini-jeu         **
---**  - sauvegarde la progression sur le cadavre ;         **
---**  - donne l'XP uniquement pour ce qui est nouveau      **
---**    (pas de farm en arretant / reprenant).             **
---**  Etapes : incision -> peau ecartee -> cotes coupees.  **
---**  Partagee : complete() tourne sur le serveur en multi.**
---**  Les coupures, elles, sont appliquees immediatement   **
---**  pendant le mini-jeu (voir TCA_Client.requestCut).    **
---***********************************************************
-
 require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
 require "TCA_Autopsy";
@@ -34,7 +23,6 @@ local function clamp(v, lo, hi)
     return v;
 end
 
--- Incision : renvoie l'XP gagnee (0 si rien de nouveau).
 function TCA_AutopsyResultAction:applyIncision(body)
     local A = TCA.Autopsy;
     local md = body:getModData();
@@ -55,7 +43,6 @@ function TCA_AutopsyResultAction:applyIncision(body)
     local newFraction = A.getFraction(segIndex, segProgress);
     local delta = newFraction - oldFraction;
     if delta <= 0 then
-        -- Rien de nouveau : on ne recule jamais et on ne paie pas deux fois.
         return 0;
     end
 
@@ -67,6 +54,8 @@ function TCA_AutopsyResultAction:applyIncision(body)
         md["TCA_A_seg"] = segIndex;
         md["TCA_A_prog"] = segProgress;
     end
+    md["TCA_A_acc"] = accuracy;
+    md["TCA_A_accN"] = math.floor(clamp(self.accSamples, 0, 10000000));
     local paths = tostring(self.paths or "");
     if string.len(paths) <= A.MAX_PATH_LENGTH then
         md["TCA_A_paths"] = paths;
@@ -74,7 +63,6 @@ function TCA_AutopsyResultAction:applyIncision(body)
     return (A.XP_MIN + (A.XP_MAX - A.XP_MIN) * accuracy) * delta;
 end
 
--- Peau ecartee a la pince.
 function TCA_AutopsyResultAction:applyOpen(body)
     local A = TCA.Autopsy;
     if not self.opened then
@@ -90,7 +78,6 @@ function TCA_AutopsyResultAction:applyOpen(body)
     return A.XP_OPEN;
 end
 
--- Cotes coupees (fusion avec ce qui etait deja coupe).
 function TCA_AutopsyResultAction:applyRibs(body)
     local A = TCA.Autopsy;
     if A.getStep(body) ~= A.STEP_OPENED then
@@ -129,7 +116,6 @@ function TCA_AutopsyResultAction:complete()
         return true;
     end
 
-    -- Dans l'ordre : chaque etape s'appuie sur la precedente.
     local xp = 0;
     xp = xp + self:applyIncision(body);
     xp = xp + self:applyOpen(body);
@@ -148,8 +134,7 @@ function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
--- Les noms des parametres doivent correspondre aux champs de "o".
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, opened, ribs)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, opened, ribs, accSamples)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -159,6 +144,7 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.paths = paths;
     o.opened = opened;
     o.ribs = ribs;
+    o.accSamples = accSamples;
     o.maxTime = o:getDuration();
     o.stopOnWalk = false;
     o.stopOnRun = false;

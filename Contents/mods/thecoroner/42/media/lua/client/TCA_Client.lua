@@ -1,7 +1,3 @@
---***********************************************************
---**  The Coroner : menu contextuel (client)               **
---***********************************************************
-
 require "TCA_Shared";
 require "TCA_Autopsy";
 require "TimedActions/ISTimedActionQueue";
@@ -15,7 +11,6 @@ require "TCA_ReferenceUI";
 
 TCA_Client = TCA_Client or {};
 
--- Joueurs qui viennent de lacher un cadavre et attendent qu'il apparaisse.
 TCA_Client.pending = {};
 TCA_Client.PENDING_TIMEOUT_MS = 5000;
 
@@ -47,7 +42,6 @@ function TCA_Client.onDeadBodySpawn(body)
     end
 end
 
--- Coupure immediate pendant le mini-jeu : le serveur fait autorite en multi.
 function TCA_Client.requestCut(playerObj)
     if isClient() then
         sendClientCommand(playerObj, "TCA", "cut", {});
@@ -56,7 +50,6 @@ function TCA_Client.requestCut(playerObj)
     end
 end
 
--- Debug : remettre l'autopsie du cadavre a zero.
 function TCA_Client.onDebugReset(playerObj, tableObj)
     if isClient() then
         local sq = tableObj:getSquare();
@@ -81,7 +74,6 @@ function TCA_Client.isDebug()
     return TCA.DEBUG or isDebugEnabled();
 end
 
--- XP gagnee (envoyee par le serveur en multijoueur).
 function TCA_Client.onServerCommand(module, command, args)
     if module ~= "TCA" then
         return;
@@ -91,7 +83,6 @@ function TCA_Client.onServerCommand(module, command, args)
     end
 end
 
--- Actions a ajouter a la file au prochain tick.
 TCA_Client.deferred = {};
 
 function TCA_Client.queueNextTick(action)
@@ -109,7 +100,6 @@ function TCA_Client.onTick()
     end
 end
 
--- Cherche une table parmi les objets cliques (et leurs cases).
 function TCA_Client.findTableInWorldObjects(worldobjects)
     local seen = {};
     for _, obj in ipairs(worldobjects) do
@@ -152,7 +142,6 @@ function TCA_Client.onAutopsy(playerObj, tableObj)
     end
 end
 
--- Texte du tooltip quand l'outil de l'etape manque.
 function TCA_Client.getMissingToolText(stage)
     if stage == "open" then
         return getText("Tooltip_TCA_NeedForceps");

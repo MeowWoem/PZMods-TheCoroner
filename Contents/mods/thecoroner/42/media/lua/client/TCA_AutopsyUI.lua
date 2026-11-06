@@ -1,16 +1,3 @@
---***********************************************************
---**  Mini-jeu d'autopsie du thorax, en plusieurs etapes : **
---**  1. incision en Y (scalpel) : maintenir le clic et    **
---**     suivre les pointilles ;                           **
---**  2. ouverture de la peau (pince) : bouton "Ouvrir" ;  **
---**  3. coupe des cotes (coupe-boulon ou scie) ;          **
---**  4. retrait du plastron (automatique).                **
---**  La main tremble selon l'etat du personnage.          **
---**                                                       **
---**  Le corps est decrit en "coordonnees corps" puis      **
---**  affiche via une camera (cadrage + zoom).             **
---***********************************************************
-
 require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Autopsy";
@@ -19,49 +6,42 @@ require "TCA_Shared";
 
 TCA_AutopsyUI = ISPanel:derive("TCA_AutopsyUI");
 
--- Taille du panneau
 TCA_AutopsyUI.WIDTH = 440;
 TCA_AutopsyUI.HEIGHT = 680;
 
--- Cadrage du torse (coordonnees corps) : de la tete au bas de l'ouverture.
 TCA_AutopsyUI.VIEW_Y_INCISION = { x1 = -100, y1 = -10, x2 = 100, y2 = 250 };
 
--- Calques du torse ouvert (PNG 520 x 1020 = canevas 260 x 510 en x2).
 TCA_AutopsyUI.LAYER_OPENED = "media/textures/torso_step1.png";
 TCA_AutopsyUI.LAYER_CHEST = "media/textures/torso_step2.png";
-TCA_AutopsyUI.OPEN_FADE_MS = 700;      -- apparition des lambeaux
-TCA_AutopsyUI.REMOVE_FADE_MS = 900;    -- retrait du plastron
+TCA_AutopsyUI.OPEN_FADE_MS = 700;
+TCA_AutopsyUI.REMOVE_FADE_MS = 900;
 
--- Difficulte (distances en pixels ecran)
-TCA_AutopsyUI.WARN_DIST = 7;           -- au-dela : l'outil n'avance plus (rouge)
-TCA_AutopsyUI.SLIP_DIST = 16;          -- au-dela : derapage
-TCA_AutopsyUI.START_RADIUS = 14;       -- rayon pour reprendre un trace
-TCA_AutopsyUI.MAX_STEP = 0.12;         -- avance max d'un coup sur un segment (anti-saut)
-TCA_AutopsyUI.MAX_SPEED = 1.0;         -- pixels par milliseconde avant derapage
+TCA_AutopsyUI.WARN_DIST = 7;
+TCA_AutopsyUI.SLIP_DIST = 16;
+TCA_AutopsyUI.START_RADIUS = 14;
+TCA_AutopsyUI.MAX_STEP = 0.12;
+TCA_AutopsyUI.MAX_SPEED = 1.0;
 TCA_AutopsyUI.SEGMENT_DONE = 0.98;
-TCA_AutopsyUI.TREMOR_BASE = 13;        -- tremblement au niveau 0 de Premiers soins
-TCA_AutopsyUI.TREMOR_PER_LEVEL = 1.1;  -- reduction par niveau
+TCA_AutopsyUI.TREMOR_BASE = 13;
+TCA_AutopsyUI.TREMOR_PER_LEVEL = 1.1;
 TCA_AutopsyUI.TREMOR_MIN = 1.5;
-TCA_AutopsyUI.PATH_STEP = 1.5;         -- distance mini (coord. corps) entre deux points sauvegardes
+TCA_AutopsyUI.PATH_STEP = 1.5;
 
--- Cotes
-TCA_AutopsyUI.RIB_PICK_RADIUS = 10;    -- (ecran) rayon pour attraper un repere
-TCA_AutopsyUI.CUTTER_HOLD_MS = 1500;   -- coupe-boulon : temps de serrage a Force 0
+TCA_AutopsyUI.RIB_PICK_RADIUS = 10;
+TCA_AutopsyUI.CUTTER_HOLD_MS = 1500;
 TCA_AutopsyUI.CUTTER_HOLD_PER_STR = 80;
 TCA_AutopsyUI.CUTTER_HOLD_MIN = 500;
-TCA_AutopsyUI.SAW_TRAVEL = 320;        -- scie : course verticale (px) a Force 0
+TCA_AutopsyUI.SAW_TRAVEL = 320;
 TCA_AutopsyUI.SAW_TRAVEL_PER_STR = 16;
 TCA_AutopsyUI.SAW_TRAVEL_MIN = 140;
-TCA_AutopsyUI.SAW_STROKE_WARN = 18;    -- scie : amplitude verticale toleree
+TCA_AutopsyUI.SAW_STROKE_WARN = 18;
 TCA_AutopsyUI.SAW_STROKE_SLIP = 30;
-TCA_AutopsyUI.SAW_CUT_CHANCE = 35;     -- % de se blesser quand la scie derape
+TCA_AutopsyUI.SAW_CUT_CHANCE = 35;
 
-TCA_AutopsyUI.TOOL_CHECK_MS = 500;     -- recherche des outils dans l'inventaire
+TCA_AutopsyUI.TOOL_CHECK_MS = 500;
 
--- Curseur masque au-dessus du corps : seul l'outil (qui tremble) est visible.
 TCA_AutopsyUI.HIDE_CURSOR = true;
 
--- Couleurs
 local CUT = { r = 0.45, g = 0.05, b = 0.05 };
 local GAP = { r = 0.12, g = 0.02, b = 0.02 };
 local WHITE = { r = 1, g = 1, b = 1 };
@@ -80,7 +60,6 @@ local function dist(x1, y1, x2, y2)
     return math.sqrt(dx * dx + dy * dy);
 end
 
--- Projection d'un point sur un segment (ecran) : t (0..1) et distance.
 local function project(px, py, ax, ay, bx, by)
     local vx = bx - ax;
     local vy = by - ay;
@@ -106,17 +85,12 @@ local function clamp01(v)
     return v;
 end
 
---------------------------------------------------------------
--- Camera : coordonnees corps <-> coordonnees ecran du panneau
---------------------------------------------------------------
-
 function TCA_AutopsyUI:setView(view)
     local vw = self.viewW;
     local vh = self.viewH;
     local fw = view.x2 - view.x1;
     local fh = view.y2 - view.y1;
     self.scale = math.min(vw / fw, vh / fh);
-    -- Centre le cadrage dans la zone d'affichage.
     self.offX = self.viewX + (vw - fw * self.scale) / 2 - view.x1 * self.scale;
     self.offY = self.viewY + (vh - fh * self.scale) / 2 - view.y1 * self.scale;
 end
@@ -129,11 +103,6 @@ function TCA_AutopsyUI:toBody(x, y)
     return (x - self.offX) / self.scale, (y - self.offY) / self.scale;
 end
 
---------------------------------------------------------------
--- Dessin de formes simples en coordonnees ecran
---------------------------------------------------------------
-
--- Cercle en coordonnees ecran.
 function TCA_AutopsyUI:fillCircleScreen(cx, cy, radius, c, a)
     local steps = 20;
     local prevX = cx + radius;
@@ -148,7 +117,6 @@ function TCA_AutopsyUI:fillCircleScreen(cx, cy, radius, c, a)
     end
 end
 
--- Trait epais en coordonnees ecran.
 function TCA_AutopsyUI:thickLineScreen(x1, y1, x2, y2, width, c, a)
     local len = dist(x1, y1, x2, y2);
     if len < 0.01 then
@@ -159,15 +127,10 @@ function TCA_AutopsyUI:thickLineScreen(x1, y1, x2, y2, width, c, a)
     self:drawPolygon(nil, x1 + nx, y1 + ny, x2 + nx, y2 + ny, x2 - nx, y2 - ny, x1 - nx, y1 - ny, c.r, c.g, c.b, a or 1);
 end
 
---------------------------------------------------------------
--- Construction
---------------------------------------------------------------
-
 function TCA_AutopsyUI:initialise()
     ISPanel.initialise(self);
     local A = TCA.Autopsy;
 
-    -- En-tete : titre + consigne, puis zone d'affichage du corps en dessous.
     local titleH = getTextManager():getFontHeight(UIFont.Medium);
     local smallH = getTextManager():getFontHeight(UIFont.Small);
     self.titleY = 10;
@@ -180,8 +143,7 @@ function TCA_AutopsyUI:initialise()
 
     self.segments = A.INCISION_Y;
 
-    -- Reprise de la progression sauvegardee sur le cadavre.
-    local state = { segIndex = 1, segProgress = 0, paths = "" };
+    local state = { segIndex = 1, segProgress = 0, paths = "", accuracy = 0, accSamples = 0 };
     local step = A.STEP_CLOSED;
     local ribsStr = "";
     local body = TCA.findBodyOnTable(self.tableObject);
@@ -200,7 +162,6 @@ function TCA_AutopsyUI:initialise()
     end
     self.startFraction = A.getFraction(state.segIndex, state.segProgress);
 
-    -- Etapes suivantes
     self.startStep = step;
     self.opened = step >= A.STEP_OPENED;
     self.ribs = A.decodeRibs(ribsStr);
@@ -221,8 +182,8 @@ function TCA_AutopsyUI:initialise()
     self.cutting = false;
     self.warn = false;
     self.cuts = 0;
-    self.devSum = 0;
-    self.devCount = 0;
+    self.devCount = state.accSamples;
+    self.devSum = (1 - state.accuracy) * TCA_AutopsyUI.WARN_DIST * state.accSamples;
     self.flashTime = 0;
     self.finished = false;
     self.lastMouseX = nil;
@@ -239,7 +200,6 @@ function TCA_AutopsyUI:initialise()
         self.phase[i] = ZombRandFloat(0, 6.28);
     end
 
-    -- Etape de depart
     self.stageTime = getTimestampMs();
     if not self.complete then
         self.stage = "incision";
@@ -271,9 +231,6 @@ function TCA_AutopsyUI:createChildren()
     self:refreshTools(true);
 end
 
--- Modele 3D du cadavre, a la taille exacte de la zone d'affichage
--- (pas de debordement, donc pas de decoupage necessaire).
--- Sans cadavre ou si desactive : repli sur la texture / les formes.
 function TCA_AutopsyUI:createBodyModel()
     self.model = nil;
     if not TCA_BodyRenderer.USE_MODEL then
@@ -319,7 +276,6 @@ function TCA_AutopsyUI:getStageFade(durationMs)
     return clamp01((getTimestampMs() - self.stageTime) / durationMs);
 end
 
--- Outils et boutons, selon l'etape (pas a chaque image : inventaire recursif).
 function TCA_AutopsyUI:refreshTools(force)
     local now = getTimestampMs();
     if not force and now - self.toolCheckTime < TCA_AutopsyUI.TOOL_CHECK_MS then
@@ -356,10 +312,6 @@ function TCA_AutopsyUI:refreshTools(force)
     end
 end
 
---------------------------------------------------------------
--- Tremblement de la main selon l'etat du personnage
---------------------------------------------------------------
-
 function TCA_AutopsyUI:getTremorAmplitude()
     local chr = self.character;
     local amp = TCA_AutopsyUI.TREMOR_BASE - chr:getPerkLevel(Perks.Doctor) * TCA_AutopsyUI.TREMOR_PER_LEVEL;
@@ -388,8 +340,6 @@ function TCA_AutopsyUI:getTremorLabel(amp)
     return getText("IGUI_TCA_TremorHigh");
 end
 
--- Position de l'outil : la souris + un tremblement (derive lente et
--- a-coups rapides), amplifie par la vitesse.
 function TCA_AutopsyUI:updateBlade()
     local now = getTimestampMs();
     local dt = now - self.lastTime;
@@ -418,10 +368,6 @@ function TCA_AutopsyUI:updateBlade()
     self.bladeY = my + amp * (0.5 * math.sin(t * 1.7 + p[4]) + 0.3 * math.sin(t * 4.1 + p[5]) + 0.2 * math.sin(t * 8.3 + p[6]));
 end
 
---------------------------------------------------------------
--- Etape 1 : incision (appelee a chaque image)
---------------------------------------------------------------
-
 function TCA_AutopsyUI:getSegmentScreen(index)
     local seg = self.segments[index];
     local ax, ay = self:toScreen(seg.ax, seg.ay);
@@ -439,7 +385,6 @@ function TCA_AutopsyUI:slip(reasonKey)
     self.cutting = false;
     self.flashTime = getTimestampMs();
     HaloTextHelper.addBadText(self.character, getText(reasonKey));
-    -- La coupure prend effet tout de suite.
     TCA_Client.requestCut(self.character);
 end
 
@@ -495,10 +440,6 @@ function TCA_AutopsyUI:updateCut()
     end
 end
 
---------------------------------------------------------------
--- Etape 3 : cotes (coupe-boulon : serrer ; scie : va-et-vient)
---------------------------------------------------------------
-
 function TCA_AutopsyUI:getRibScreen(index)
     local rib = TCA.Autopsy.RIBS[index];
     return self:toScreen(rib.x, rib.y);
@@ -539,12 +480,10 @@ function TCA_AutopsyUI:ribSlip()
     self.cutting = false;
     self.ribActive = nil;
     if self.ribMode == "cutter" then
-        -- Les machoires ripent sur l'os : on recommence ce serrage.
         self.ribWork[index] = 0;
         HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_CutterSlip"));
         return;
     end
-    -- La scie saute hors du trait : risque de se blesser.
     if ZombRand(100) < TCA_AutopsyUI.SAW_CUT_CHANCE then
         self:slip("IGUI_TCA_SawSlipHurt");
     else
@@ -581,8 +520,6 @@ function TCA_AutopsyUI:updateRibs()
         end
         self.ribWork[index] = self.ribWork[index] + self.dt / self:getCutterHoldMs();
     else
-        -- Scie verticale, le long de la ligne de coupe : l'ecart horizontal
-        -- doit rester faible, la course verticale fait avancer la coupe.
         local side = math.abs(self.bladeX - sx);
         local along = math.abs(self.bladeY - sy);
         if side > TCA_AutopsyUI.SLIP_DIST or along > TCA_AutopsyUI.SAW_STROKE_SLIP then
@@ -600,10 +537,6 @@ function TCA_AutopsyUI:updateRibs()
         self:finishRib(index);
     end
 end
-
---------------------------------------------------------------
--- Mise a jour (a chaque image)
---------------------------------------------------------------
 
 function TCA_AutopsyUI:updateStage()
     self:updateBlade();
@@ -625,12 +558,7 @@ function TCA_AutopsyUI:updateStage()
     end
 end
 
---------------------------------------------------------------
--- Souris
---------------------------------------------------------------
-
 function TCA_AutopsyUI:onMouseDown(x, y)
-    -- On attrape avec la pointe de l'outil (ce que voit le joueur), pas la souris.
     if self.stage == "incision" then
         local sx, sy = self:currentStartPoint();
         if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS then
@@ -656,7 +584,6 @@ function TCA_AutopsyUI:onMouseDown(x, y)
 end
 
 function TCA_AutopsyUI:releaseTool()
-    -- Coupe-boulon relache : les machoires se rouvrent.
     if self.ribActive and self.ribMode == "cutter" and not self.ribs[self.ribActive] then
         self.ribWork[self.ribActive] = 0;
     end
@@ -674,20 +601,14 @@ function TCA_AutopsyUI:onMouseUpOutside(x, y)
     return true;
 end
 
---------------------------------------------------------------
--- Rendu
---------------------------------------------------------------
-
 function TCA_AutopsyUI:drawBody()
     if self.model then
-        -- Le modele 3D (enfant) se dessine par-dessus : seulement la table ici.
         TCA_BodyRenderer.drawShapes(self, true);
         return;
     end
     TCA_BodyRenderer.drawBody(self, false);
 end
 
--- Calques du torse, sur le canevas de reference (meme origine que le corps).
 function TCA_AutopsyUI:drawLayer(tex, alpha)
     if not tex or alpha <= 0 then
         return;
@@ -718,7 +639,6 @@ function TCA_AutopsyUI:drawIncisions(alpha)
     for i, seg in ipairs(self.segments) do
         local ax, ay, bx, by = self:getSegmentScreen(i);
 
-        -- Trace deja coupe (sessions precedentes comprises)
         local path = self.cutPaths[i];
         local prevX = ax;
         local prevY = ay;
@@ -729,7 +649,6 @@ function TCA_AutopsyUI:drawIncisions(alpha)
             prevY = sy;
         end
 
-        -- Pointilles restants
         local fromT = -1;
         if i > self.segIndex then
             fromT = 0;
@@ -750,7 +669,6 @@ function TCA_AutopsyUI:drawIncisions(alpha)
         end
     end
 
-    -- Point de depart / reprise (pulse)
     if not self.complete then
         local sx, sy = self:currentStartPoint();
         local pulse = 0.5 + 0.5 * math.sin(getTimestampMs() / 200);
@@ -771,7 +689,6 @@ function TCA_AutopsyUI:drawRibs()
     for i = 1, #TCA.Autopsy.RIBS do
         local sx, sy = self:getRibScreen(i);
         if self.ribs[i] then
-            -- Cote sectionnee : petite breche sombre en travers de l'os.
             self:thickLineScreen(sx, sy - 4, sx, sy + 4, 3, GAP, 0.9);
         else
             local c = WHITE;
@@ -795,7 +712,6 @@ function TCA_AutopsyUI:drawScalpel(c)
     self:thickLineScreen(self.bladeX + 10, self.bladeY - 10, self.bladeX + 24, self.bladeY - 24, 4, HANDLE, 1);
 end
 
--- Coupe-boulon vu de dessus : les machoires se ferment pendant le serrage.
 function TCA_AutopsyUI:drawCutter(c)
     local x = self.bladeX;
     local y = self.bladeY;
@@ -812,7 +728,6 @@ function TCA_AutopsyUI:drawCutter(c)
     self:thickLineScreen(pivotX, pivotY, pivotX + 30 + gap, pivotY + 26, 4, CUTTER_HANDLE, 1);
 end
 
--- Scie verticale (le point de coupe est le milieu de la lame).
 function TCA_AutopsyUI:drawSaw(c)
     local x = self.bladeX;
     local y = self.bladeY;
@@ -885,7 +800,6 @@ function TCA_AutopsyUI:getInstructionText()
     return getText("IGUI_TCA_InstrDone");
 end
 
--- Texte d'alerte quand l'outil de l'etape en cours manque, sinon nil.
 function TCA_AutopsyUI:getMissingToolText()
     if self.stage == "open" and not self.hasForceps then
         return getText("Tooltip_TCA_NeedForceps");
@@ -901,7 +815,6 @@ function TCA_AutopsyUI:drawInstructions()
         self:drawTextCentre(self:getInstructionText(), self.width / 2, self.instructionsY, 0.8, 0.8, 0.8, 1, UIFont.Small);
         return;
     end
-    -- Bandeau d'alerte : fond rouge sombre qui pulse legerement.
     local tm = getTextManager();
     local textW = tm:MeasureStringX(UIFont.Small, warning);
     local textH = tm:getFontHeight(UIFont.Small);
@@ -914,7 +827,6 @@ function TCA_AutopsyUI:drawInstructions()
     self:drawTextCentre(warning, self.width / 2, self.instructionsY, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, UIFont.Small);
 end
 
--- Info-bulle pres de la souris quand on survole le corps sans le bon outil.
 function TCA_AutopsyUI:drawMissingToolTooltip()
     local warning = self:getMissingToolText();
     if not warning or not self:isMouseOverView() then
@@ -964,8 +876,6 @@ function TCA_AutopsyUI:prerender()
     self:drawTextCentre(self:getTitleText(), self.width / 2, self.titleY, 1, 1, 1, 1, UIFont.Medium);
     self:drawInstructions();
 
-    -- Le corps est decoupe a la zone d'affichage (pas de debordement sur le texte).
-    -- Calques, incisions et reperes sont dessines dans render(), donc par-dessus le modele 3D.
     self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
     self:drawBody();
     self:clearStencilRect();
@@ -990,10 +900,6 @@ function TCA_AutopsyUI:wantsHiddenCursor()
     return self.cutting or self:isMouseOverView();
 end
 
--- Ordre d'une image (GameWindow.logic) : mise a jour de l'UI, PUIS le jeu
--- remet le curseur visible, puis mise a jour du monde (OnTick) et seulement
--- ensuite le rendu. Masquer depuis update()/prerender() est donc ecrase :
--- on le fait dans OnTick, comme le jeu le fait pour la visee.
 function TCA_AutopsyUI.onTickHideCursor()
     local ui = TCA_AutopsyUI.instance;
     if ui and ui:wantsHiddenCursor() then
@@ -1010,7 +916,6 @@ function TCA_AutopsyUI:isMouseInside()
     return mx >= 0 and my >= 0 and mx < self.width and my < self.height;
 end
 
--- Apres les enfants (modele 3D) : calques, incisions, cotes, outil, flash.
 function TCA_AutopsyUI:render()
     ISPanel.render(self);
     self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
@@ -1035,10 +940,6 @@ function TCA_AutopsyUI:render()
     self:drawMissingToolTooltip();
 end
 
---------------------------------------------------------------
--- Resultat et fermeture
---------------------------------------------------------------
-
 function TCA_AutopsyUI:collectResult()
     local A = TCA.Autopsy;
     local result = {};
@@ -1049,6 +950,7 @@ function TCA_AutopsyUI:collectResult()
         result.segProgress = 0;
     end
     result.accuracy = self:getAccuracy();
+    result.accSamples = self.devCount;
     result.paths = A.encodePaths(self.cutPaths);
     result.opened = self.opened and self.startStep < A.STEP_OPENED;
     result.ribs = A.encodeRibs(self.ribs);

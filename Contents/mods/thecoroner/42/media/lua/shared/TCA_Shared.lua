@@ -1,13 +1,5 @@
---***********************************************************
---**            The Coroner: Autopsy Mod (TCA)            **
---**  Fonctions partagees client / serveur                 **
---***********************************************************
-
 TCA = TCA or {};
 
--- Meubles reconnus comme "table d'operation" meme s'ils n'ont pas
--- le drapeau IsTable. Cle = GroupName + "_" + CustomName (espaces -> _),
--- comme dans Translate/EN/Moveables.json.
 TCA.EXTRA_TABLES = {
     ["Morgue_Table"] = true,
     ["Large_Medical_Bed"] = true,
@@ -16,17 +8,12 @@ TCA.EXTRA_TABLES = {
     ["Long_Metal_Table"] = true,
 };
 
--- Noms de sprites a ajouter a la main si une table n'est pas detectee
--- (ex: ["location_community_medical_01_0"] = true).
 TCA.EXTRA_SPRITES = {};
 
--- Mots qui excluent un objet meme s'il a le drapeau IsTable.
 TCA.EXCLUDED_WORDS = { "Counter" };
 
--- Hauteur de surface (en pixels, 96 = un etage) si la tuile n'en declare pas.
 TCA.DEFAULT_SURFACE = 34;
 
--- Distance max (en cases) entre la table et le cadavre a poser.
 TCA.MAX_BODY_DISTANCE = 2.5;
 
 function TCA.getMoveableKey(obj)
@@ -104,8 +91,6 @@ function TCA.findTableOnSquare(square)
     return nil;
 end
 
--- Identifiant servant a reconnaitre deux morceaux d'un meme meuble :
--- cle de meuble si elle existe, sinon nom du jeu de tuiles (sans le numero).
 local function getPieceId(obj)
     local key = TCA.getMoveableKey(obj);
     if key then
@@ -120,7 +105,6 @@ local function getPieceId(obj)
     return tileset or name;
 end
 
--- Cherche, sur une case voisine, un morceau de la meme table.
 local function findNeighbourPiece(tableObj)
     local sq = tableObj:getSquare();
     local id = getPieceId(tableObj);
@@ -143,10 +127,6 @@ local function findNeighbourPiece(tableObj)
     return nil, 0, 0;
 end
 
--- Renvoie l'emprise de la table : origine (x, y), largeur, hauteur en cases.
--- 1) grille de sprites du meuble si elle existe ;
--- 2) sinon, morceau identique sur une case voisine ;
--- 3) sinon, 1 x 1.
 function TCA.getTableFootprint(tableObj)
     local sq = tableObj:getSquare();
     local sx = sq:getX();
@@ -175,13 +155,11 @@ function TCA.getTableFootprint(tableObj)
     return sx, sy, 1, 1;
 end
 
--- Une table doit faire au moins 2 cases dans une direction.
 function TCA.isLongTable(tableObj)
     local ox, oy, w, h = TCA.getTableFootprint(tableObj);
     return math.max(w, h) >= 2;
 end
 
--- Affiche dans la console ce que le mod detecte (TCA.DEBUG = true).
 TCA.DEBUG = false;
 
 function TCA.debugTable(tableObj)
@@ -201,7 +179,6 @@ function TCA.getSurfaceZ(tableObj)
     return tableObj:getSquare():getZ() + surf / 96;
 end
 
--- Calcule la position, la hauteur et l'orientation du cadavre sur la table.
 function TCA.computePlacement(tableObj, character)
     local sq = tableObj:getSquare();
     if not sq then
@@ -215,15 +192,12 @@ function TCA.computePlacement(tableObj, character)
     local cx = ox + w / 2;
     local cy = oy + h / 2;
 
-    -- Le corps est allonge selon sa direction "avant" : on l'aligne
-    -- sur le grand cote de la table.
     local dirX = 1;
     local dirY = 0;
     if h > w then
         dirX = 0;
         dirY = 1;
     elseif h == w and character then
-        -- Table carree (2x2...) : le corps est perpendiculaire au joueur.
         local dx = math.abs(character:getX() - cx);
         local dy = math.abs(character:getY() - cy);
         if dx > dy then
@@ -232,7 +206,6 @@ function TCA.computePlacement(tableObj, character)
         end
     end
 
-    -- Leger decalage pour que le centre ne tombe pas pile sur une limite de case.
     local bx = cx - 0.01;
     local by = cy - 0.01;
     local bodySquare = getCell():getGridSquare(math.floor(bx), math.floor(by), z);
@@ -274,7 +247,6 @@ function TCA.getSquaresAround(tableObj, radius)
     return squares;
 end
 
--- Y a-t-il deja un cadavre pose sur cette table ?
 function TCA.tableHasBody(tableObj)
     local squares = TCA.getSquaresAround(tableObj, 0);
     for _, s in ipairs(squares) do
@@ -289,8 +261,6 @@ function TCA.tableHasBody(tableObj)
     return false;
 end
 
--- Cherche un cadavre au sol pres de la table.
--- Priorite au dernier cadavre lache par ce joueur.
 function TCA.findBodyNearTable(tableObj, character)
     local playerID = nil;
     if character then
@@ -333,7 +303,6 @@ function TCA.findBodyNearTable(tableObj, character)
     return mine or best;
 end
 
--- Cherche le cadavre pose sur cette table (s'il y en a un).
 function TCA.findBodyOnTable(tableObj)
     local squares = TCA.getSquaresAround(tableObj, 0);
     for _, s in ipairs(squares) do
@@ -348,9 +317,6 @@ function TCA.findBodyOnTable(tableObj)
     return nil;
 end
 
--- Recree le cadavre a une nouvelle position (meme technique que le jeu
--- quand il sort un cadavre d'un conteneur). A appeler la ou complete()
--- s'execute (serveur en multijoueur, local en solo).
 function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     if not body or not square then
         return false;
@@ -364,8 +330,6 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
         return false;
     end
 
-    -- L'objet cadavre peut avoir ete cree avant les dernieres modifications :
-    -- on recopie les donnees a jour (progression d'autopsie, etc.).
     local newData = newBody:getModData();
     for k, v in pairs(body:getModData()) do
         newData[k] = v;
@@ -401,7 +365,6 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     return true;
 end
 
--- Pose le cadavre sur la table.
 function TCA.placeBodyOnTable(body, tableObj, character)
     if not body or not tableObj then
         return false;
@@ -413,7 +376,6 @@ function TCA.placeBodyOnTable(body, tableObj, character)
     return TCA.relocateBody(body, p.square, p.x, p.y, p.z, p.dirX, p.dirY, true);
 end
 
--- Redescend le cadavre de la table, au sol aux pieds du joueur.
 function TCA.removeBodyFromTable(body, character)
     if not body or not character then
         return false;

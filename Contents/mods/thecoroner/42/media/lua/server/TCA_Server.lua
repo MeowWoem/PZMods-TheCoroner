@@ -1,8 +1,3 @@
---***********************************************************
---**  The Coroner : commandes recues du client             **
---**  (multijoueur uniquement ; en solo tout est local).   **
---***********************************************************
-
 require "TCA_Shared";
 require "TCA_Autopsy";
 
@@ -13,7 +8,6 @@ function TCA_Server.onCutCommand(player)
 end
 
 function TCA_Server.onResetCommand(player, args)
-    -- Reserve aux admins (meme droit que l'ajout d'objets en vanilla).
     if not player:getRole():hasCapability(Capability.AddItem) then
         return;
     end
