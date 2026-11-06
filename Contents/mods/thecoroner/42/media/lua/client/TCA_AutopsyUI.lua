@@ -960,7 +960,6 @@ end
 function TCA_AutopsyUI:prerender()
     ISPanel.prerender(self);
     self:updateStage();
-    self:updateCursor();
 
     self:drawTextCentre(self:getTitleText(), self.width / 2, self.titleY, 1, 1, 1, 1, UIFont.Medium);
     self:drawInstructions();
@@ -984,21 +983,26 @@ function TCA_AutopsyUI:isToolShown()
     return self.stage == "incision" or (self.stage == "ribs" and self.ribMode ~= nil);
 end
 
--- Le jeu remet le curseur visible a chaque image (GameWindow), puis
--- l'UI peut le masquer : a refaire a chaque image, comme pour la visee.
-function TCA_AutopsyUI:updateCursor()
-    if not TCA_AutopsyUI.HIDE_CURSOR or not self:isToolShown() then
-        return;
+function TCA_AutopsyUI:wantsHiddenCursor()
+    if not TCA_AutopsyUI.HIDE_CURSOR or not self:getIsVisible() or not self:isToolShown() then
+        return false;
     end
-    if self.cutting or self:isMouseOverView() then
+    return self.cutting or self:isMouseOverView();
+end
+
+-- Ordre d'une image (GameWindow.logic) : mise a jour de l'UI, PUIS le jeu
+-- remet le curseur visible, puis mise a jour du monde (OnTick) et seulement
+-- ensuite le rendu. Masquer depuis update()/prerender() est donc ecrase :
+-- on le fait dans OnTick, comme le jeu le fait pour la visee.
+function TCA_AutopsyUI.onTickHideCursor()
+    local ui = TCA_AutopsyUI.instance;
+    if ui and ui:wantsHiddenCursor() then
         Mouse.setCursorVisible(false);
     end
 end
 
-function TCA_AutopsyUI:update()
-    ISPanel.update(self);
-    self:updateCursor();
-end
+Events.OnTick.Add(TCA_AutopsyUI.onTickHideCursor);
+Events.OnTickEvenPaused.Add(TCA_AutopsyUI.onTickHideCursor);
 
 function TCA_AutopsyUI:isMouseInside()
     local mx = self:getMouseX();
