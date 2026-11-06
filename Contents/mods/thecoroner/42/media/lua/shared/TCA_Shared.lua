@@ -348,6 +348,10 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     if dirX and dirY then
         newBody:setForwardDirection(dirX, dirY);
     end
+    newBody:setFallOnFront(false);
+    if TCA.DEBUG and newBody:getDiedBoneTransforms() then
+        print("TCA: corpse keeps a ragdoll death pose");
+    end
     newBody:getModData()["lastPlayerGrabbed"] = nil;
     if onTable then
         newBody:getModData()["TCA_OnTable"] = true;
