@@ -1,12 +1,5 @@
---***********************************************************
---**  Action locale : le personnage est penche sur la      **
---**  table pendant toute la duree du mini-jeu.            **
---**  Si l'action est interrompue (zombie, mouvement...),  **
---**  le mini-jeu se ferme et le resultat partiel est      **
---**  applique.                                            **
---***********************************************************
-
 require "TimedActions/ISBaseTimedAction";
+require "TimedActions/ISTimedActionQueue";
 require "TCA_Shared";
 require "TCA_Autopsy";
 
@@ -23,8 +16,6 @@ function TCA_AutopsyAction:isValid()
     if TCA.Autopsy.getBlockingClothing(body) then
         return false;
     end
-    -- Outil de l'etape ou en est le cadavre (scalpel, pince, scie...).
-    -- Les outils des etapes suivantes sont verifies dans le mini-jeu.
     local stage = TCA.Autopsy.getStage(body);
     if stage == "done" then
         return false;
@@ -51,27 +42,30 @@ function TCA_AutopsyAction:start()
     self.ui = TCA_AutopsyUI.open(self.character, self.tableObject);
 end
 
-function TCA_AutopsyAction:closeUI()
+function TCA_AutopsyAction:closeUI(insertNow)
     if not self.ui then
         return;
     end
     local result = self.ui:collectResult();
     self.ui:closeSilently();
     self.ui = nil;
-    if result.advanced then
-        -- Ajoute au tick suivant : pendant stop(), la file est videe juste apres.
-        TCA_Client.queueNextTick(TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.opened, result.ribs));
+    if not result.advanced then
+        return;
     end
+    local action = TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.opened, result.ribs, result.accSamples);
+    if insertNow and ISTimedActionQueue.addAfter(self, action) then
+        return;
+    end
+    TCA_Client.queueNextTick(action);
 end
 
 function TCA_AutopsyAction:stop()
-    self:closeUI();
+    self:closeUI(false);
     ISBaseTimedAction.stop(self);
 end
 
 function TCA_AutopsyAction:perform()
-    self:closeUI();
-    -- needed to remove from queue / start next.
+    self:closeUI(true);
     ISBaseTimedAction.perform(self);
 end
 
