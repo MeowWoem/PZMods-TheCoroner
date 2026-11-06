@@ -33,9 +33,7 @@
     "IGUI_TCA_RefPoseIdle": "Pose: idle",
     "IGUI_TCA_RefPoseAutopsy": "Pose: autopsy",
     "IGUI_TCA_AutopsyTitleChest": "Autopsy - opening the chest",
-    "IGUI_TCA_Open": "Open",
-    "IGUI_TCA_InstrOpen": "Incision complete: pull the skin back with forceps.",
-    "IGUI_TCA_InstrOpening": "You fold back the skin flaps...",
+    "IGUI_TCA_InstrOpen": "Grip the incision edge with forceps and pull gently outward.",
     "IGUI_TCA_InstrRibsCutter": "Click a marker and hold to cut the rib.",
     "IGUI_TCA_InstrRibsSaw": "Click a marker and saw up and down.",
     "IGUI_TCA_InstrRemoving": "You lift off the chest plate...",
@@ -44,5 +42,9 @@
     "IGUI_TCA_Tool": "Tool: %1",
     "IGUI_TCA_CutterSlip": "The cutters slipped off the rib",
     "IGUI_TCA_SawSlip": "The saw jumped out of the cut",
-    "IGUI_TCA_SawSlipHurt": "Ouch! The saw slipped"
+    "IGUI_TCA_SawSlipHurt": "Ouch! The saw slipped",
+    "IGUI_TCA_SkinOpened": "Skin pulled back: %1",
+    "IGUI_TCA_Tears": "Tears: %1",
+    "IGUI_TCA_SkinTear": "The skin tears",
+    "IGUI_TCA_GripLost": "The forceps lost the flap"
 }

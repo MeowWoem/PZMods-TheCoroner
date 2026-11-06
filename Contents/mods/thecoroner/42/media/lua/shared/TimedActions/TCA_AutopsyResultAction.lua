@@ -65,17 +65,32 @@ end
 
 function TCA_AutopsyResultAction:applyOpen(body)
     local A = TCA.Autopsy;
-    if not self.opened then
-        return 0;
-    end
     if not A.isIncisionDone(body) or A.getStep(body) >= A.STEP_OPENED then
         return 0;
     end
     if not A.findForceps(self.character) then
         return 0;
     end
-    body:getModData()["TCA_A_step"] = A.STEP_OPENED;
-    return A.XP_OPEN;
+    local stored = A.getOpenState(body);
+    local left = clamp(self.openL, 0, 1);
+    local right = clamp(self.openR, 0, 1);
+    local tears = math.floor(clamp(self.tears, 0, 100000));
+    if tears < stored.tears then
+        tears = stored.tears;
+    end
+    if left == stored.left and right == stored.right and tears == stored.tears then
+        return 0;
+    end
+    local md = body:getModData();
+    md["TCA_A_openL"] = left;
+    md["TCA_A_openR"] = right;
+    md["TCA_A_tears"] = tears;
+    self.changed = true;
+    if left >= A.OPEN_DONE and right >= A.OPEN_DONE then
+        md["TCA_A_step"] = A.STEP_OPENED;
+        return A.XP_OPEN;
+    end
+    return 0;
 end
 
 function TCA_AutopsyResultAction:applyRibs(body)
@@ -116,17 +131,20 @@ function TCA_AutopsyResultAction:complete()
         return true;
     end
 
+    self.changed = false;
     local xp = 0;
     xp = xp + self:applyIncision(body);
     xp = xp + self:applyOpen(body);
     xp = xp + self:applyRibs(body);
-    if xp <= 0 then
+    if xp <= 0 and not self.changed then
         return true;
     end
 
     body:transmitModData();
-    addXp(self.character, Perks.Doctor, xp);
-    A.notifyXp(self.character, xp);
+    if xp > 0 then
+        addXp(self.character, Perks.Doctor, xp);
+        A.notifyXp(self.character, xp);
+    end
     return true;
 end
 
@@ -134,7 +152,7 @@ function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, opened, ribs, accSamples)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -142,7 +160,9 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.segProgress = segProgress;
     o.accuracy = accuracy;
     o.paths = paths;
-    o.opened = opened;
+    o.openL = openL;
+    o.openR = openR;
+    o.tears = tears;
     o.ribs = ribs;
     o.accSamples = accSamples;
     o.maxTime = o:getDuration();

@@ -13,8 +13,22 @@ TCA_AutopsyUI.VIEW_Y_INCISION = { x1 = -100, y1 = -10, x2 = 100, y2 = 250 };
 
 TCA_AutopsyUI.LAYER_OPENED = "media/textures/torso_step1.png";
 TCA_AutopsyUI.LAYER_CHEST = "media/textures/torso_step2.png";
-TCA_AutopsyUI.OPEN_FADE_MS = 700;
 TCA_AutopsyUI.REMOVE_FADE_MS = 900;
+
+TCA_AutopsyUI.OPEN_HALF_WIDTH = 50;
+TCA_AutopsyUI.OPEN_Y1 = 100;
+TCA_AutopsyUI.OPEN_Y2 = 222;
+TCA_AutopsyUI.OPEN_TOP_CENTER = 107.5;
+TCA_AutopsyUI.OPEN_TOP_CORNER = 96;
+TCA_AutopsyUI.OPEN_CORNER_X = 37.5;
+TCA_AutopsyUI.OPEN_BOTTOM = 225;
+TCA_AutopsyUI.GRAB_RADIUS = 12;
+TCA_AutopsyUI.GRIP_DIST = 16;
+TCA_AutopsyUI.SIDE_DECIDE = 4;
+TCA_AutopsyUI.TEAR_SPEED = 0.25;
+TCA_AutopsyUI.TEAR_LOSS = 0.12;
+TCA_AutopsyUI.FOLD_WIDTH = 4;
+TCA_AutopsyUI.FOLD_STEP = 4;
 
 TCA_AutopsyUI.WARN_DIST = 7;
 TCA_AutopsyUI.SLIP_DIST = 16;
@@ -52,6 +66,8 @@ local STEEL = { r = 0.6, g = 0.62, b = 0.66 };
 local HANDLE = { r = 0.25, g = 0.25, b = 0.28 };
 local CUTTER_HANDLE = { r = 0.55, g = 0.1, b = 0.08 };
 local WARN_TEXT = { r = 1, g = 0.55, b = 0.35 };
+local FOLD_SKIN = { r = 0.74, g = 0.7, b = 0.62 };
+local FOLD_SHADOW = { r = 0.12, g = 0.03, b = 0.03 };
 local WARN_BG = { r = 0.35, g = 0.05, b = 0.03 };
 
 local function dist(x1, y1, x2, y2)
@@ -146,11 +162,13 @@ function TCA_AutopsyUI:initialise()
     local state = { segIndex = 1, segProgress = 0, paths = "", accuracy = 0, accSamples = 0 };
     local step = A.STEP_CLOSED;
     local ribsStr = "";
+    local openState = { left = 0, right = 0, tears = 0 };
     local body = TCA.findBodyOnTable(self.tableObject);
     if body then
         state = A.getState(body);
         step = A.getStep(body);
         ribsStr = body:getModData()["TCA_A_ribs"];
+        openState = A.getOpenState(body);
     end
     self.segIndex = state.segIndex;
     self.segProgress = state.segProgress;
@@ -163,7 +181,19 @@ function TCA_AutopsyUI:initialise()
     self.startFraction = A.getFraction(state.segIndex, state.segProgress);
 
     self.startStep = step;
-    self.opened = step >= A.STEP_OPENED;
+    self.openL = openState.left;
+    self.openR = openState.right;
+    self.tears = openState.tears;
+    if step >= A.STEP_OPENED then
+        self.openL = 1;
+        self.openR = 1;
+    end
+    self.startOpenL = self.openL;
+    self.startOpenR = self.openR;
+    self.startTears = self.tears;
+    self.pullSide = nil;
+    self.pullStartMouseX = 0;
+    self.pullSpeed = 0;
     self.ribs = A.decodeRibs(ribsStr);
     self.startRibCount = A.countRibs(self.ribs);
     self.ribWork = {};
@@ -222,11 +252,6 @@ function TCA_AutopsyUI:createChildren()
     self.finishButton:instantiate();
     self:addChild(self.finishButton);
 
-    self.actionButton = ISButton:new((self.width - btnW) / 2, y, btnW, btnH, getText("IGUI_TCA_Open"), self, TCA_AutopsyUI.onActionClick);
-    self.actionButton:initialise();
-    self.actionButton:instantiate();
-    self:addChild(self.actionButton);
-
     self:createBodyModel();
     self:refreshTools(true);
 end
@@ -252,22 +277,12 @@ function TCA_AutopsyUI:onFinishClick()
     self.finished = true;
 end
 
-function TCA_AutopsyUI:onActionClick()
-    if self.stage ~= "open" then
-        return;
-    end
-    if not TCA.Autopsy.findForceps(self.character) then
-        return;
-    end
-    self.opened = true;
-    self:setStage("opening");
-end
-
 function TCA_AutopsyUI:setStage(stage)
     self.stage = stage;
     self.stageTime = getTimestampMs();
     self.cutting = false;
     self.ribActive = nil;
+    self.pullSide = nil;
     self.warn = false;
     self:refreshTools(true);
 end
@@ -286,23 +301,9 @@ function TCA_AutopsyUI:refreshTools(force)
     if self.stage == "ribs" and not self.cutting then
         self.ribTool, self.ribMode = TCA.Autopsy.findRibTool(self.character);
     end
-
-    local btnW = self.finishButton:getWidth();
-    local showAction = self.stage == "open";
-    self.actionButton:setVisible(showAction);
-    if showAction then
-        local forceps = TCA.Autopsy.findForceps(self.character);
-        self.hasForceps = forceps ~= nil;
-        self.actionButton:setEnable(forceps ~= nil);
-        if forceps then
-            self.actionButton:setTooltip(getText("IGUI_TCA_Tool", forceps:getDisplayName()));
-        else
-            self.actionButton:setTooltip(getText("Tooltip_TCA_NeedForceps"));
-        end
-        self.actionButton:setX(self.width / 2 - btnW - 5);
-        self.finishButton:setX(self.width / 2 + 5);
-    else
-        self.finishButton:setX((self.width - btnW) / 2);
+    if self.stage == "open" and not self.cutting then
+        self.forcepsTool = TCA.Autopsy.findForceps(self.character);
+        self.hasForceps = self.forcepsTool ~= nil;
     end
 
     if self.stage == "done" then
@@ -440,6 +441,136 @@ function TCA_AutopsyUI:updateCut()
     end
 end
 
+function TCA_AutopsyUI:getEdgeScreenX(side)
+    local half = TCA_AutopsyUI.OPEN_HALF_WIDTH;
+    if side == "left" then
+        local x = self:toScreen(-half * self.openL, 0);
+        return x;
+    end
+    local x = self:toScreen(half * self.openR, 0);
+    return x;
+end
+
+function TCA_AutopsyUI:isSideOpen(side)
+    if side == "left" then
+        return self.openL >= TCA.Autopsy.OPEN_DONE;
+    end
+    return self.openR >= TCA.Autopsy.OPEN_DONE;
+end
+
+function TCA_AutopsyUI:findOpenEdgeAt(x, y)
+    local _, by = self:toBody(x, y);
+    if by < TCA_AutopsyUI.OPEN_Y1 or by > TCA_AutopsyUI.OPEN_Y2 then
+        return nil;
+    end
+    local leftOk = not self:isSideOpen("left") and math.abs(x - self:getEdgeScreenX("left")) <= TCA_AutopsyUI.GRAB_RADIUS;
+    local rightOk = not self:isSideOpen("right") and math.abs(x - self:getEdgeScreenX("right")) <= TCA_AutopsyUI.GRAB_RADIUS;
+    if leftOk and rightOk then
+        if math.abs(self:getEdgeScreenX("left") - self:getEdgeScreenX("right")) < 1 then
+            return "pending";
+        end
+        if math.abs(x - self:getEdgeScreenX("left")) <= math.abs(x - self:getEdgeScreenX("right")) then
+            return "left";
+        end
+        return "right";
+    end
+    if leftOk then
+        return "left";
+    end
+    if rightOk then
+        return "right";
+    end
+    return nil;
+end
+
+function TCA_AutopsyUI:releaseFlap()
+    self.cutting = false;
+    self.pullSide = nil;
+end
+
+function TCA_AutopsyUI:loseGrip()
+    self:releaseFlap();
+    HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_GripLost"));
+end
+
+function TCA_AutopsyUI:tearSkin()
+    local loss = TCA_AutopsyUI.TEAR_LOSS;
+    if self.pullSide == "left" then
+        self.openL = math.max(self.openL - loss, 0);
+    else
+        self.openR = math.max(self.openR - loss, 0);
+    end
+    self.tears = self.tears + 1;
+    self:releaseFlap();
+    HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_SkinTear"));
+end
+
+function TCA_AutopsyUI:updateOpen()
+    if not self.cutting or not self.pullSide then
+        self.pullSpeed = 0;
+        return;
+    end
+    local _, by = self:toBody(self.bladeX, self.bladeY);
+    if by < TCA_AutopsyUI.OPEN_Y1 - 8 or by > TCA_AutopsyUI.OPEN_Y2 + 8 then
+        self:loseGrip();
+        return;
+    end
+    if self.pullSide == "pending" then
+        local mx = self:getMouseX();
+        if mx < self.pullStartMouseX - TCA_AutopsyUI.SIDE_DECIDE then
+            self.pullSide = "left";
+        elseif mx > self.pullStartMouseX + TCA_AutopsyUI.SIDE_DECIDE then
+            self.pullSide = "right";
+        else
+            return;
+        end
+    end
+
+    local side = self.pullSide;
+    local outwardDX = self.mouseDX;
+    if side == "left" then
+        outwardDX = -self.mouseDX;
+    end
+    self.pullSpeed = self.pullSpeed * 0.7 + (math.max(outwardDX, 0) / self.dt) * 0.3;
+    if self.pullSpeed > TCA_AutopsyUI.TEAR_SPEED then
+        self:tearSkin();
+        return;
+    end
+    if self.pullSpeed > TCA_AutopsyUI.TEAR_SPEED * 0.75 then
+        self.warn = true;
+    end
+
+    local edgeX = self:getEdgeScreenX(side);
+    local outward = self.bladeX - edgeX;
+    if side == "left" then
+        outward = edgeX - self.bladeX;
+    end
+    if outward < -TCA_AutopsyUI.GRIP_DIST then
+        self:loseGrip();
+        return;
+    end
+
+    local bx = self:toBody(self.bladeX, self.bladeY);
+    local p = clamp01(math.abs(bx) / TCA_AutopsyUI.OPEN_HALF_WIDTH);
+    if side == "left" and bx < 0 and p > self.openL then
+        self.openL = p;
+    elseif side == "right" and bx > 0 and p > self.openR then
+        self.openR = p;
+    end
+
+    if self:isSideOpen(side) then
+        if side == "left" then
+            self.openL = 1;
+        else
+            self.openR = 1;
+        end
+        self:releaseFlap();
+        if self:isSideOpen("left") and self:isSideOpen("right") then
+            self:setStage("ribs");
+        end
+    end
+end
+
 function TCA_AutopsyUI:getRibScreen(index)
     local rib = TCA.Autopsy.RIBS[index];
     return self:toScreen(rib.x, rib.y);
@@ -545,10 +676,8 @@ function TCA_AutopsyUI:updateStage()
 
     if self.stage == "incision" then
         self:updateCut();
-    elseif self.stage == "opening" then
-        if self:getStageFade(TCA_AutopsyUI.OPEN_FADE_MS) >= 1 then
-            self:setStage("ribs");
-        end
+    elseif self.stage == "open" then
+        self:updateOpen();
     elseif self.stage == "ribs" then
         self:updateRibs();
     elseif self.stage == "removing" then
@@ -563,6 +692,17 @@ function TCA_AutopsyUI:onMouseDown(x, y)
         local sx, sy = self:currentStartPoint();
         if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS then
             self.cutting = true;
+            self.lastMouseX = x;
+            self.lastMouseY = y;
+            self.lastTime = getTimestampMs();
+        end
+    elseif self.stage == "open" and self.hasForceps then
+        local side = self:findOpenEdgeAt(self.bladeX, self.bladeY);
+        if side then
+            self.cutting = true;
+            self.pullSide = side;
+            self.pullStartMouseX = x;
+            self.pullSpeed = 0;
             self.lastMouseX = x;
             self.lastMouseY = y;
             self.lastTime = getTimestampMs();
@@ -589,6 +729,7 @@ function TCA_AutopsyUI:releaseTool()
     end
     self.cutting = false;
     self.ribActive = nil;
+    self.pullSide = nil;
 end
 
 function TCA_AutopsyUI:onMouseUp(x, y)
@@ -622,15 +763,75 @@ end
 
 function TCA_AutopsyUI:drawLayers()
     local stage = self.stage;
-    if stage == "opening" then
-        self:drawLayer(self.layerOpened, self:getStageFade(TCA_AutopsyUI.OPEN_FADE_MS));
-    elseif stage == "ribs" then
+    if stage == "ribs" then
         self:drawLayer(self.layerOpened, 1);
     elseif stage == "removing" then
         self:drawLayer(self.layerOpened, 1);
         self:drawLayer(self.layerChest, self:getStageFade(TCA_AutopsyUI.REMOVE_FADE_MS));
     elseif stage == "done" then
         self:drawLayer(self.layerChest, 1);
+    end
+end
+
+function TCA_AutopsyUI:getOpenTopY(x)
+    local ax = math.min(math.abs(x), TCA_AutopsyUI.OPEN_CORNER_X);
+    local center = TCA_AutopsyUI.OPEN_TOP_CENTER;
+    return center - (center - TCA_AutopsyUI.OPEN_TOP_CORNER) * ax / TCA_AutopsyUI.OPEN_CORNER_X;
+end
+
+function TCA_AutopsyUI:getFoldWobble(y)
+    return math.sin(y * 0.37) * 0.6 + math.sin(y * 0.11 + 1.3) * 0.5;
+end
+
+function TCA_AutopsyUI:drawFold(side, progress)
+    if progress <= 0 or progress >= TCA.Autopsy.OPEN_DONE then
+        return;
+    end
+    local half = TCA_AutopsyUI.OPEN_HALF_WIDTH;
+    local bodyX = half * progress;
+    local dir = 1;
+    if side == "left" then
+        bodyX = -bodyX;
+        dir = -1;
+    end
+    local fade = 1;
+    if math.abs(bodyX) > TCA_AutopsyUI.OPEN_CORNER_X then
+        fade = clamp01(1 - (math.abs(bodyX) - TCA_AutopsyUI.OPEN_CORNER_X) / (half - TCA_AutopsyUI.OPEN_CORNER_X));
+    end
+    local top = self:getOpenTopY(bodyX);
+    local bottom = TCA_AutopsyUI.OPEN_BOTTOM;
+    local stepY = TCA_AutopsyUI.FOLD_STEP;
+    local w = TCA_AutopsyUI.FOLD_WIDTH;
+    local y = top;
+    while y < bottom do
+        local y2 = math.min(y + stepY, bottom);
+        local xa, sya = self:toScreen(bodyX + self:getFoldWobble(y), y);
+        local xb, syb = self:toScreen(bodyX + self:getFoldWobble(y2), y2);
+        for k = 1, 3 do
+            local off = -dir * (w * 0.5 + k * 2);
+            self:thickLineScreen(xa + off, sya, xb + off, syb, 2, FOLD_SHADOW, 0.32 * fade / k);
+        end
+        self:thickLineScreen(xa + dir * w * 0.5, sya, xb + dir * w * 0.5, syb, w, FOLD_SKIN, 0.95 * fade);
+        self:thickLineScreen(xa + dir * (w - 0.5), sya, xb + dir * (w - 0.5), syb, 1, FOLD_SHADOW, 0.35 * fade);
+        y = y2;
+    end
+end
+
+function TCA_AutopsyUI:drawOpening()
+    local half = TCA_AutopsyUI.OPEN_HALF_WIDTH;
+    local x1 = self:toScreen(-half * self.openL, 0);
+    local x2 = self:toScreen(half * self.openR, 0);
+    if x2 - x1 >= 1 then
+        self:clearStencilRect();
+        self:setStencilRect(x1, self.viewY, x2 - x1, self.viewH);
+        self:drawLayer(self.layerOpened, 1);
+        self:clearStencilRect();
+        self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
+    end
+    self:drawFold("left", self.openL);
+    self:drawFold("right", self.openR);
+    if not self.cutting and self.hasForceps and self:findOpenEdgeAt(self.bladeX, self.bladeY) then
+        self:fillCircleScreen(self.bladeX, self.bladeY, 7, GREEN, 0.35);
     end
 end
 
@@ -738,6 +939,18 @@ function TCA_AutopsyUI:drawSaw(c)
     self:thickLineScreen(x + 1, y + 16, x + 1, y + 30, 8, HANDLE, 1);
 end
 
+function TCA_AutopsyUI:drawForceps(c)
+    local x = self.bladeX;
+    local y = self.bladeY;
+    local gap = 3;
+    if self.cutting then
+        gap = 0.5;
+    end
+    self:thickLineScreen(x - gap, y, x + 14, y - 26, 2, c, 1);
+    self:thickLineScreen(x + gap, y + gap, x + 20, y - 22, 2, c, 1);
+    self:thickLineScreen(x + 14, y - 26, x + 20, y - 22, 3, STEEL, 1);
+end
+
 function TCA_AutopsyUI:drawTool()
     local c = BLADE;
     if self.warn then
@@ -745,6 +958,10 @@ function TCA_AutopsyUI:drawTool()
     end
     if self.stage == "incision" then
         self:drawScalpel(c);
+    elseif self.stage == "open" then
+        if self.hasForceps then
+            self:drawForceps(c);
+        end
     elseif self.stage == "ribs" then
         if self.ribMode == "cutter" then
             self:drawCutter(c);
@@ -773,7 +990,7 @@ function TCA_AutopsyUI:getAccuracy()
 end
 
 function TCA_AutopsyUI:getTitleText()
-    if self.stage == "incision" or self.stage == "open" then
+    if self.stage == "incision" then
         return getText("IGUI_TCA_AutopsyTitle");
     end
     return getText("IGUI_TCA_AutopsyTitleChest");
@@ -785,8 +1002,6 @@ function TCA_AutopsyUI:getInstructionText()
         return getText("IGUI_TCA_Instructions");
     elseif stage == "open" then
         return getText("IGUI_TCA_InstrOpen");
-    elseif stage == "opening" then
-        return getText("IGUI_TCA_InstrOpening");
     elseif stage == "ribs" then
         if self.ribMode == "cutter" then
             return getText("IGUI_TCA_InstrRibsCutter");
@@ -853,7 +1068,11 @@ end
 function TCA_AutopsyUI:drawInfo()
     local infoY = self.height - 80;
     local smallH = getTextManager():getFontHeight(UIFont.Small);
-    if self.stage == "incision" or self.stage == "open" or self.stage == "opening" then
+    if self.stage == "open" then
+        local opened = math.floor((self.openL + self.openR) / 2 * 100);
+        self:drawText(getText("IGUI_TCA_SkinOpened", opened .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
+        self:drawText(getText("IGUI_TCA_Tears", self.tears), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+    elseif self.stage == "incision" then
         local progress = math.floor(self:getProgress() * 100);
         local accuracy = math.floor(self:getAccuracy() * 100);
         self:drawText(getText("IGUI_TCA_Progress", progress .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
@@ -890,7 +1109,13 @@ function TCA_AutopsyUI:isMouseOverView()
 end
 
 function TCA_AutopsyUI:isToolShown()
-    return self.stage == "incision" or (self.stage == "ribs" and self.ribMode ~= nil);
+    if self.stage == "incision" then
+        return true;
+    end
+    if self.stage == "open" then
+        return self.hasForceps;
+    end
+    return self.stage == "ribs" and self.ribMode ~= nil;
 end
 
 function TCA_AutopsyUI:wantsHiddenCursor()
@@ -920,10 +1145,11 @@ function TCA_AutopsyUI:render()
     ISPanel.render(self);
     self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
     self:drawLayers();
-    if self.stage == "incision" or self.stage == "open" then
+    if self.stage == "incision" then
         self:drawIncisions(1);
-    elseif self.stage == "opening" then
-        self:drawIncisions(1 - self:getStageFade(TCA_AutopsyUI.OPEN_FADE_MS));
+    elseif self.stage == "open" then
+        self:drawIncisions(1);
+        self:drawOpening();
     elseif self.stage == "ribs" then
         self:drawRibs();
     end
@@ -952,10 +1178,13 @@ function TCA_AutopsyUI:collectResult()
     result.accuracy = self:getAccuracy();
     result.accSamples = self.devCount;
     result.paths = A.encodePaths(self.cutPaths);
-    result.opened = self.opened and self.startStep < A.STEP_OPENED;
+    result.openL = self.openL;
+    result.openR = self.openR;
+    result.tears = self.tears;
     result.ribs = A.encodeRibs(self.ribs);
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
-    result.advanced = self:getProgress() > self.startFraction + 0.0001 or result.opened or newRibs;
+    local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
+    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs;
     return result;
 end
 

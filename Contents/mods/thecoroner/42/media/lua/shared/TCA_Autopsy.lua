@@ -22,6 +22,7 @@ A.INCISION_Y = {
 A.STEP_CLOSED = 0;
 A.STEP_OPENED = 1;
 A.STEP_CHEST = 2;
+A.OPEN_DONE = 0.99;
 A.LAST_STEP = A.STEP_CHEST;
 
 A.RIBS = {
@@ -132,6 +133,15 @@ end
 
 function A.getStep(body)
     return tonumber(body:getModData()["TCA_A_step"]) or A.STEP_CLOSED;
+end
+
+function A.getOpenState(body)
+    local md = body:getModData();
+    local state = {};
+    state.left = tonumber(md["TCA_A_openL"]) or 0;
+    state.right = tonumber(md["TCA_A_openR"]) or 0;
+    state.tears = tonumber(md["TCA_A_tears"]) or 0;
+    return state;
 end
 
 function A.getStage(body)
@@ -266,6 +276,9 @@ function A.resetBody(body)
     md["TCA_A_accN"] = nil;
     md["TCA_Autopsied"] = nil;
     md["TCA_A_step"] = nil;
+    md["TCA_A_openL"] = nil;
+    md["TCA_A_openR"] = nil;
+    md["TCA_A_tears"] = nil;
     md["TCA_A_ribs"] = nil;
     body:transmitModData();
 end

@@ -33,9 +33,7 @@
     "IGUI_TCA_RefPoseIdle": "Pose : repos",
     "IGUI_TCA_RefPoseAutopsy": "Pose : autopsie",
     "IGUI_TCA_AutopsyTitleChest": "Autopsie - ouverture du thorax",
-    "IGUI_TCA_Open": "Ouvrir",
-    "IGUI_TCA_InstrOpen": "Incision terminée : écarte la peau à la pince.",
-    "IGUI_TCA_InstrOpening": "Tu rabats les lambeaux de peau...",
+    "IGUI_TCA_InstrOpen": "Pince le bord de l'incision et tire doucement vers l'extérieur.",
     "IGUI_TCA_InstrRibsCutter": "Clique sur un repère et maintiens pour couper la côte.",
     "IGUI_TCA_InstrRibsSaw": "Clique sur un repère et scie de haut en bas.",
     "IGUI_TCA_InstrRemoving": "Tu retires le plastron costal...",
@@ -44,5 +42,9 @@
     "IGUI_TCA_Tool": "Outil : %1",
     "IGUI_TCA_CutterSlip": "La pince a ripé sur la côte",
     "IGUI_TCA_SawSlip": "La scie a sauté du trait",
-    "IGUI_TCA_SawSlipHurt": "Aïe ! La scie a dérapé"
+    "IGUI_TCA_SawSlipHurt": "Aïe ! La scie a dérapé",
+    "IGUI_TCA_SkinOpened": "Peau écartée : %1",
+    "IGUI_TCA_Tears": "Déchirures : %1",
+    "IGUI_TCA_SkinTear": "La peau se déchire",
+    "IGUI_TCA_GripLost": "La pince a lâché le lambeau"
 }
