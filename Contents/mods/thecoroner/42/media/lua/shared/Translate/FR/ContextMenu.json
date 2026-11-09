@@ -6,5 +6,7 @@
     "ContextMenu_TCA_DebugReference": "[DEBUG] Image de référence 1:1",
     "ContextMenu_TCA_MorguePowerOn": "Allumer la réfrigération des tiroirs",
     "ContextMenu_TCA_MorguePowerOff": "Éteindre la réfrigération des tiroirs",
-    "ContextMenu_TCA_DebugDeathTime": "[DEBUG] Date de mort"
+    "ContextMenu_TCA_DebugDeathTime": "[DEBUG] Date de mort",
+    "ContextMenu_TCA_Exam": "Estimer l'heure du décès",
+    "ContextMenu_TCA_DebugExamReset": "[DEBUG] Réinitialiser l'examen"
 }

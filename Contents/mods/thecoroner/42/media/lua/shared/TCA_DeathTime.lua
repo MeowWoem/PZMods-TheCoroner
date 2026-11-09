@@ -163,6 +163,9 @@ function D.prepareCorpseItem(item, restartClock)
         return;
     end
     D.ensure(body);
+    if TCA.Cold then
+        TCA.Cold.mergeIntoBody(item, body);
+    end
     if restartClock then
         body:setDeathTime(D.now());
     end

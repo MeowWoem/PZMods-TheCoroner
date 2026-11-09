@@ -1,6 +1,7 @@
 require "TCA_Shared";
 require "TCA_Organs";
 require "TCA_DeathTime";
+require "TCA_Cold";
 
 TCA.Autopsy = TCA.Autopsy or {};
 local A = TCA.Autopsy;
@@ -196,7 +197,7 @@ function A.encodeAttach(work)
 end
 
 function A.getOrganDecay(body)
-    local hours = TCA.DeathTime.getHoursSinceDeath(body);
+    local hours = TCA.Cold.getEffectiveHours(body, TCA.Cold.DECAY_FACTOR);
     if TCA.isInfected(body) then
         if hours > 72 then
             return 3;

@@ -96,7 +96,11 @@ function TCA.Morgue.prepareCorpse(item)
     end
     body:getModData()["_bloodSplatAmount"] = 0;
     body:getModData()["TCA_Infected"] = ZombRand(100) < TCA.Morgue.INFECTED_CHANCE;
-    TCA.DeathTime.record(body, TCA.DeathTime.inventMorgueDeath(), false);
+    local deathTime = TCA.DeathTime.inventMorgueDeath();
+    TCA.DeathTime.record(body, deathTime, false);
+    if TCA.Cold then
+        TCA.Cold.startStay(item, deathTime);
+    end
     body:getWornItems():clear();
     body:getAttachedItems():clear();
     local inventory = body:getContainer();
@@ -205,8 +209,15 @@ end
 
 function TCA.Morgue.setPowered(obj, on)
     TCA.Morgue.ensureContainers(obj, false);
+    if TCA.Cold then
+        TCA.Cold.scanDrawer(obj, false);
+    end
     TCA.Morgue.applyType(obj, on);
     TCA.Morgue.refreshGenerators(obj);
+    if TCA.Cold then
+        TCA.Cold.register(obj);
+        TCA.Cold.scanDrawer(obj, false);
+    end
     TCA.Morgue.refreshLocal(obj);
     if isServer() then
         local sq = obj:getSquare();
@@ -238,6 +249,9 @@ function TCA.Morgue.onNewDrawer(obj)
         return;
     end
     TCA.Morgue.ensureContainers(obj, true);
+    if TCA.Cold then
+        TCA.Cold.register(obj);
+    end
 end
 
 function TCA.Morgue.onLoadDrawer(obj)
@@ -248,6 +262,9 @@ function TCA.Morgue.onLoadDrawer(obj)
     TCA.Morgue.ensureContainers(obj, true);
     TCA.Morgue.fixUnpreparedCorpses(obj);
     TCA.Morgue.applyType(obj, TCA.Morgue.isAnyOn(obj));
+    if TCA.Cold then
+        TCA.Cold.onDrawerLoaded(obj);
+    end
 end
 
 function TCA.Morgue.onObjectAdded(obj)

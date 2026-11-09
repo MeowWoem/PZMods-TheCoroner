@@ -1,5 +1,6 @@
 require "TCA_Shared";
 require "TCA_Autopsy";
+require "TCA_Exam";
 
 TCA_Server = TCA_Server or {};
 
@@ -43,6 +44,20 @@ function TCA_Server.onDebugStepCommand(player, args)
     end
 end
 
+function TCA_Server.onResetExamCommand(player, args)
+    if not player:getRole():hasCapability(Capability.AddItem) then
+        return;
+    end
+    if not args then
+        return;
+    end
+    local body = TCA.findBodyAt(args.x, args.y, args.z);
+    if body then
+        TCA.Exam.resetResult(body);
+        body:transmitModData();
+    end
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -53,6 +68,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onResetCommand(player, args);
     elseif command == "debugStep" then
         TCA_Server.onDebugStepCommand(player, args);
+    elseif command == "resetExam" then
+        TCA_Server.onResetExamCommand(player, args);
     end
 end
 

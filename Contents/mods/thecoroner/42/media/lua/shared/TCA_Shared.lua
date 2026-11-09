@@ -239,6 +239,36 @@ local function isBodyOnFloor(body)
     return body:getZ() - bsq:getZ() < 0.05;
 end
 
+TCA.isBodyOnFloor = isBodyOnFloor;
+
+TCA.FIND_BODY_DIST = 0.75;
+
+function TCA.findBodyAt(x, y, z)
+    if not x or not y or not z then
+        return nil;
+    end
+    local sq = getCell():getGridSquare(math.floor(x), math.floor(y), math.floor(z + 0.01));
+    if not sq then
+        return nil;
+    end
+    local best = nil;
+    local bestDist = TCA.FIND_BODY_DIST;
+    local list = sq:getStaticMovingObjects();
+    for i = 0, list:size() - 1 do
+        local o = list:get(i);
+        if instanceof(o, "IsoDeadBody") and not o:isAnimal() then
+            local dx = o:getX() - x;
+            local dy = o:getY() - y;
+            local d = math.sqrt(dx * dx + dy * dy);
+            if d <= bestDist then
+                best = o;
+                bestDist = d;
+            end
+        end
+    end
+    return best;
+end
+
 function TCA.getSquaresAround(tableObj, radius)
     local squares = {};
     local sq = tableObj:getSquare();

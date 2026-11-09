@@ -8,6 +8,10 @@ require "TimedActions/TCA_AutopsyAction";
 require "TimedActions/TCA_AutopsyResultAction";
 require "TCA_AutopsyUI";
 require "TCA_ReferenceUI";
+require "TCA_Exam";
+require "TCA_Cold";
+require "TCA_ExamUI";
+require "TimedActions/TCA_ExamAction";
 
 TCA_Client = TCA_Client or {};
 
@@ -83,8 +87,7 @@ function TCA_Client.debugSetStep(playerObj, tableObj, pos)
     end
 end
 
-function TCA_Client.onDebugDeathTime(playerObj, tableObj)
-    local body = TCA.findBodyOnTable(tableObj);
+function TCA_Client.onDebugDeathTime(playerObj, body)
     if not body then
         return;
     end
@@ -99,8 +102,81 @@ function TCA_Client.onDebugDeathTime(playerObj, tableObj)
         infected = "IGUI_TCA_DebugInfected";
     end
     local text = getText("IGUI_TCA_DebugDeathTime", string.format("%.1f", hours / 24), string.format("%.1f", hours), getText(known), getText(infected));
+    local left = TCA.Cold.getHoursSinceLeft(body);
+    local leftText = getText("IGUI_TCA_DebugNever");
+    if left ~= nil then
+        leftText = string.format("%.1f h", left);
+    end
+    text = text .. " / " .. getText("IGUI_TCA_DebugCold", string.format("%.1f", TCA.Cold.getColdHours(body)), leftText);
     playerObj:Say(text);
     print("TCA: death " .. tostring(D.get(body)) .. " now " .. tostring(D.now()) .. " vanilla " .. tostring(body:getDeathTime()) .. " " .. text);
+end
+
+function TCA_Client.onDebugExamReset(playerObj, body)
+    if not body then
+        return;
+    end
+    if isClient() then
+        local args = {};
+        args.x = body:getX();
+        args.y = body:getY();
+        args.z = body:getZ();
+        sendClientCommand(playerObj, "TCA", "resetExam", args);
+        return;
+    end
+    TCA.Exam.resetResult(body);
+end
+
+function TCA_Client.onExam(playerObj, body)
+    if not body or not body:getSquare() then
+        return;
+    end
+    if luautils.walkAdj(playerObj, body:getSquare(), false) then
+        ISTimedActionQueue.add(TCA_ExamAction:new(playerObj, body));
+    end
+end
+
+function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
+    context:addOption(getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
+    if debugMode then
+        context:addOption(getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
+        context:addOption(getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
+    end
+end
+
+function TCA_Client.findFloorBody(worldobjects)
+    local seen = {};
+    for _, obj in ipairs(worldobjects) do
+        local sq = obj:getSquare();
+        if sq and not seen[sq] then
+            seen[sq] = true;
+            local bodies = sq:getDeadBodys();
+            if bodies then
+                for i = 0, bodies:size() - 1 do
+                    local body = bodies:get(i);
+                    if body and not body:isAnimal() and TCA.isBodyOnFloor(body) then
+                        return body;
+                    end
+                end
+            end
+        end
+    end
+    return nil;
+end
+
+function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
+    local playerObj = getSpecificPlayer(player);
+    if not playerObj or playerObj:getVehicle() or playerObj:isDraggingCorpse() then
+        return;
+    end
+    local body = TCA_Client.findFloorBody(worldobjects);
+    if not body then
+        return;
+    end
+    if test then
+        return true;
+    end
+    TCA_Client.addExamOptions(context, playerObj, body, TCA_Client.isDebug());
 end
 
 function TCA_Client.onDebugReference(playerObj, tableObj)
@@ -117,6 +193,8 @@ function TCA_Client.onServerCommand(module, command, args)
     end
     if command == "xp" and args and args.xp then
         TCA.Autopsy.showXpHalo(getPlayer(), args.xp);
+    elseif command == "examResult" and args then
+        TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     end
 end
 
@@ -234,9 +312,9 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
             addTooltip(autopsy, TCA_Client.getMissingToolText(stage));
         end
         context:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
+        TCA_Client.addExamOptions(context, playerObj, body, debugMode);
         if debugMode then
             context:addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
-            context:addOption(getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, tableObj);
         end
     end
 
@@ -255,6 +333,7 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
 end
 
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillWorldObjectContextMenu);
+Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillFloorBodyMenu);
 Events.OnDeadBodySpawn.Add(TCA_Client.onDeadBodySpawn);
 Events.OnTick.Add(TCA_Client.onTick);
 Events.OnServerCommand.Add(TCA_Client.onServerCommand);
