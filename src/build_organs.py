@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, math
 from PIL import Image
 
 SRC, MOD_TEX, LUA_OUT = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -23,6 +23,7 @@ CANVAS_W, CANVAS_H, SCALE, ORIGIN_X, ORIGIN_Y = 520, 1020, 2, 130, 20
 MASK_ALPHA = 128
 CROP_ALPHA = 32
 CROP_MARGIN = 2
+ATTACH_HALF = 5
 
 def num(v):
     return ("%.1f" % v).rstrip("0").rstrip(".")
@@ -108,26 +109,37 @@ lines.append("TCA.Organs.LIST = {")
 for oid, src_name, step, attaches in ORGANS:
     name = "organ_" + oid
     crop, x, y, w, h, cols, rows, mask = load_piece(src_name, name)
+    cells = [(x + cx + 0.5, y + cy + 0.5) for cy in range(rows) for cx in range(cols) if mask[cy][cx] == "1"]
+    gx = sum(p[0] for p in cells) / len(cells)
+    gy = sum(p[1] for p in cells) / len(cells)
     snapped = []
-    for ax, ay in attaches:
+    for attach in attaches:
+        ax, ay = attach[0], attach[1]
         best = None
-        for cy in range(rows):
-            for cx in range(cols):
-                if mask[cy][cx] == "1":
-                    px = x + cx + 0.5
-                    py = y + cy + 0.5
-                    d = (px - ax) ** 2 + (py - ay) ** 2
-                    if best is None or d < best[0]:
-                        best = (d, px, py)
-        if best[0] <= 0.5:
-            snapped.append((ax, ay))
+        for px, py in cells:
+            d = (px - ax) ** 2 + (py - ay) ** 2
+            if best is None or d < best[0]:
+                best = (d, px, py)
+        if best[0] > 0.5:
+            ax, ay = best[1], best[2]
+        if len(attach) > 2:
+            angle = math.radians(attach[2])
+            tx, ty = math.cos(angle), math.sin(angle)
         else:
-            snapped.append((best[1], best[2]))
+            rx, ry = ax - gx, ay - gy
+            length = math.hypot(rx, ry) or 1
+            tx, ty = -ry / length, rx / length
+        if tx < -0.01 or (abs(tx) <= 0.01 and ty < 0):
+            tx, ty = -tx, -ty
+        snapped.append((ax, ay, ax - tx * ATTACH_HALF, ay - ty * ATTACH_HALF, ax + tx * ATTACH_HALF, ay + ty * ATTACH_HALF))
     attaches = snapped
     lines.append("    {")
     lines.append("        id = \"%s\", step = %d, texture = \"media/textures/organs/%s.png\"," % (oid, step, name))
     lines.append("        x = %s, y = %s, w = %s, h = %s," % (num(x), num(y), num(w), num(h)))
-    lines.append("        attaches = { %s }," % ", ".join("{ x = %s, y = %s }" % (num(ax), num(ay)) for ax, ay in attaches))
+    lines.append("        attaches = {")
+    for a in attaches:
+        lines.append("            { x = %s, y = %s, ax = %s, ay = %s, bx = %s, by = %s }," % tuple(num(v) for v in a))
+    lines.append("        },")
     lines += mask_lines(mask, "        ")
     lines.append("    },")
     print("%-11s step %2d  crop %3dx%-3d  corps x %6s y %6s w %5s h %5s  masque %2dx%-2d (%d cases)" % (oid, step, crop.size[0], crop.size[1], num(x), num(y), num(w), num(h), cols, rows, sum(r.count("1") for r in mask)))
