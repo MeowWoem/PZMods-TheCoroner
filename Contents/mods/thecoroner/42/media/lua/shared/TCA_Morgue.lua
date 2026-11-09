@@ -40,26 +40,47 @@ function TCA.Morgue.findOnSquare(sq)
     return nil;
 end
 
-function TCA.Morgue.isOn(obj)
-    local container = obj:getContainerByIndex(0);
+function TCA.Morgue.getDrawerObject(container)
+    if not container then
+        return nil;
+    end
+    local parent = container:getParent();
+    if TCA.Morgue.isDrawer(parent) then
+        return parent;
+    end
+    return nil;
+end
+
+function TCA.Morgue.isOn(container)
     return container ~= nil and container:getType() == TCA.Morgue.TYPE_ON;
 end
 
-function TCA.Morgue.isPowered(obj)
-    local container = obj:getContainerByIndex(0);
+function TCA.Morgue.isAnyOn(obj)
+    for i = 0, obj:getContainerCount() - 1 do
+        if TCA.Morgue.isOn(obj:getContainerByIndex(i)) then
+            return true;
+        end
+    end
+    return false;
+end
+
+function TCA.Morgue.isPowered(container)
     return container ~= nil and container:isPowered();
 end
 
-function TCA.Morgue.getDrawerName(obj, container)
-    local key = "IGUI_TCA_MorgueDrawerTop";
+function TCA.Morgue.getDrawerKey(obj, container)
     if obj:getContainerIndex(container) > 0 then
-        key = "IGUI_TCA_MorgueDrawerBottom";
+        return "IGUI_TCA_MorgueDrawerBottom";
     end
+    return "IGUI_TCA_MorgueDrawerTop";
+end
+
+function TCA.Morgue.getDrawerName(obj, container)
     local state = "IGUI_TCA_MorgueOff";
-    if TCA.Morgue.isOn(obj) then
+    if TCA.Morgue.isOn(container) then
         state = "IGUI_TCA_MorgueOn";
     end
-    return getText(key) .. " (" .. getText(state) .. ")";
+    return getText(TCA.Morgue.getDrawerKey(obj, container)) .. " (" .. getText(state) .. ")";
 end
 
 function TCA.Morgue.prepareCorpse(item)
@@ -102,12 +123,8 @@ function TCA.Morgue.ensureContainers(obj, fillCorpses)
         return false;
     end
     local sq = obj:getSquare();
-    local containerType = TCA.Morgue.TYPE_OFF;
-    if obj:getContainerCount() > 0 and TCA.Morgue.isOn(obj) then
-        containerType = TCA.Morgue.TYPE_ON;
-    end
     while obj:getContainerCount() < TCA.Morgue.DRAWERS do
-        local container = ItemContainer.new(containerType, sq, obj);
+        local container = ItemContainer.new(TCA.Morgue.TYPE_OFF, sq, obj);
         container:setCapacity(TCA.Morgue.CAPACITY);
         container:setExplored(true);
         if obj:getContainer() == nil then
@@ -138,7 +155,7 @@ end
 function TCA.Morgue.refreshGenerators(obj)
     local chunk = obj:getChunk();
     if chunk then
-        if TCA.Morgue.isOn(obj) then
+        if TCA.Morgue.isAnyOn(obj) then
             chunk:addObjectPoweredByGenerator(obj);
         else
             chunk:removeObjectPoweredByGenerator(obj);
@@ -198,6 +215,7 @@ function TCA.Morgue.onLoadDrawer(obj)
     end
     TCA.Morgue.ensureContainers(obj, true);
     TCA.Morgue.fixUnpreparedCorpses(obj);
+    TCA.Morgue.applyType(obj, TCA.Morgue.isAnyOn(obj));
 end
 
 function TCA.Morgue.onObjectAdded(obj)
