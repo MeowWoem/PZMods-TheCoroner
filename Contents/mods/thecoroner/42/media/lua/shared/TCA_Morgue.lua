@@ -62,6 +62,18 @@ function TCA.Morgue.getDrawerName(obj, container)
     return getText(key) .. " (" .. getText(state) .. ")";
 end
 
+function TCA.Morgue.prepareCorpse(item)
+    if not item or not item:isHumanCorpse() then
+        return;
+    end
+    local body = item:loadCorpseFromByteData(nil);
+    if not body then
+        return;
+    end
+    body:getModData()["_bloodSplatAmount"] = 0;
+    item:storeInByteData(body);
+end
+
 function TCA.Morgue.addRandomCorpse(container)
     if ZombRand(100) >= TCA.Morgue.CORPSE_CHANCE then
         return;
@@ -70,7 +82,19 @@ function TCA.Morgue.addRandomCorpse(container)
     if ZombRand(2) == 0 then
         itemType = "Base.CorpseFemale";
     end
-    container:AddItem(itemType);
+    TCA.Morgue.prepareCorpse(container:AddItem(itemType));
+end
+
+function TCA.Morgue.fixUnpreparedCorpses(obj)
+    for i = 0, obj:getContainerCount() - 1 do
+        local items = obj:getContainerByIndex(i):getItems();
+        for j = 0, items:size() - 1 do
+            local item = items:get(j);
+            if item:isHumanCorpse() and item:getByteData() == nil then
+                TCA.Morgue.prepareCorpse(item);
+            end
+        end
+    end
 end
 
 function TCA.Morgue.ensureContainers(obj, fillCorpses)
@@ -168,7 +192,12 @@ function TCA.Morgue.onNewDrawer(obj)
 end
 
 function TCA.Morgue.onLoadDrawer(obj)
-    TCA.Morgue.ensureContainers(obj, not isClient());
+    if isClient() then
+        TCA.Morgue.ensureContainers(obj, false);
+        return;
+    end
+    TCA.Morgue.ensureContainers(obj, true);
+    TCA.Morgue.fixUnpreparedCorpses(obj);
 end
 
 function TCA.Morgue.onObjectAdded(obj)
