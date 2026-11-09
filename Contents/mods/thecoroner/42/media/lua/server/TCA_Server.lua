@@ -25,6 +25,24 @@ function TCA_Server.onResetCommand(player, args)
     end
 end
 
+function TCA_Server.onDebugStepCommand(player, args)
+    if not player:getRole():hasCapability(Capability.AddItem) then
+        return;
+    end
+    if not args or not args.x or not args.y or not args.z or not args.pos then
+        return;
+    end
+    local sq = getCell():getGridSquare(args.x, args.y, args.z);
+    local tableObj = TCA.findTableOnSquare(sq);
+    if not tableObj then
+        return;
+    end
+    local body = TCA.findBodyOnTable(tableObj);
+    if body then
+        TCA.Autopsy.applyDebugPosition(body, args.pos);
+    end
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -33,6 +51,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onCutCommand(player);
     elseif command == "resetAutopsy" then
         TCA_Server.onResetCommand(player, args);
+    elseif command == "debugStep" then
+        TCA_Server.onDebugStepCommand(player, args);
     end
 end
 

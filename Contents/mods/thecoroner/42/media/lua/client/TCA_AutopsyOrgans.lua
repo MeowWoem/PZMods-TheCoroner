@@ -47,6 +47,9 @@ function TCA_AutopsyUI:initOrgans(body)
         self.organDecay = A.getOrganDecay(body);
         self.organZombie = body:isZombie();
     end
+    self.plastronRemoved = body ~= nil and TCA.Autopsy.getStep(body) >= TCA.Autopsy.STEP_CHEST;
+    self.startPlastron = self.plastronRemoved;
+    self.plastronTex = getTexture(TCA.Organs.PLASTRON.texture);
     self.organsDone = organState.done;
     self.organDamage = organState.damage;
     self.startOrgansDone = self.organsDone;
@@ -255,7 +258,7 @@ end
 function TCA_AutopsyUI:extractOrgan()
     local index = self.organsDone + 1;
     local drag = self.organDrag;
-    self.organFly = { index = index, dx = drag.dx, dy = drag.dy, time = getTimestampMs() };
+    self.organFly = { piece = TCA.Organs.LIST[index], tex = self.organTextures[index], dx = drag.dx, dy = drag.dy, time = getTimestampMs() };
     self.organDrag = nil;
     self.cutting = false;
     self.organsDone = index;
@@ -287,14 +290,16 @@ function TCA_AutopsyUI:getStepLayer(step)
     return self.stepLayers[math.max(1, math.min(step, #self.stepLayers))];
 end
 
-function TCA_AutopsyUI:drawOrganTexture(index, offX, offY, alpha)
-    local organ = TCA.Organs.LIST[index];
-    local tex = self.organTextures[index];
-    if not organ or not tex then
+function TCA_AutopsyUI:drawPieceTexture(piece, tex, offX, offY, alpha)
+    if not piece or not tex then
         return;
     end
-    local x, y = self:toScreen(organ.x, organ.y);
-    self:drawTextureScaled(tex, x + offX, y + offY, organ.w * self.scale, organ.h * self.scale, alpha, 1, 1, 1);
+    local x, y = self:toScreen(piece.x, piece.y);
+    self:drawTextureScaled(tex, x + offX, y + offY, piece.w * self.scale, piece.h * self.scale, alpha, 1, 1, 1);
+end
+
+function TCA_AutopsyUI:drawOrganTexture(index, offX, offY, alpha)
+    self:drawPieceTexture(TCA.Organs.LIST[index], self.organTextures[index], offX, offY, alpha);
 end
 
 function TCA_AutopsyUI:drawOrganLayers()
@@ -337,7 +342,7 @@ function TCA_AutopsyUI:drawOrganFly()
     local extra = 60 * t;
     local offX = fly.dx + fly.dx / len * extra;
     local offY = fly.dy + fly.dy / len * extra;
-    self:drawOrganTexture(fly.index, offX, offY, 1 - t);
+    self:drawPieceTexture(fly.piece, fly.tex, offX, offY, 1 - t);
 end
 
 function TCA_AutopsyUI:drawOrganOutline(organ, c, alpha)
@@ -471,4 +476,84 @@ end
 function TCA_AutopsyUI:drawOrganInfo(infoY, smallH)
     self:drawText(getText("IGUI_TCA_OrgansDone", self.organsDone, #TCA.Organs.LIST), 20, infoY, 1, 1, 1, 1, UIFont.Small);
     self:drawText(getText("IGUI_TCA_OrgansDamaged", self.organDamage), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+end
+
+function TCA_AutopsyUI:isOverPlastron(x, y)
+    local bx, by = self:toBody(x, y);
+    return TCA.Organs.contains(TCA.Organs.PLASTRON, bx, by);
+end
+
+function TCA_AutopsyUI:plastronMouseDown(x, y)
+    if self.organFly or not self:isOverPlastron(x, y) then
+        return;
+    end
+    self.cutting = true;
+    self.organSnap = nil;
+    self.organDrag = { grabX = x, grabY = y, dx = 0, dy = 0, speed = 0, rough = false };
+    self.lastMouseX = x;
+    self.lastMouseY = y;
+    self.lastTime = getTimestampMs();
+end
+
+function TCA_AutopsyUI:updatePlastron()
+    if self.organSnap and getTimestampMs() - self.organSnap.time >= TCA_AutopsyUI.ORGAN_SNAP_MS then
+        self.organSnap = nil;
+    end
+    if not self.cutting or not self.organDrag then
+        return;
+    end
+    local drag = self.organDrag;
+    drag.dx = self:getMouseX() - drag.grabX;
+    drag.dy = self:getMouseY() - drag.grabY;
+    if odist(0, 0, drag.dx, drag.dy) >= TCA_AutopsyUI.EXTRACT_DIST then
+        self:extractPlastron();
+    end
+end
+
+function TCA_AutopsyUI:extractPlastron()
+    local drag = self.organDrag;
+    self.organFly = { piece = TCA.Organs.PLASTRON, tex = self.plastronTex, dx = drag.dx, dy = drag.dy, time = getTimestampMs() };
+    self.organDrag = nil;
+    self.organSnap = nil;
+    self.cutting = false;
+    self.plastronRemoved = true;
+    self:setStage(self:getStageAfterChest());
+end
+
+function TCA_AutopsyUI:getPlastronOffset()
+    if self.organDrag then
+        return true, self.organDrag.dx, self.organDrag.dy;
+    end
+    if self.organSnap then
+        local t = 1 - oclamp01((getTimestampMs() - self.organSnap.time) / TCA_AutopsyUI.ORGAN_SNAP_MS);
+        return true, self.organSnap.dx * t, self.organSnap.dy * t;
+    end
+    return false, 0, 0;
+end
+
+function TCA_AutopsyUI:drawPlastronLayers()
+    local moving, offX, offY = self:getPlastronOffset();
+    if moving then
+        self:drawLayer(self.layerChest, 1);
+        self:drawPieceTexture(TCA.Organs.PLASTRON, self.plastronTex, offX, offY, 1);
+        return;
+    end
+    self:drawLayer(self.layerOpened, 1);
+end
+
+function TCA_AutopsyUI:drawPlastron()
+    local moving = self:getPlastronOffset();
+    if moving then
+        return;
+    end
+    self:drawRibs();
+    local cell = self.scale;
+    local alpha = 0.12 + 0.18 * (0.5 + 0.5 * math.sin(getTimestampMs() / 300));
+    if self:isOverPlastron(self:getMouseX(), self:getMouseY()) then
+        alpha = 0.75;
+    end
+    for _, point in ipairs(TCA.Organs.getPieceOutline(TCA.Organs.PLASTRON)) do
+        local x, y = self:toScreen(point.x, point.y);
+        self:drawRect(x, y, cell, cell, alpha, O_GREEN.r, O_GREEN.g, O_GREEN.b);
+    end
 end

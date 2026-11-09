@@ -14,6 +14,7 @@ A.SYNC_FLAGS = 0xc00003808b;
 A.XP_OPEN = 5;
 A.XP_PER_RIB = 1.5;
 A.XP_PER_ORGAN = 2;
+A.XP_PLASTRON = 2;
 
 A.INCISION_Y = {
     { ax = -37.5, ay = 96, bx = 0, by = 107.5 },
@@ -185,6 +186,9 @@ function A.getStage(body)
         return "open";
     end
     if step < A.STEP_CHEST then
+        if A.countRibs(A.getRibs(body)) >= #A.RIBS then
+            return "plastron";
+        end
         return "ribs";
     end
     if A.getOrganState(body).done < #TCA.Organs.LIST then
@@ -269,6 +273,8 @@ function A.hasToolForStage(character, stage)
         return A.findRibTool(character) ~= nil;
     elseif stage == "organs" then
         return A.findScalpel(character) ~= nil;
+    elseif stage == "plastron" then
+        return true;
     end
     return false;
 end
@@ -319,6 +325,63 @@ function A.resetBody(body)
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
     md["TCA_A_ribs"] = nil;
+    body:transmitModData();
+end
+
+function A.getDebugLast()
+    return 4 + #TCA.Organs.LIST;
+end
+
+function A.getDebugStraightPaths()
+    local paths = {};
+    for i, seg in ipairs(A.INCISION_Y) do
+        paths[i] = { { x = seg.ax, y = seg.ay }, { x = seg.bx, y = seg.by } };
+    end
+    return paths;
+end
+
+function A.applyDebugPosition(body, pos)
+    pos = math.max(0, math.min(math.floor(tonumber(pos) or 0), A.getDebugLast()));
+    local md = body:getModData();
+    md["TCA_A_seg"] = nil;
+    md["TCA_A_prog"] = nil;
+    md["TCA_A_paths"] = nil;
+    md["TCA_A_acc"] = nil;
+    md["TCA_A_accN"] = nil;
+    md["TCA_Autopsied"] = nil;
+    md["TCA_A_step"] = nil;
+    md["TCA_A_openL"] = nil;
+    md["TCA_A_openR"] = nil;
+    md["TCA_A_tears"] = nil;
+    md["TCA_A_organs"] = nil;
+    md["TCA_A_odmg"] = nil;
+    md["TCA_A_ribs"] = nil;
+    if pos >= 1 then
+        md["TCA_Autopsied"] = true;
+        md["TCA_A_seg"] = #A.INCISION_Y + 1;
+        md["TCA_A_prog"] = 0;
+        md["TCA_A_paths"] = A.encodePaths(A.getDebugStraightPaths());
+        md["TCA_A_acc"] = 1;
+        md["TCA_A_accN"] = 1;
+    end
+    if pos >= 2 then
+        md["TCA_A_step"] = A.STEP_OPENED;
+        md["TCA_A_openL"] = 1;
+        md["TCA_A_openR"] = 1;
+    end
+    if pos >= 3 then
+        local ribs = {};
+        for i = 1, #A.RIBS do
+            ribs[i] = true;
+        end
+        md["TCA_A_ribs"] = A.encodeRibs(ribs);
+    end
+    if pos >= 4 then
+        md["TCA_A_step"] = A.STEP_CHEST;
+    end
+    if pos >= 5 then
+        md["TCA_A_organs"] = pos - 4;
+    end
     body:transmitModData();
 end
 

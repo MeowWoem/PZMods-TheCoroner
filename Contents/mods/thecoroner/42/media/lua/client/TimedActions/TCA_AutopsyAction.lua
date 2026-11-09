@@ -16,6 +16,9 @@ function TCA_AutopsyAction:isValid()
     if TCA.Autopsy.getBlockingClothing(body) then
         return false;
     end
+    if self.ui then
+        return true;
+    end
     local stage = TCA.Autopsy.getStage(body);
     if stage == "done" then
         return false;
@@ -52,7 +55,7 @@ function TCA_AutopsyAction:closeUI(insertNow)
     if not result.advanced then
         return;
     end
-    local action = TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.openL, result.openR, result.tears, result.ribs, result.accSamples, result.organs, result.organDamage);
+    local action = TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.openL, result.openR, result.tears, result.ribs, result.accSamples, result.organs, result.organDamage, result.plastron);
     if insertNow and ISTimedActionQueue.addAfter(self, action) then
         return;
     end

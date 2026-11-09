@@ -13,7 +13,6 @@ TCA_AutopsyUI.VIEW_Y_INCISION = { x1 = -100, y1 = -10, x2 = 100, y2 = 250 };
 
 TCA_AutopsyUI.LAYER_OPENED = "media/textures/torso_step1.png";
 TCA_AutopsyUI.LAYER_CHEST = "media/textures/torso_step2.png";
-TCA_AutopsyUI.REMOVE_FADE_MS = 900;
 
 TCA_AutopsyUI.OPEN_HALF_WIDTH = 50;
 TCA_AutopsyUI.OPEN_Y1 = 100;
@@ -238,6 +237,9 @@ function TCA_AutopsyUI:initialise()
         self.stage = "open";
     elseif step < A.STEP_CHEST then
         self.stage = "ribs";
+        if A.countRibs(self.ribs) >= #A.RIBS then
+            self.stage = "plastron";
+        end
     else
         self.stage = self:getStageAfterChest();
     end
@@ -253,8 +255,107 @@ function TCA_AutopsyUI:createChildren()
     self.finishButton:instantiate();
     self:addChild(self.finishButton);
 
+    if TCA_Client.isDebug() then
+        local dbgW = 110;
+        local dbgH = 20;
+        local dbgY = self.height - dbgH - 14;
+        self.debugPrevButton = ISButton:new(10, dbgY, dbgW, dbgH, getText("IGUI_TCA_DebugPrev"), self, TCA_AutopsyUI.onDebugPrev);
+        self.debugPrevButton:initialise();
+        self.debugPrevButton:instantiate();
+        self:addChild(self.debugPrevButton);
+        self.debugNextButton = ISButton:new(self.width - dbgW - 10, dbgY, dbgW, dbgH, getText("IGUI_TCA_DebugNext"), self, TCA_AutopsyUI.onDebugNext);
+        self.debugNextButton:initialise();
+        self.debugNextButton:instantiate();
+        self:addChild(self.debugNextButton);
+    end
+
     self:createBodyModel();
     self:refreshTools(true);
+end
+
+function TCA_AutopsyUI:getDebugPosition()
+    local stage = self.stage;
+    if stage == "incision" then
+        return 0;
+    elseif stage == "open" then
+        return 1;
+    elseif stage == "ribs" then
+        return 2;
+    elseif stage == "plastron" then
+        return 3;
+    end
+    return 4 + self.organsDone;
+end
+
+function TCA_AutopsyUI:onDebugPrev()
+    self:debugGoTo(self:getDebugPosition() - 1);
+end
+
+function TCA_AutopsyUI:onDebugNext()
+    self:debugGoTo(self:getDebugPosition() + 1);
+end
+
+function TCA_AutopsyUI:debugGoTo(pos)
+    local A = TCA.Autopsy;
+    pos = math.max(0, math.min(pos, A.getDebugLast()));
+    TCA_Client.debugSetStep(self.character, self.tableObject, pos);
+
+    self.complete = pos >= 1;
+    if self.complete then
+        self.segIndex = #self.segments;
+        self.segProgress = 1;
+        self.cutPaths = A.decodePaths(A.encodePaths(A.getDebugStraightPaths()));
+        self.devCount = 1;
+        self.devSum = 0;
+    else
+        self.segIndex = 1;
+        self.segProgress = 0;
+        self.cutPaths = A.decodePaths("");
+        self.devCount = 0;
+        self.devSum = 0;
+    end
+    self.startFraction = A.getFraction(self.segIndex, self.segProgress);
+    if self.complete then
+        self.startFraction = 1;
+    end
+
+    local opened = 0;
+    if pos >= 2 then
+        opened = 1;
+    end
+    self.openL = opened;
+    self.openR = opened;
+    self.tears = 0;
+    self.startOpenL = opened;
+    self.startOpenR = opened;
+    self.startTears = 0;
+
+    for i = 1, #A.RIBS do
+        self.ribs[i] = pos >= 3;
+        self.ribWork[i] = 0;
+    end
+    self.startRibCount = A.countRibs(self.ribs);
+    self.plastronRemoved = pos >= 4;
+    self.startPlastron = self.plastronRemoved;
+
+    self.organsDone = math.max(pos - 4, 0);
+    self.organDamage = 0;
+    self.startOrgansDone = self.organsDone;
+    self.startOrganDamage = 0;
+    self.organFly = nil;
+    self:resetCurrentOrgan();
+
+    local stage = "incision";
+    if pos == 1 then
+        stage = "open";
+    elseif pos == 2 then
+        stage = "ribs";
+    elseif pos == 3 then
+        stage = "plastron";
+    elseif pos >= 4 then
+        stage = self:getStageAfterChest();
+    end
+    self:setStage(stage);
 end
 
 function TCA_AutopsyUI:createBodyModel()
@@ -632,7 +733,7 @@ function TCA_AutopsyUI:finishRib(index)
     self.cutting = false;
     self.ribActive = nil;
     if TCA.Autopsy.countRibs(self.ribs) >= #TCA.Autopsy.RIBS then
-        self:setStage("removing");
+        self:setStage("plastron");
     end
 end
 
@@ -684,10 +785,8 @@ function TCA_AutopsyUI:updateStage()
         self:updateOpen();
     elseif self.stage == "ribs" then
         self:updateRibs();
-    elseif self.stage == "removing" then
-        if self:getStageFade(TCA_AutopsyUI.REMOVE_FADE_MS) >= 1 then
-            self:setStage(self:getStageAfterChest());
-        end
+    elseif self.stage == "plastron" then
+        self:updatePlastron();
     elseif self.stage == "organs" then
         self:updateOrgans();
     end
@@ -725,6 +824,8 @@ function TCA_AutopsyUI:onMouseDown(x, y)
             self.lastMouseY = y;
             self.lastTime = getTimestampMs();
         end
+    elseif self.stage == "plastron" then
+        self:plastronMouseDown(x, y);
     elseif self.stage == "organs" then
         self:organMouseDown(x, y);
     end
@@ -735,7 +836,7 @@ function TCA_AutopsyUI:releaseTool()
     if self.ribActive and self.ribMode == "cutter" and not self.ribs[self.ribActive] then
         self.ribWork[self.ribActive] = 0;
     end
-    if self.stage == "organs" then
+    if self.stage == "organs" or self.stage == "plastron" then
         self:organRelease();
     end
     self.cutting = false;
@@ -776,9 +877,8 @@ function TCA_AutopsyUI:drawLayers()
     local stage = self.stage;
     if stage == "ribs" then
         self:drawLayer(self.layerOpened, 1);
-    elseif stage == "removing" then
-        self:drawLayer(self.layerOpened, 1);
-        self:drawLayer(self.layerChest, self:getStageFade(TCA_AutopsyUI.REMOVE_FADE_MS));
+    elseif stage == "plastron" then
+        self:drawPlastronLayers();
     elseif stage == "organs" or stage == "done" then
         self:drawOrganLayers();
     end
@@ -1027,8 +1127,8 @@ function TCA_AutopsyUI:getInstructionText()
             return getText("IGUI_TCA_InstrRibsSaw");
         end
         return getText("Tooltip_TCA_NeedRibTool");
-    elseif stage == "removing" then
-        return getText("IGUI_TCA_InstrRemoving");
+    elseif stage == "plastron" then
+        return getText("IGUI_TCA_InstrPlastron");
     elseif stage == "organs" then
         return self:getOrganInstructionText();
     end
@@ -1179,6 +1279,8 @@ function TCA_AutopsyUI:render()
         self:drawOpening();
     elseif self.stage == "ribs" then
         self:drawRibs();
+    elseif self.stage == "plastron" then
+        self:drawPlastron();
     elseif self.stage == "organs" then
         self:drawOrgans();
     end
@@ -1214,7 +1316,8 @@ function TCA_AutopsyUI:collectResult()
     result.ribs = A.encodeRibs(self.ribs);
     result.organs = self.organsDone;
     result.organDamage = self.organDamage;
-    local organsChanged = self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage;
+    result.plastron = self.plastronRemoved and not self.startPlastron;
+    local organsChanged = result.plastron or self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage;
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
     local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
     result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged;

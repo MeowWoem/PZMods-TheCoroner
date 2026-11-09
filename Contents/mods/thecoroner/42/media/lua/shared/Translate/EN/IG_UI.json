@@ -36,7 +36,6 @@
     "IGUI_TCA_InstrOpen": "Grip the incision edge with forceps and pull gently outward.",
     "IGUI_TCA_InstrRibsCutter": "Click a marker and hold to cut the rib.",
     "IGUI_TCA_InstrRibsSaw": "Click a marker and saw up and down.",
-    "IGUI_TCA_InstrRemoving": "You lift off the chest plate...",
     "IGUI_TCA_InstrDone": "Autopsy complete: all organs have been removed.",
     "IGUI_TCA_Ribs": "Ribs cut: %1 / %2",
     "IGUI_TCA_Tool": "Tool: %1",
@@ -77,5 +76,8 @@
     "IGUI_TCA_Organ_kidney_r": "Right kidney",
     "IGUI_TCA_Organ_kidney_l": "Left kidney",
     "IGUI_TCA_Organ_spleen": "Spleen",
-    "IGUI_TCA_Organ_bladder": "Bladder"
+    "IGUI_TCA_Organ_bladder": "Bladder",
+    "IGUI_TCA_DebugPrev": "[Debug] prev step",
+    "IGUI_TCA_DebugNext": "[Debug] next step",
+    "IGUI_TCA_InstrPlastron": "Grab the chest plate and lift it out."
 }

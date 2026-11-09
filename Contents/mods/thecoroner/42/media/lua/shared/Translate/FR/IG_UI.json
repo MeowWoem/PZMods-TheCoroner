@@ -36,7 +36,6 @@
     "IGUI_TCA_InstrOpen": "Pince le bord de l'incision et tire doucement vers l'extérieur.",
     "IGUI_TCA_InstrRibsCutter": "Clique sur un repère et maintiens pour couper la côte.",
     "IGUI_TCA_InstrRibsSaw": "Clique sur un repère et scie de haut en bas.",
-    "IGUI_TCA_InstrRemoving": "Tu retires le plastron costal...",
     "IGUI_TCA_InstrDone": "Autopsie terminée : tous les organes ont été prélevés.",
     "IGUI_TCA_Ribs": "Côtes coupées : %1 / %2",
     "IGUI_TCA_Tool": "Outil : %1",
@@ -77,5 +76,8 @@
     "IGUI_TCA_Organ_kidney_r": "Rein droit",
     "IGUI_TCA_Organ_kidney_l": "Rein gauche",
     "IGUI_TCA_Organ_spleen": "Rate",
-    "IGUI_TCA_Organ_bladder": "Vessie"
+    "IGUI_TCA_Organ_bladder": "Vessie",
+    "IGUI_TCA_DebugPrev": "[Debug] prev step",
+    "IGUI_TCA_DebugNext": "[Debug] next step",
+    "IGUI_TCA_InstrPlastron": "Saisis le plastron et retire-le de la cage thoracique."
 }

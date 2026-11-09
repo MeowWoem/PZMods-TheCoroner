@@ -66,6 +66,23 @@ function TCA_Client.onDebugReset(playerObj, tableObj)
     end
 end
 
+function TCA_Client.debugSetStep(playerObj, tableObj, pos)
+    if isClient() then
+        local sq = tableObj:getSquare();
+        local args = {};
+        args.x = sq:getX();
+        args.y = sq:getY();
+        args.z = sq:getZ();
+        args.pos = pos;
+        sendClientCommand(playerObj, "TCA", "debugStep", args);
+        return;
+    end
+    local body = TCA.findBodyOnTable(tableObj);
+    if body then
+        TCA.Autopsy.applyDebugPosition(body, pos);
+    end
+end
+
 function TCA_Client.onDebugReference(playerObj, tableObj)
     TCA_ReferenceUI.open(tableObj);
 end
