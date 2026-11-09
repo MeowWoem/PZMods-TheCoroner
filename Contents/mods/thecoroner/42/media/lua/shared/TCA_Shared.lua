@@ -16,6 +16,14 @@ TCA.DEFAULT_SURFACE = 34;
 
 TCA.MAX_BODY_DISTANCE = 2.5;
 
+function TCA.isInfected(body)
+    local infected = body:getModData()["TCA_Infected"];
+    if infected ~= nil then
+        return infected == true;
+    end
+    return body:isZombie();
+end
+
 function TCA.getMoveableKey(obj)
     local props = obj:getProperties();
     if not props then
@@ -320,6 +328,9 @@ end
 function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     if not body or not square then
         return false;
+    end
+    if not isClient() and TCA.DeathTime then
+        TCA.DeathTime.ensure(body);
     end
     local item = body:getItem();
     if not item then

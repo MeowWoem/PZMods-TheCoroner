@@ -84,5 +84,10 @@
     "IGUI_TCA_MorgueDrawerTop": "Upper morgue drawer",
     "IGUI_TCA_MorgueDrawerBottom": "Lower morgue drawer",
     "IGUI_TCA_MorgueOn": "refrigerated",
-    "IGUI_TCA_MorgueOff": "off"
+    "IGUI_TCA_MorgueOff": "off",
+    "IGUI_TCA_DebugDeathTime": "Died %1 d ago (%2 h), %3, %4",
+    "IGUI_TCA_DebugDeathKnown": "exact time",
+    "IGUI_TCA_DebugDeathInvented": "invented time",
+    "IGUI_TCA_DebugInfected": "infected",
+    "IGUI_TCA_DebugNotInfected": "not infected"
 }

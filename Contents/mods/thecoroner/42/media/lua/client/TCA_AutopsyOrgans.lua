@@ -55,7 +55,7 @@ function TCA_AutopsyUI:initOrgans(body)
     if body then
         organState = A.getOrganState(body);
         self.organDecay = A.getOrganDecay(body);
-        self.organZombie = body:isZombie();
+        self.organZombie = TCA.isInfected(body);
     end
     self.plastronRemoved = body ~= nil and TCA.Autopsy.getStep(body) >= TCA.Autopsy.STEP_CHEST;
     self.startPlastron = self.plastronRemoved;

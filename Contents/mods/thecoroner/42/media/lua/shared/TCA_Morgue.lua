@@ -1,3 +1,5 @@
+require "TCA_DeathTime";
+
 TCA = TCA or {};
 TCA.Morgue = TCA.Morgue or {};
 
@@ -12,6 +14,7 @@ TCA.Morgue.CAPACITY = 30;
 TCA.Morgue.TYPE_ON = "fridge";
 TCA.Morgue.TYPE_OFF = "locker";
 TCA.Morgue.CORPSE_CHANCE = 10;
+TCA.Morgue.INFECTED_CHANCE = 50;
 TCA.Morgue.PRIORITY = 5;
 
 function TCA.Morgue.isDrawer(obj)
@@ -92,6 +95,8 @@ function TCA.Morgue.prepareCorpse(item)
         return;
     end
     body:getModData()["_bloodSplatAmount"] = 0;
+    body:getModData()["TCA_Infected"] = ZombRand(100) < TCA.Morgue.INFECTED_CHANCE;
+    TCA.DeathTime.record(body, TCA.DeathTime.inventMorgueDeath(), false);
     body:getWornItems():clear();
     body:getAttachedItems():clear();
     local inventory = body:getContainer();

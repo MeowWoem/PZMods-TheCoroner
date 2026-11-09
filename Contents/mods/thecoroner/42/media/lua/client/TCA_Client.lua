@@ -83,6 +83,26 @@ function TCA_Client.debugSetStep(playerObj, tableObj, pos)
     end
 end
 
+function TCA_Client.onDebugDeathTime(playerObj, tableObj)
+    local body = TCA.findBodyOnTable(tableObj);
+    if not body then
+        return;
+    end
+    local D = TCA.DeathTime;
+    local hours = D.getHoursSinceDeath(body);
+    local known = "IGUI_TCA_DebugDeathInvented";
+    if D.isKnown(body) then
+        known = "IGUI_TCA_DebugDeathKnown";
+    end
+    local infected = "IGUI_TCA_DebugNotInfected";
+    if TCA.isInfected(body) then
+        infected = "IGUI_TCA_DebugInfected";
+    end
+    local text = getText("IGUI_TCA_DebugDeathTime", string.format("%.1f", hours / 24), string.format("%.1f", hours), getText(known), getText(infected));
+    playerObj:Say(text);
+    print("TCA: death " .. tostring(D.get(body)) .. " now " .. tostring(D.now()) .. " vanilla " .. tostring(body:getDeathTime()) .. " " .. text);
+end
+
 function TCA_Client.onDebugReference(playerObj, tableObj)
     TCA_ReferenceUI.open(tableObj);
 end
@@ -216,6 +236,7 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
         context:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
         if debugMode then
             context:addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
+            context:addOption(getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, tableObj);
         end
     end
 
