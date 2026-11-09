@@ -52,7 +52,7 @@ function TCA_AutopsyAction:closeUI(insertNow)
     if not result.advanced then
         return;
     end
-    local action = TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.openL, result.openR, result.tears, result.ribs, result.accSamples);
+    local action = TCA_AutopsyResultAction:new(self.character, self.tableObject, result.segIndex, result.segProgress, result.accuracy, result.paths, result.openL, result.openR, result.tears, result.ribs, result.accSamples, result.organs, result.organDamage);
     if insertNow and ISTimedActionQueue.addAfter(self, action) then
         return;
     end

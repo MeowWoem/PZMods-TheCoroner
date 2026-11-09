@@ -121,6 +121,31 @@ function TCA_AutopsyResultAction:applyRibs(body)
     return A.XP_PER_RIB * added;
 end
 
+function TCA_AutopsyResultAction:applyOrgans(body)
+    local A = TCA.Autopsy;
+    if A.getStep(body) < A.STEP_CHEST then
+        return 0;
+    end
+    local stored = A.getOrganState(body);
+    local done = math.floor(clamp(self.organs, 0, #TCA.Organs.LIST));
+    local damage = math.floor(clamp(self.organDamage, 0, 100000));
+    if damage < stored.damage then
+        damage = stored.damage;
+    end
+    local xp = 0;
+    local md = body:getModData();
+    if done > stored.done and A.findScalpel(self.character) then
+        md["TCA_A_organs"] = done;
+        xp = A.XP_PER_ORGAN * (done - stored.done);
+        self.changed = true;
+    end
+    if damage > stored.damage then
+        md["TCA_A_odmg"] = damage;
+        self.changed = true;
+    end
+    return xp;
+end
+
 function TCA_AutopsyResultAction:complete()
     local A = TCA.Autopsy;
     local body = TCA.findBodyOnTable(self.tableObject);
@@ -136,6 +161,7 @@ function TCA_AutopsyResultAction:complete()
     xp = xp + self:applyIncision(body);
     xp = xp + self:applyOpen(body);
     xp = xp + self:applyRibs(body);
+    xp = xp + self:applyOrgans(body);
     if xp <= 0 and not self.changed then
         return true;
     end
@@ -152,7 +178,7 @@ function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -165,6 +191,8 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.tears = tears;
     o.ribs = ribs;
     o.accSamples = accSamples;
+    o.organs = organs;
+    o.organDamage = organDamage;
     o.maxTime = o:getDuration();
     o.stopOnWalk = false;
     o.stopOnRun = false;

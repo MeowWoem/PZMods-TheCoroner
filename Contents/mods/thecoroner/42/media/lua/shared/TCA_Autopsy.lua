@@ -1,4 +1,5 @@
 require "TCA_Shared";
+require "TCA_Organs";
 
 TCA.Autopsy = TCA.Autopsy or {};
 local A = TCA.Autopsy;
@@ -12,6 +13,7 @@ A.SYNC_FLAGS = 0xc00003808b;
 
 A.XP_OPEN = 5;
 A.XP_PER_RIB = 1.5;
+A.XP_PER_ORGAN = 2;
 
 A.INCISION_Y = {
     { ax = -37.5, ay = 96, bx = 0, by = 107.5 },
@@ -144,6 +146,36 @@ function A.getOpenState(body)
     return state;
 end
 
+function A.getOrganState(body)
+    local md = body:getModData();
+    local state = {};
+    state.done = math.floor(tonumber(md["TCA_A_organs"]) or 0);
+    state.damage = math.floor(tonumber(md["TCA_A_odmg"]) or 0);
+    return state;
+end
+
+function A.getOrganDecay(body)
+    local hours = 0;
+    local deathTime = body:getDeathTime();
+    if deathTime and deathTime >= 0 then
+        hours = getGameTime():getWorldAgeHours() - deathTime;
+    end
+    if body:isZombie() then
+        if hours > 72 then
+            return 3;
+        end
+        return 2;
+    end
+    if hours < 12 then
+        return 0;
+    elseif hours < 48 then
+        return 1;
+    elseif hours < 168 then
+        return 2;
+    end
+    return 3;
+end
+
 function A.getStage(body)
     if not A.isIncisionDone(body) then
         return "incision";
@@ -154,6 +186,9 @@ function A.getStage(body)
     end
     if step < A.STEP_CHEST then
         return "ribs";
+    end
+    if A.getOrganState(body).done < #TCA.Organs.LIST then
+        return "organs";
     end
     return "done";
 end
@@ -232,6 +267,8 @@ function A.hasToolForStage(character, stage)
         return A.findForceps(character) ~= nil;
     elseif stage == "ribs" then
         return A.findRibTool(character) ~= nil;
+    elseif stage == "organs" then
+        return A.findScalpel(character) ~= nil;
     end
     return false;
 end
@@ -279,6 +316,8 @@ function A.resetBody(body)
     md["TCA_A_openL"] = nil;
     md["TCA_A_openR"] = nil;
     md["TCA_A_tears"] = nil;
+    md["TCA_A_organs"] = nil;
+    md["TCA_A_odmg"] = nil;
     md["TCA_A_ribs"] = nil;
     body:transmitModData();
 end

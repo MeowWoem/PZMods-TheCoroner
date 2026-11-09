@@ -208,6 +208,7 @@ function TCA_AutopsyUI:initialise()
 
     self.layerOpened = getTexture(TCA_AutopsyUI.LAYER_OPENED);
     self.layerChest = getTexture(TCA_AutopsyUI.LAYER_CHEST);
+    self:initOrgans(body);
 
     self.cutting = false;
     self.warn = false;
@@ -238,7 +239,7 @@ function TCA_AutopsyUI:initialise()
     elseif step < A.STEP_CHEST then
         self.stage = "ribs";
     else
-        self.stage = "done";
+        self.stage = self:getStageAfterChest();
     end
 end
 
@@ -283,6 +284,8 @@ function TCA_AutopsyUI:setStage(stage)
     self.cutting = false;
     self.ribActive = nil;
     self.pullSide = nil;
+    self.attachActive = nil;
+    self.organDrag = nil;
     self.warn = false;
     self:refreshTools(true);
 end
@@ -305,6 +308,7 @@ function TCA_AutopsyUI:refreshTools(force)
         self.forcepsTool = TCA.Autopsy.findForceps(self.character);
         self.hasForceps = self.forcepsTool ~= nil;
     end
+    self:refreshOrganTools();
 
     if self.stage == "done" then
         self.finishButton:setTitle(getText("IGUI_TCA_Finish"));
@@ -682,8 +686,10 @@ function TCA_AutopsyUI:updateStage()
         self:updateRibs();
     elseif self.stage == "removing" then
         if self:getStageFade(TCA_AutopsyUI.REMOVE_FADE_MS) >= 1 then
-            self:setStage("done");
+            self:setStage(self:getStageAfterChest());
         end
+    elseif self.stage == "organs" then
+        self:updateOrgans();
     end
 end
 
@@ -719,6 +725,8 @@ function TCA_AutopsyUI:onMouseDown(x, y)
             self.lastMouseY = y;
             self.lastTime = getTimestampMs();
         end
+    elseif self.stage == "organs" then
+        self:organMouseDown(x, y);
     end
     return true;
 end
@@ -726,6 +734,9 @@ end
 function TCA_AutopsyUI:releaseTool()
     if self.ribActive and self.ribMode == "cutter" and not self.ribs[self.ribActive] then
         self.ribWork[self.ribActive] = 0;
+    end
+    if self.stage == "organs" then
+        self:organRelease();
     end
     self.cutting = false;
     self.ribActive = nil;
@@ -768,8 +779,8 @@ function TCA_AutopsyUI:drawLayers()
     elseif stage == "removing" then
         self:drawLayer(self.layerOpened, 1);
         self:drawLayer(self.layerChest, self:getStageFade(TCA_AutopsyUI.REMOVE_FADE_MS));
-    elseif stage == "done" then
-        self:drawLayer(self.layerChest, 1);
+    elseif stage == "organs" or stage == "done" then
+        self:drawOrganLayers();
     end
 end
 
@@ -968,6 +979,10 @@ function TCA_AutopsyUI:drawTool()
         elseif self.ribMode == "saw" then
             self:drawSaw(c);
         end
+    elseif self.stage == "organs" then
+        if self.hasScalpel and self:needsScalpelForOrgans() then
+            self:drawScalpel(c);
+        end
     end
 end
 
@@ -993,6 +1008,9 @@ function TCA_AutopsyUI:getTitleText()
     if self.stage == "incision" then
         return getText("IGUI_TCA_AutopsyTitle");
     end
+    if self.stage == "organs" or self.stage == "done" then
+        return getText("IGUI_TCA_AutopsyTitleOrgans");
+    end
     return getText("IGUI_TCA_AutopsyTitleChest");
 end
 
@@ -1011,6 +1029,8 @@ function TCA_AutopsyUI:getInstructionText()
         return getText("Tooltip_TCA_NeedRibTool");
     elseif stage == "removing" then
         return getText("IGUI_TCA_InstrRemoving");
+    elseif stage == "organs" then
+        return self:getOrganInstructionText();
     end
     return getText("IGUI_TCA_InstrDone");
 end
@@ -1020,6 +1040,8 @@ function TCA_AutopsyUI:getMissingToolText()
         return getText("Tooltip_TCA_NeedForceps");
     elseif self.stage == "ribs" and not self.ribMode then
         return getText("Tooltip_TCA_NeedRibTool");
+    elseif self:needsScalpelForOrgans() and not self.hasScalpel then
+        return getText("Tooltip_TCA_NeedScalpel");
     end
     return nil;
 end
@@ -1072,6 +1094,8 @@ function TCA_AutopsyUI:drawInfo()
         local opened = math.floor((self.openL + self.openR) / 2 * 100);
         self:drawText(getText("IGUI_TCA_SkinOpened", opened .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
         self:drawText(getText("IGUI_TCA_Tears", self.tears), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+    elseif self.stage == "organs" or self.stage == "done" then
+        self:drawOrganInfo(infoY, smallH);
     elseif self.stage == "incision" then
         local progress = math.floor(self:getProgress() * 100);
         local accuracy = math.floor(self:getAccuracy() * 100);
@@ -1115,6 +1139,9 @@ function TCA_AutopsyUI:isToolShown()
     if self.stage == "open" then
         return self.hasForceps;
     end
+    if self.stage == "organs" then
+        return self.hasScalpel and self:needsScalpelForOrgans();
+    end
     return self.stage == "ribs" and self.ribMode ~= nil;
 end
 
@@ -1152,6 +1179,8 @@ function TCA_AutopsyUI:render()
         self:drawOpening();
     elseif self.stage == "ribs" then
         self:drawRibs();
+    elseif self.stage == "organs" then
+        self:drawOrgans();
     end
     self:clearStencilRect();
     self:drawRectBorder(self.viewX, self.viewY, self.viewW, self.viewH, 1, 0.3, 0.3, 0.32);
@@ -1164,6 +1193,7 @@ function TCA_AutopsyUI:render()
         self:drawRect(0, 0, self.width, self.height, 0.35 * (1 - elapsed / 300), 0.8, 0, 0);
     end
     self:drawMissingToolTooltip();
+    self:drawOrganTooltip();
 end
 
 function TCA_AutopsyUI:collectResult()
@@ -1182,9 +1212,12 @@ function TCA_AutopsyUI:collectResult()
     result.openR = self.openR;
     result.tears = self.tears;
     result.ribs = A.encodeRibs(self.ribs);
+    result.organs = self.organsDone;
+    result.organDamage = self.organDamage;
+    local organsChanged = self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage;
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
     local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
-    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs;
+    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged;
     return result;
 end
 
