@@ -52,7 +52,7 @@ A.OSCILLATING_SAW = "TCA.BoneSawOscillating";
 A.BONE_SAW = "TCA.BoneSaw";
 
 A.RIB_TOOLS = {
-    { id = "oscillating", itemType = A.OSCILLATING_SAW, mode = "cutter", needsCharge = true, holdMul = 0.2, slipMul = 1.5, xpMul = 1.5 },
+    { id = "oscillating", itemType = A.OSCILLATING_SAW, mode = "cutter", needsCharge = true, holdMs = 300, slipMul = 1.5, xpMul = 1.5 },
     { id = "bonesaw", itemType = A.BONE_SAW, mode = "saw", travelMul = 0.6, slipMul = 1.5, cutChance = 10, xpMul = 1.5 },
     { id = "cutter", tag = ItemTag.BOLT_CUTTERS, mode = "cutter" },
     { id = "saw", tag = ItemTag.SAW, mode = "saw" },

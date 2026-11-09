@@ -44,9 +44,7 @@ TCA_AutopsyUI.RIB_PICK_RADIUS = 10;
 TCA_AutopsyUI.CUTTER_HOLD_MS = 1500;
 TCA_AutopsyUI.CUTTER_HOLD_PER_STR = 80;
 TCA_AutopsyUI.CUTTER_HOLD_MIN = 500;
-TCA_AutopsyUI.SAW_TRAVEL = 320;
-TCA_AutopsyUI.SAW_TRAVEL_PER_STR = 16;
-TCA_AutopsyUI.SAW_TRAVEL_MIN = 140;
+TCA_AutopsyUI.SAW_TRAVEL = 240;
 TCA_AutopsyUI.SAW_STROKE_WARN = 18;
 TCA_AutopsyUI.SAW_STROKE_SLIP = 30;
 TCA_AutopsyUI.SAW_CUT_CHANCE = 35;
@@ -710,13 +708,16 @@ function TCA_AutopsyUI:getRibParam(key, default)
 end
 
 function TCA_AutopsyUI:getCutterHoldMs()
+    local fixed = self:getRibParam("holdMs", nil);
+    if fixed then
+        return fixed;
+    end
     local ms = TCA_AutopsyUI.CUTTER_HOLD_MS - self:getStrength() * TCA_AutopsyUI.CUTTER_HOLD_PER_STR;
-    return math.max(ms, TCA_AutopsyUI.CUTTER_HOLD_MIN) * self:getRibParam("holdMul", 1);
+    return math.max(ms, TCA_AutopsyUI.CUTTER_HOLD_MIN);
 end
 
 function TCA_AutopsyUI:getSawTravel()
-    local travel = TCA_AutopsyUI.SAW_TRAVEL - self:getStrength() * TCA_AutopsyUI.SAW_TRAVEL_PER_STR;
-    return math.max(travel, TCA_AutopsyUI.SAW_TRAVEL_MIN) * self:getRibParam("travelMul", 1);
+    return TCA_AutopsyUI.SAW_TRAVEL * self:getRibParam("travelMul", 1);
 end
 
 function TCA_AutopsyUI:getRibSlipDist()
