@@ -94,7 +94,7 @@ TCA.Organs.PLASTRON = {
 
 TCA.Organs.LIST = {
     {
-        id = "heart", step = 2, depth = 2, texture = "media/textures/organs/organ_heart.png",
+        id = "heart", step = 2, texture = "media/textures/organs/organ_heart.png",
         x = -9, y = 118, w = 25, h = 30,
         attaches = { { x = -1, y = 121 }, { x = 7.5, y = 123.5 } },
         mask = {
@@ -131,7 +131,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "lung_l", step = 3, depth = 3, texture = "media/textures/organs/organ_lung_l.png",
+        id = "lung_l", step = 3, texture = "media/textures/organs/organ_lung_l.png",
         x = 4, y = 102, w = 29, h = 57,
         attaches = { { x = 9, y = 128 } },
         mask = {
@@ -195,7 +195,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "lung_r", step = 4, depth = 3, texture = "media/textures/organs/organ_lung_r.png",
+        id = "lung_r", step = 4, texture = "media/textures/organs/organ_lung_r.png",
         x = -32, y = 102, w = 29, h = 57,
         attaches = { { x = -9, y = 128 } },
         mask = {
@@ -259,7 +259,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "liver", step = 5, depth = 5, texture = "media/textures/organs/organ_liver.png",
+        id = "liver", step = 5, texture = "media/textures/organs/organ_liver.png",
         x = -29, y = 145, w = 48, h = 35,
         attaches = { { x = 2, y = 152 }, { x = -8, y = 160 } },
         mask = {
@@ -301,7 +301,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "stomach", step = 6, depth = 4, texture = "media/textures/organs/organ_stomach.png",
+        id = "stomach", step = 6, texture = "media/textures/organs/organ_stomach.png",
         x = -12, y = 146, w = 38, h = 36,
         attaches = { { x = 6.5, y = 149.5 }, { x = -8, y = 174 } },
         mask = {
@@ -344,7 +344,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "intestines", step = 7, depth = 1, texture = "media/textures/organs/organ_intestines.png",
+        id = "intestines", step = 7, texture = "media/textures/organs/organ_intestines.png",
         x = -27, y = 170, w = 56, h = 53,
         attaches = { { x = -18, y = 177 }, { x = 8, y = 217 } },
         mask = {
@@ -404,7 +404,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "pancreas", step = 8, depth = 6, texture = "media/textures/organs/organ_pancreas.png",
+        id = "pancreas", step = 8, texture = "media/textures/organs/organ_pancreas.png",
         x = -7, y = 163, w = 30, h = 19,
         attaches = { { x = -2, y = 175 } },
         mask = {
@@ -430,7 +430,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "kidney_r", step = 9, depth = 8, texture = "media/textures/organs/organ_kidney_r.png",
+        id = "kidney_r", step = 9, texture = "media/textures/organs/organ_kidney_r.png",
         x = -23, y = 152, w = 17, h = 28,
         attaches = { { x = -10.5, y = 163.5 } },
         mask = {
@@ -465,7 +465,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "kidney_l", step = 10, depth = 8, texture = "media/textures/organs/organ_kidney_l.png",
+        id = "kidney_l", step = 10, texture = "media/textures/organs/organ_kidney_l.png",
         x = 7, y = 152, w = 17, h = 27,
         attaches = { { x = 11.5, y = 163.5 } },
         mask = {
@@ -499,7 +499,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "spleen", step = 11, depth = 7, texture = "media/textures/organs/organ_spleen.png",
+        id = "spleen", step = 11, texture = "media/textures/organs/organ_spleen.png",
         x = 20, y = 155, w = 11, h = 17,
         attaches = { { x = 22, y = 163 } },
         mask = {
@@ -523,7 +523,7 @@ TCA.Organs.LIST = {
         },
     },
     {
-        id = "bladder", step = 12, depth = 6, texture = "media/textures/organs/organ_bladder.png",
+        id = "bladder", step = 12, texture = "media/textures/organs/organ_bladder.png",
         x = -8, y = 202, w = 18, h = 21,
         attaches = { { x = 1, y = 219 } },
         mask = {
@@ -586,7 +586,10 @@ function TCA.Organs.isVisibleAt(organ, bx, by, removed)
     end
     for i = removed + 1, #TCA.Organs.LIST do
         local other = TCA.Organs.LIST[i];
-        if other ~= organ and other.depth < organ.depth and TCA.Organs.contains(other, bx, by) then
+        if other == organ then
+            return true;
+        end
+        if TCA.Organs.contains(other, bx, by) then
             return false;
         end
     end
@@ -594,14 +597,13 @@ function TCA.Organs.isVisibleAt(organ, bx, by, removed)
 end
 
 function TCA.Organs.getFrontOrganAt(bx, by, removed)
-    local best = nil;
     for i = removed + 1, #TCA.Organs.LIST do
         local organ = TCA.Organs.LIST[i];
-        if TCA.Organs.contains(organ, bx, by) and (not best or organ.depth < best.depth) then
-            best = organ;
+        if TCA.Organs.contains(organ, bx, by) then
+            return organ;
         end
     end
-    return best;
+    return nil;
 end
 
 function TCA.Organs.getPieceOutline(piece)
@@ -626,25 +628,3 @@ function TCA.Organs.getPieceOutline(piece)
     return outline;
 end
 
-function TCA.Organs.getOutline(organ, removed)
-    organ.outlines = organ.outlines or {};
-    if organ.outlines[removed] then
-        return organ.outlines[removed];
-    end
-    local outline = {};
-    for row = 1, #organ.mask do
-        local line = organ.mask[row];
-        for col = 1, string.len(line) do
-            local cx = organ.x + col - 0.5;
-            local cy = organ.y + row - 0.5;
-            if TCA.Organs.isVisibleAt(organ, cx, cy, removed) then
-                local edge = not TCA.Organs.isVisibleAt(organ, cx - 1, cy, removed) or not TCA.Organs.isVisibleAt(organ, cx + 1, cy, removed) or not TCA.Organs.isVisibleAt(organ, cx, cy - 1, removed) or not TCA.Organs.isVisibleAt(organ, cx, cy + 1, removed);
-                if edge then
-                    table.insert(outline, { x = organ.x + col - 1, y = organ.y + row - 1 });
-                end
-            end
-        end
-    end
-    organ.outlines[removed] = outline;
-    return outline;
-end

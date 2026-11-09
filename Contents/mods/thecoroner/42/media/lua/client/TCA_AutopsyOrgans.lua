@@ -347,7 +347,7 @@ end
 
 function TCA_AutopsyUI:drawOrganOutline(organ, c, alpha)
     local cell = self.scale;
-    for _, point in ipairs(TCA.Organs.getOutline(organ, self.organsDone)) do
+    for _, point in ipairs(TCA.Organs.getPieceOutline(organ)) do
         local x, y = self:toScreen(point.x, point.y);
         self:drawRect(x, y, cell, cell, alpha, c.r, c.g, c.b);
     end
