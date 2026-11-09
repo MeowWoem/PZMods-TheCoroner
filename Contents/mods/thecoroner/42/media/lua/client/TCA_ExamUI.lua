@@ -13,25 +13,29 @@ TCA_ExamUI.VIEW = { x1 = -130, y1 = -20, x2 = 130, y2 = 490 };
 
 TCA_ExamUI.ORDER = { "temp", "jaw", "arm", "livor", "decomp" };
 TCA_ExamUI.ZONES = {
-    temp = { x = -58, y = 96, radius = 14 },
-    jaw = { x = 0, y = 54, radius = 14 },
-    arm = { x = 83, y = 292, radius = 14 },
-    livor = { x = 47, y = 225, radius = 14 },
-    decomp = { x = 0, y = 185, radius = 22 },
+    temp = { x = -30, y = 122, radius = 12 },
+    jaw = { x = 0, y = 64, radius = 12 },
+    arm = { x = 75, y = 250, radius = 12 },
+    livor = { x = 25, y = 185, radius = 12 },
+    decomp = { x = 0, y = 205, radius = 16 },
 };
 
 TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800 };
 TCA_ExamUI.HOLD_TOLERANCE = 10;
-TCA_ExamUI.PULL = { jaw = 40, arm = 70 };
+TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
 TCA_ExamUI.PULL_DONE = 0.9;
 TCA_ExamUI.RIGOR_RESIST = 0.9;
 TCA_ExamUI.BLANCH_SHOW_MS = 5000;
 TCA_ExamUI.TOOL_CHECK_MS = 500;
 TCA_ExamUI.WARN_MS = 1500;
-TCA_ExamUI.LIVOR_INNER = 12;
-TCA_ExamUI.LIVOR_OUTER = 2;
-TCA_ExamUI.LIVOR_Y1 = 150;
-TCA_ExamUI.LIVOR_Y2 = 285;
+TCA_ExamUI.LIVOR_HALF_W = 6;
+TCA_ExamUI.LIVOR_UP = 45;
+TCA_ExamUI.LIVOR_DOWN = 40;
+TCA_ExamUI.LIVOR_STEP = 6;
+TCA_ExamUI.LIVOR_RADIUS = 4;
+TCA_ExamUI.SCROLL_STEP = 3;
+TCA_ExamUI.SCROLL_W = 6;
+TCA_ExamUI.EDIT_RADIUS = 10;
 TCA_ExamUI.BAR_GRAB = 14;
 TCA_ExamUI.HANDLE_GAP = 0.01;
 TCA_ExamUI.GUIDE_LINES = 9;
@@ -173,6 +177,11 @@ function TCA_ExamUI:initialise()
     self.finished = false;
     self.conclude = false;
     self.dragHandle = nil;
+    self.scroll = 0;
+    self.contentH = 0;
+    self.scrollDrag = nil;
+    self.editMode = false;
+    self.editZone = nil;
     self.result = E.getResult(self.body);
     self.minPos = 0.3;
     self.maxPos = 0.5;
@@ -206,6 +215,13 @@ function TCA_ExamUI:createChildren()
     self.guideButton:instantiate();
     self:addChild(self.guideButton);
 
+    if TCA_Client.isDebug() then
+        self.editButton = ISButton:new(10, y + 2, 130, 20, getText("IGUI_TCA_ExamDebugEdit"), self, TCA_ExamUI.onEditClick);
+        self.editButton:initialise();
+        self.editButton:instantiate();
+        self:addChild(self.editButton);
+    end
+
     self:createBodyModel();
 end
 
@@ -234,7 +250,133 @@ function TCA_ExamUI:onConcludeClick()
     self.finished = true;
 end
 
+function TCA_ExamUI:onEditClick()
+    self.editMode = not self.editMode;
+    self.editZone = nil;
+    self.press = nil;
+end
+
+function TCA_ExamUI:editMouseDown(x, y)
+    if not self.editMode or not self:isInView(x, y) then
+        return false;
+    end
+    for _, id in ipairs(TCA_ExamUI.ORDER) do
+        local zx, zy = self:getZoneScreen(id);
+        if dist(x, y, zx, zy) <= TCA_ExamUI.EDIT_RADIUS then
+            self.editZone = id;
+            return true;
+        end
+    end
+    return true;
+end
+
+function TCA_ExamUI:updateEdit()
+    if not self.editZone then
+        return;
+    end
+    local bx, by = self:toBody(self:getMouseX(), self:getMouseY());
+    local zone = TCA_ExamUI.ZONES[self.editZone];
+    zone.x = math.floor(bx * 2 + 0.5) / 2;
+    zone.y = math.floor(by * 2 + 0.5) / 2;
+end
+
+function TCA_ExamUI:releaseEdit()
+    if not self.editZone then
+        return;
+    end
+    local zone = TCA_ExamUI.ZONES[self.editZone];
+    print("TCA: exam zone " .. self.editZone .. " = { x = " .. tostring(zone.x) .. ", y = " .. tostring(zone.y) .. " }");
+    self.editZone = nil;
+end
+
+function TCA_ExamUI:drawEditLabels()
+    if not self.editMode then
+        return;
+    end
+    for _, id in ipairs(TCA_ExamUI.ORDER) do
+        local zone = TCA_ExamUI.ZONES[id];
+        local zx, zy = self:getZoneScreen(id);
+        self:drawText(id .. " " .. tostring(zone.x) .. ", " .. tostring(zone.y), zx + 8, zy - 6, 1, 0.85, 0.3, 1, UIFont.Small);
+    end
+end
+
+function TCA_ExamUI:getNotesContentTop()
+    return self.notesY + self.titleH + 16;
+end
+
+function TCA_ExamUI:getNotesContentH()
+    return self.notesY + self.notesH - self:getNotesContentTop() - 6;
+end
+
+function TCA_ExamUI:getMaxScroll()
+    return math.max(0, self.contentH - self:getNotesContentH());
+end
+
+function TCA_ExamUI:setScroll(value)
+    self.scroll = clamp(value, 0, self:getMaxScroll());
+end
+
+function TCA_ExamUI:isOverNotes(x, y)
+    return x >= self.notesX and y >= self.notesY and x < self.notesX + self.notesW and y < self.notesY + self.notesH;
+end
+
+function TCA_ExamUI:getScrollThumb()
+    local top = self:getNotesContentTop();
+    local trackH = self:getNotesContentH();
+    if self.contentH <= trackH then
+        return nil;
+    end
+    local thumbH = math.max(20, trackH * trackH / self.contentH);
+    local thumbY = top + (trackH - thumbH) * self.scroll / self:getMaxScroll();
+    local thumb = {};
+    thumb.x = self.notesX + self.notesW - TCA_ExamUI.SCROLL_W - 3;
+    thumb.y = thumbY;
+    thumb.w = TCA_ExamUI.SCROLL_W;
+    thumb.h = thumbH;
+    thumb.top = top;
+    thumb.trackH = trackH;
+    return thumb;
+end
+
+function TCA_ExamUI:scrollMouseDown(x, y)
+    local thumb = self:getScrollThumb();
+    if not thumb then
+        return false;
+    end
+    if x < thumb.x - 3 or x > thumb.x + thumb.w + 3 or y < thumb.top or y > thumb.top + thumb.trackH then
+        return false;
+    end
+    if y < thumb.y or y > thumb.y + thumb.h then
+        self:setScroll(self:getMaxScroll() * (y - thumb.top - thumb.h / 2) / (thumb.trackH - thumb.h));
+        thumb = self:getScrollThumb();
+    end
+    local drag = {};
+    drag.startY = y;
+    drag.startScroll = self.scroll;
+    drag.trackH = thumb.trackH - thumb.h;
+    self.scrollDrag = drag;
+    return true;
+end
+
+function TCA_ExamUI:updateScrollDrag()
+    local drag = self.scrollDrag;
+    if not drag or drag.trackH <= 0 then
+        return;
+    end
+    local dy = self:getMouseY() - drag.startY;
+    self:setScroll(drag.startScroll + dy * self:getMaxScroll() / drag.trackH);
+end
+
+function TCA_ExamUI:onMouseWheel(del)
+    if not self:isOverNotes(self:getMouseX(), self:getMouseY()) then
+        return false;
+    end
+    self:setScroll(self.scroll + del * self.smallH * TCA_ExamUI.SCROLL_STEP);
+    return true;
+end
+
 function TCA_ExamUI:onGuideClick()
+    self.scroll = 0;
     self.showGuide = not self.showGuide;
     if self.showGuide then
         self.guideButton:setTitle(getText("IGUI_TCA_ExamNotes"));
@@ -252,21 +394,13 @@ function TCA_ExamUI:refreshTools()
     self.hasThermometer = TCA.Exam.findThermometer(self.character) ~= nil;
 end
 
-function TCA_ExamUI.getFlankEdge(by)
-    if by < 250 then
-        return 62 - 14 * (by - 70) / 180;
-    end
-    return 48 + 8 * (by - 250) / 40;
-end
-
 function TCA_ExamUI:isOnFlank(x, y)
+    local zone = TCA_ExamUI.ZONES.livor;
     local bx, by = self:toBody(x, y);
-    if by < TCA_ExamUI.LIVOR_Y1 or by > TCA_ExamUI.LIVOR_Y2 then
+    if by < zone.y - TCA_ExamUI.LIVOR_UP or by > zone.y + TCA_ExamUI.LIVOR_DOWN then
         return false;
     end
-    local edge = TCA_ExamUI.getFlankEdge(by);
-    local ax = math.abs(bx);
-    return ax >= edge - TCA_ExamUI.LIVOR_INNER and ax <= edge + TCA_ExamUI.LIVOR_OUTER;
+    return math.abs(math.abs(bx) - math.abs(zone.x)) <= TCA_ExamUI.LIVOR_HALF_W;
 end
 
 function TCA_ExamUI:isInView(x, y)
@@ -300,6 +434,12 @@ function TCA_ExamUI:isPull(id)
 end
 
 function TCA_ExamUI:onMouseDown(x, y)
+    if self:editMouseDown(x, y) then
+        return true;
+    end
+    if self:scrollMouseDown(x, y) then
+        return true;
+    end
     if self:barMouseDown(x, y) then
         return true;
     end
@@ -333,12 +473,16 @@ end
 
 function TCA_ExamUI:onMouseUp(x, y)
     self.dragHandle = nil;
+    self.scrollDrag = nil;
+    self:releaseEdit();
     self:releasePress();
     return true;
 end
 
 function TCA_ExamUI:onMouseUpOutside(x, y)
     self.dragHandle = nil;
+    self.scrollDrag = nil;
+    self:releaseEdit();
     self:releasePress();
     return true;
 end
@@ -457,15 +601,9 @@ function TCA_ExamUI:getInstructionText()
     return getText("IGUI_TCA_ExamInstr"), GREY;
 end
 
-function TCA_ExamUI:drawNotes()
-    self:drawRect(self.notesX, self.notesY, self.notesW, self.notesH, 0.6, PANEL_BG.r, PANEL_BG.g, PANEL_BG.b);
-    self:drawRectBorder(self.notesX, self.notesY, self.notesW, self.notesH, 1, BORDER.r, BORDER.g, BORDER.b);
-    local x = self.notesX + 10;
-    local y = self.notesY + 8;
-    local maxW = self.notesW - 20;
+function TCA_ExamUI:drawNotesContent(x, y, maxW)
+    local startY = y;
     if self.showGuide then
-        self:drawText(getText("IGUI_TCA_ExamGuideTitle"), x, y, 1, 1, 1, 1, UIFont.Medium);
-        y = y + self.titleH + 8;
         for i = 1, TCA_ExamUI.GUIDE_LINES do
             local lines = TCA_ExamUI.wrapText(UIFont.Small, getText("IGUI_TCA_ExamGuide" .. tostring(i)), maxW);
             for _, line in ipairs(lines) do
@@ -474,10 +612,8 @@ function TCA_ExamUI:drawNotes()
             end
             y = y + 5;
         end
-        return;
+        return y - startY;
     end
-    self:drawText(getText("IGUI_TCA_ExamNotes"), x, y, 1, 1, 1, 1, UIFont.Medium);
-    y = y + self.titleH + 10;
     for _, id in ipairs(TCA_ExamUI.ORDER) do
         self:drawText(getText("IGUI_TCA_ExamZone_" .. id), x, y, 0.95, 0.85, 0.6, 1, UIFont.Small);
         y = y + self.smallH + 2;
@@ -495,11 +631,39 @@ function TCA_ExamUI:drawNotes()
         y = y + 8;
     end
     if TCA_Client.isDebug() then
-        self:drawDebug(x, self.notesY + self.notesH - self.smallH * 2 - 8, maxW);
+        y = y + self:drawDebug(x, y, maxW);
+    end
+    return y - startY;
+end
+
+function TCA_ExamUI:drawNotes()
+    self:drawRect(self.notesX, self.notesY, self.notesW, self.notesH, 0.6, PANEL_BG.r, PANEL_BG.g, PANEL_BG.b);
+    self:drawRectBorder(self.notesX, self.notesY, self.notesW, self.notesH, 1, BORDER.r, BORDER.g, BORDER.b);
+    local x = self.notesX + 10;
+    local title = getText("IGUI_TCA_ExamNotes");
+    if self.showGuide then
+        title = getText("IGUI_TCA_ExamGuideTitle");
+    end
+    self:drawText(title, x, self.notesY + 8, 1, 1, 1, 1, UIFont.Medium);
+
+    local top = self:getNotesContentTop();
+    local height = self:getNotesContentH();
+    local maxW = self.notesW - 24 - TCA_ExamUI.SCROLL_W;
+    self:setScroll(self.scroll);
+    self:setStencilRect(self.notesX + 1, top, self.notesW - 2, height);
+    self.contentH = self:drawNotesContent(x, top - self.scroll, maxW);
+    self:clearStencilRect();
+    self:setScroll(self.scroll);
+
+    local thumb = self:getScrollThumb();
+    if thumb then
+        self:drawRect(thumb.x, thumb.top, thumb.w, thumb.trackH, 0.5, 0.15, 0.15, 0.17);
+        self:drawRect(thumb.x, thumb.y, thumb.w, thumb.h, 0.9, 0.55, 0.55, 0.58);
     end
 end
 
 function TCA_ExamUI:drawDebug(x, y, maxW)
+    local startY = y;
     local D = TCA.DeathTime;
     local C = TCA.Cold;
     local truth = D.getHoursSinceDeath(self.body);
@@ -509,6 +673,7 @@ function TCA_ExamUI:drawDebug(x, y, maxW)
         self:drawText(line, x, y, 1, 0.85, 0.3, 1, UIFont.Small);
         y = y + self.smallH;
     end
+    return y - startY;
 end
 
 function TCA_ExamUI:drawTimeline()
@@ -558,6 +723,8 @@ function TCA_ExamUI:prerender()
     self:refreshTools();
     self:updatePress();
     self:updateDrag();
+    self:updateScrollDrag();
+    self:updateEdit();
 
     self:drawTextCentre(getText("IGUI_TCA_ExamTitle"), self.width / 2, self.titleY, 1, 1, 1, 1, UIFont.Medium);
     local instr, c = self:getInstructionText();
@@ -579,15 +746,16 @@ function TCA_ExamUI:drawLivorPatch()
     if visible <= 0.02 then
         return;
     end
-    local radius = 6 * self.scale;
-    local by = TCA_ExamUI.LIVOR_Y1;
-    while by <= TCA_ExamUI.LIVOR_Y2 do
-        local edge = TCA_ExamUI.getFlankEdge(by) - 5;
+    local zone = TCA_ExamUI.ZONES.livor;
+    local radius = TCA_ExamUI.LIVOR_RADIUS * self.scale;
+    local edge = math.abs(zone.x);
+    local by = zone.y - TCA_ExamUI.LIVOR_UP;
+    while by <= zone.y + TCA_ExamUI.LIVOR_DOWN do
         local sx1, sy1 = self:toScreen(-edge, by);
         local sx2, sy2 = self:toScreen(edge, by);
         self:fillCircleScreen(sx1, sy1, radius, LIVOR, 0.35 * visible);
         self:fillCircleScreen(sx2, sy2, radius, LIVOR, 0.35 * visible);
-        by = by + 8;
+        by = by + TCA_ExamUI.LIVOR_STEP;
     end
     local blanch = self.blanch;
     if not blanch then
@@ -684,6 +852,7 @@ function TCA_ExamUI:render()
     self:drawLivorPatch();
     self:drawZones();
     self:drawPress();
+    self:drawEditLabels();
     self:clearStencilRect();
     self:drawRectBorder(self.viewX, self.viewY, self.viewW, self.viewH, 1, BORDER.r, BORDER.g, BORDER.b);
 end

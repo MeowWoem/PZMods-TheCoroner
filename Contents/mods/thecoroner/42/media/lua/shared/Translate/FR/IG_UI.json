@@ -154,5 +154,6 @@
     "IGUI_TCA_ExamGuide9": "Croise les indices : chacun donne une fourchette, garde leur recoupement.",
     "IGUI_TCA_ExamDebug": "[DEBUG] Vrai : %1 / froid : %2 h / âge effectif (putréfaction) : %3",
     "IGUI_TCA_DebugCold": "Froid cumulé : %1 h, sorti du froid : %2",
-    "IGUI_TCA_DebugNever": "jamais"
+    "IGUI_TCA_DebugNever": "jamais",
+    "IGUI_TCA_ExamDebugEdit": "[Debug] Repères"
 }
