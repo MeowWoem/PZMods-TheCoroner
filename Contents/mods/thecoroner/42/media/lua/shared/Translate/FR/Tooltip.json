@@ -7,5 +7,6 @@
     "Tooltip_TCA_NeedForceps": "Nécessite une pince (forceps ou pince à épiler).",
     "Tooltip_TCA_NeedRibTool": "Nécessite un coupe-boulon ou une scie.",
     "Tooltip_TCA_MorgueNoPower": "Pas d'électricité : les tiroirs ne refroidiront pas tant qu'ils ne sont pas alimentés.",
-    "Tooltip_TCA_Thermometer": "Permet de relever la température d'un corps lors d'un examen médico-légal."
+    "Tooltip_TCA_Thermometer": "Permet de relever la température d'un corps lors d'un examen médico-légal.",
+    "Tooltip_TCA_Organ": "Organe prélevé lors d'une autopsie."
 }

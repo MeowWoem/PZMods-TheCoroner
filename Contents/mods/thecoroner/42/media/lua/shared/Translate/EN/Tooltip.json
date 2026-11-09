@@ -7,5 +7,6 @@
     "Tooltip_TCA_NeedForceps": "Requires forceps or tweezers.",
     "Tooltip_TCA_NeedRibTool": "Requires bolt cutters or a saw.",
     "Tooltip_TCA_MorgueNoPower": "No power: the drawers will not cool down until they are powered.",
-    "Tooltip_TCA_Thermometer": "Used to take a body's temperature during a forensic examination."
+    "Tooltip_TCA_Thermometer": "Used to take a body's temperature during a forensic examination.",
+    "Tooltip_TCA_Organ": "Organ removed during an autopsy."
 }

@@ -1,6 +1,7 @@
 require "TCA_Shared";
 require "TCA_Autopsy";
 require "TCA_Exam";
+require "TimedActions/TCA_AutopsyResultAction";
 
 TCA_Server = TCA_Server or {};
 
@@ -44,6 +45,21 @@ function TCA_Server.onDebugStepCommand(player, args)
     end
 end
 
+function TCA_Server.onAutopsyCommitCommand(player, args)
+    if not args or not args.x or not args.y or not args.z then
+        return;
+    end
+    local sq = getCell():getGridSquare(args.x, args.y, args.z);
+    local tableObj = TCA.findTableOnSquare(sq);
+    if not tableObj then
+        return;
+    end
+    if math.abs(player:getX() - (args.x + 0.5)) > 4 or math.abs(player:getY() - (args.y + 0.5)) > 4 then
+        return;
+    end
+    TCA_AutopsyResultAction.create(player, tableObj, args):complete();
+end
+
 function TCA_Server.onResetExamCommand(player, args)
     if not player:getRole():hasCapability(Capability.AddItem) then
         return;
@@ -68,6 +84,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onResetCommand(player, args);
     elseif command == "debugStep" then
         TCA_Server.onDebugStepCommand(player, args);
+    elseif command == "autopsyCommit" then
+        TCA_Server.onAutopsyCommitCommand(player, args);
     elseif command == "resetExam" then
         TCA_Server.onResetExamCommand(player, args);
     end

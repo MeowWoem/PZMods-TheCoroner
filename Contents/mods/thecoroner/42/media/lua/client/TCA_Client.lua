@@ -87,6 +87,24 @@ function TCA_Client.debugSetStep(playerObj, tableObj, pos)
     end
 end
 
+TCA_Client.COMMIT_FIELDS = { "segIndex", "segProgress", "accuracy", "paths", "openL", "openR", "tears", "ribs", "accSamples", "organs", "organDamage", "plastron", "attach" };
+
+function TCA_Client.commitAutopsy(playerObj, tableObj, result)
+    if isClient() then
+        local sq = tableObj:getSquare();
+        local args = {};
+        args.x = sq:getX();
+        args.y = sq:getY();
+        args.z = sq:getZ();
+        for _, key in ipairs(TCA_Client.COMMIT_FIELDS) do
+            args[key] = result[key];
+        end
+        sendClientCommand(playerObj, "TCA", "autopsyCommit", args);
+        return;
+    end
+    TCA_AutopsyResultAction.create(playerObj, tableObj, result):complete();
+end
+
 function TCA_Client.onDebugDeathTime(playerObj, body)
     if not body then
         return;

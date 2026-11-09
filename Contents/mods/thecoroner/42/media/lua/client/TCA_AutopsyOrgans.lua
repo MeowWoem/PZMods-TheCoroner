@@ -302,6 +302,19 @@ function TCA_AutopsyUI:extractOrgan()
     self.cutting = false;
     self.organsDone = index;
     self:resetCurrentOrgan();
+    self:commitProgress();
+end
+
+function TCA_AutopsyUI:commitProgress()
+    local result = self:collectResult();
+    if not result.advanced then
+        return;
+    end
+    TCA_Client.commitAutopsy(self.character, self.tableObject, result);
+    self.startOrgansDone = self.organsDone;
+    self.startOrganDamage = self.organDamage;
+    self.startAttach = result.attach;
+    self.startPlastron = self.plastronRemoved;
 end
 
 function TCA_AutopsyUI:updateOrgans()

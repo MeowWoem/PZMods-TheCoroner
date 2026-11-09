@@ -148,6 +148,9 @@ function TCA_AutopsyResultAction:applyOrgans(body)
         md["TCA_A_organs"] = done;
         xp = A.XP_PER_ORGAN * (done - stored.done);
         self.changed = true;
+        for i = stored.done + 1, done do
+            self:giveOrgan(body, TCA.Organs.LIST[i]);
+        end
     end
     if damage > stored.damage then
         md["TCA_A_odmg"] = damage;
@@ -155,6 +158,25 @@ function TCA_AutopsyResultAction:applyOrgans(body)
     end
     self:applyAttach(body, stored.done);
     return xp;
+end
+
+function TCA_AutopsyResultAction:giveOrgan(body, organ)
+    if not organ then
+        return;
+    end
+    local item = instanceItem(TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id);
+    if not item then
+        return;
+    end
+    local imd = item:getModData();
+    imd["TCA_Decay"] = TCA.Autopsy.getOrganDecay(body);
+    imd["TCA_Infected"] = TCA.isInfected(body);
+    imd["TCA_DeathTime"] = TCA.DeathTime.get(body);
+    local inv = self.character:getInventory();
+    inv:AddItem(item);
+    if isServer() then
+        sendAddItemToContainer(inv, item);
+    end
 end
 
 function TCA_AutopsyResultAction:applyAttach(body, oldDone)
@@ -219,6 +241,10 @@ end
 
 function TCA_AutopsyResultAction:getDuration()
     return 1;
+end
+
+function TCA_AutopsyResultAction.create(character, tableObject, r)
+    return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach);
 end
 
 function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach)

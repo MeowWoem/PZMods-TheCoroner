@@ -1,3 +1,14 @@
 {
-    "TCA.Thermometer": "Thermomètre"
+    "TCA.Thermometer": "Thermomètre",
+    "TCA.Organ_heart": "Cœur",
+    "TCA.Organ_lung_l": "Poumon gauche",
+    "TCA.Organ_lung_r": "Poumon droit",
+    "TCA.Organ_liver": "Foie",
+    "TCA.Organ_stomach": "Estomac",
+    "TCA.Organ_intestines": "Intestins",
+    "TCA.Organ_pancreas": "Pancréas",
+    "TCA.Organ_kidney_r": "Rein droit",
+    "TCA.Organ_kidney_l": "Rein gauche",
+    "TCA.Organ_spleen": "Rate",
+    "TCA.Organ_bladder": "Vessie"
 }
