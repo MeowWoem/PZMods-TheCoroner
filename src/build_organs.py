@@ -2,20 +2,19 @@ import sys, os
 from PIL import Image
 
 SRC, MOD_TEX, LUA_OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-STEPS_DIR = sys.argv[4] if len(sys.argv) > 4 else None
 
 ORGANS = [
-    ("heart", "organ_heart", 2, 2, [(-1, 121), (7, 122)]),
-    ("lung_l", "organ_lung_l", 3, 3, [(9, 128)]),
-    ("lung_r", "organ_lung_r", 4, 3, [(-9, 128)]),
-    ("liver", "organ_liver", 5, 5, [(2, 152), (-8, 160)]),
-    ("stomach", "organ_stomach", 6, 4, [(5, 150), (-8, 174)]),
-    ("intestines", "organs_intestines", 7, 1, [(-18, 177), (8, 217)]),
-    ("pancreas", "organs_pancreas", 8, 6, [(-2, 175)]),
-    ("kidney_r", "organ_kidney_r", 9, 8, [(-10, 165)]),
-    ("kidney_l", "organ_kidney_l", 10, 8, [(10, 165)]),
-    ("spleen", "organ_spleen", 11, 7, [(22, 163)]),
-    ("bladder", "organ_bladder", 12, 6, [(1, 219)]),
+    ("heart", "organ_heart", 2, [(-1, 121), (7, 122)]),
+    ("lung_l", "organ_lung_l", 3, [(9, 128)]),
+    ("lung_r", "organ_lung_r", 4, [(-9, 128)]),
+    ("liver", "organ_liver", 5, [(2, 152), (-8, 160)]),
+    ("stomach", "organ_stomach", 6, [(5, 150), (-8, 174)]),
+    ("intestines", "organs_intestines", 7, [(-18, 177), (8, 217)]),
+    ("pancreas", "organs_pancreas", 8, [(-2, 175)]),
+    ("kidney_r", "organ_kidney_r", 9, [(-10, 165)]),
+    ("kidney_l", "organ_kidney_l", 10, [(10, 165)]),
+    ("spleen", "organ_spleen", 11, [(22, 163)]),
+    ("bladder", "organ_bladder", 12, [(1, 219)]),
 ]
 PIECES = [
     ("PLASTRON", "plastron", "plastron"),
@@ -24,9 +23,6 @@ CANVAS_W, CANVAS_H, SCALE, ORIGIN_X, ORIGIN_Y = 520, 1020, 2, 130, 20
 MASK_ALPHA = 128
 CROP_ALPHA = 32
 CROP_MARGIN = 2
-OVERLAP_ALPHA = 200
-OVERLAP_MIN = 12
-FRONT_MIN_SHARE = 0.6
 
 def num(v):
     return ("%.1f" % v).rstrip("0").rstrip(".")
@@ -108,47 +104,8 @@ for key, src_name, name in PIECES:
     lines.append("")
     print("%-11s piece     crop %3dx%-3d  corps x %6s y %6s w %5s h %5s  masque %2dx%-2d (%d cases)" % (name, crop.size[0], crop.size[1], num(x), num(y), num(w), num(h), cols, rows, sum(r.count("1") for r in mask)))
 
-def compute_in_front():
-    images = {}
-    for oid, src_name, step, depth, attaches in ORGANS:
-        images[oid] = Image.open(find_source(src_name)).convert("RGBA").load()
-    layers = {}
-    in_front = {oid: [] for oid, _, _, _, _ in ORGANS}
-    for i in range(len(ORGANS)):
-        for j in range(i + 1, len(ORGANS)):
-            a, _, step_a, depth_a, _ = ORGANS[i]
-            b, _, step_b, depth_b, _ = ORGANS[j]
-            front = a if depth_a < depth_b else b
-            source = "profondeur"
-            pa, pb = images[a], images[b]
-            overlap = [(x, y) for y in range(0, CANVAS_H, SCALE) for x in range(0, CANVAS_W, SCALE) if pa[x, y][3] >= OVERLAP_ALPHA and pb[x, y][3] >= OVERLAP_ALPHA]
-            if not overlap:
-                continue
-            if STEPS_DIR and len(overlap) >= OVERLAP_MIN:
-                step = min(step_a, step_b)
-                if step not in layers:
-                    layers[step] = Image.open(os.path.join(STEPS_DIR, "torso_step%d.png" % step)).convert("RGBA").load()
-                lay = layers[step]
-                wins_a = 0
-                for x, y in overlap:
-                    ea = sum(abs(pa[x, y][c] - lay[x, y][c]) for c in range(3))
-                    eb = sum(abs(pb[x, y][c] - lay[x, y][c]) for c in range(3))
-                    if ea < eb:
-                        wins_a += 1
-                share_a = wins_a / len(overlap)
-                if share_a >= FRONT_MIN_SHARE:
-                    front, source = a, "calque %d%%" % round(share_a * 100)
-                elif 1 - share_a >= FRONT_MIN_SHARE:
-                    front, source = b, "calque %d%%" % round((1 - share_a) * 100)
-            back = b if front == a else a
-            in_front[back].append(front)
-            print("  %-10s devant %-10s (%s, %d px)" % (front, back, source, len(overlap)))
-    return in_front
-
-IN_FRONT = compute_in_front()
-
 lines.append("TCA.Organs.LIST = {")
-for oid, src_name, step, depth, attaches in ORGANS:
+for oid, src_name, step, attaches in ORGANS:
     name = "organ_" + oid
     crop, x, y, w, h, cols, rows, mask = load_piece(src_name, name)
     snapped = []
@@ -168,10 +125,9 @@ for oid, src_name, step, depth, attaches in ORGANS:
             snapped.append((best[1], best[2]))
     attaches = snapped
     lines.append("    {")
-    lines.append("        id = \"%s\", step = %d, depth = %d, texture = \"media/textures/organs/%s.png\"," % (oid, step, depth, name))
+    lines.append("        id = \"%s\", step = %d, texture = \"media/textures/organs/%s.png\"," % (oid, step, name))
     lines.append("        x = %s, y = %s, w = %s, h = %s," % (num(x), num(y), num(w), num(h)))
     lines.append("        attaches = { %s }," % ", ".join("{ x = %s, y = %s }" % (num(ax), num(ay)) for ax, ay in attaches))
-    lines.append("        inFront = { %s }," % ", ".join("\"%s\"" % other for other in IN_FRONT[oid]))
     lines += mask_lines(mask, "        ")
     lines.append("    },")
     print("%-11s step %2d  crop %3dx%-3d  corps x %6s y %6s w %5s h %5s  masque %2dx%-2d (%d cases)" % (oid, step, crop.size[0], crop.size[1], num(x), num(y), num(w), num(h), cols, rows, sum(r.count("1") for r in mask)))
@@ -206,23 +162,16 @@ lines += [
     "    return string.sub(line, col, col) == \"1\";",
     "end",
     "",
-    "function TCA.Organs.isInFront(other, organ)",
-    "    if not organ.inFrontSet then",
-    "        organ.inFrontSet = {};",
-    "        for _, id in ipairs(organ.inFront) do",
-    "            organ.inFrontSet[id] = true;",
-    "        end",
-    "    end",
-    "    return organ.inFrontSet[other.id] == true;",
-    "end",
-    "",
     "function TCA.Organs.isVisibleAt(organ, bx, by, removed)",
     "    if not TCA.Organs.contains(organ, bx, by) then",
     "        return false;",
     "    end",
     "    for i = removed + 1, #TCA.Organs.LIST do",
     "        local other = TCA.Organs.LIST[i];",
-    "        if other ~= organ and TCA.Organs.isInFront(other, organ) and TCA.Organs.contains(other, bx, by) then",
+    "        if other == organ then",
+    "            return true;",
+    "        end",
+    "        if TCA.Organs.contains(other, bx, by) then",
     "            return false;",
     "        end",
     "    end",
@@ -230,19 +179,13 @@ lines += [
     "end",
     "",
     "function TCA.Organs.getFrontOrganAt(bx, by, removed)",
-    "    local fallback = nil;",
     "    for i = removed + 1, #TCA.Organs.LIST do",
     "        local organ = TCA.Organs.LIST[i];",
     "        if TCA.Organs.contains(organ, bx, by) then",
-    "            if TCA.Organs.isVisibleAt(organ, bx, by, removed) then",
-    "                return organ;",
-    "            end",
-    "            if not fallback or organ.depth < fallback.depth then",
-    "                fallback = organ;",
-    "            end",
+    "            return organ;",
     "        end",
     "    end",
-    "    return fallback;",
+    "    return nil;",
     "end",
     "",
     "function TCA.Organs.getPieceOutline(piece)",
@@ -266,28 +209,6 @@ lines += [
     "    piece.outline = outline;",
     "    return outline;",
     "end",
-    "",
-    "function TCA.Organs.getOutline(organ, removed)",
-    "    organ.outlines = organ.outlines or {};",
-    "    if organ.outlines[removed] then",
-    "        return organ.outlines[removed];",
-    "    end",
-    "    local outline = {};",
-    "    for row = 1, #organ.mask do",
-    "        local line = organ.mask[row];",
-    "        for col = 1, string.len(line) do",
-    "            local cx = organ.x + col - 0.5;",
-    "            local cy = organ.y + row - 0.5;",
-    "            if TCA.Organs.isVisibleAt(organ, cx, cy, removed) then",
-    "                local edge = not TCA.Organs.isVisibleAt(organ, cx - 1, cy, removed) or not TCA.Organs.isVisibleAt(organ, cx + 1, cy, removed) or not TCA.Organs.isVisibleAt(organ, cx, cy - 1, removed) or not TCA.Organs.isVisibleAt(organ, cx, cy + 1, removed);",
-    "                if edge then",
-    "                    table.insert(outline, { x = organ.x + col - 1, y = organ.y + row - 1 });",
-    "                end",
-    "            end",
-    "        end",
-    "    end",
-    "    organ.outlines[removed] = outline;",
-    "    return outline;",
-    "end",
+    ""
 ]
 open(LUA_OUT, "w").write("\n".join(lines) + "\n")
