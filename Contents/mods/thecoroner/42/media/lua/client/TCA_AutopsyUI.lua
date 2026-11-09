@@ -134,7 +134,7 @@ end
 
 function TCA_AutopsyUI:thickLineScreen(x1, y1, x2, y2, width, c, a)
     local len = dist(x1, y1, x2, y2);
-    if len < 0.01 then
+    if not (len >= 0.01) or len > 100000 then
         return;
     end
     local nx = -(y2 - y1) / len * width / 2;
@@ -1084,10 +1084,10 @@ function TCA_AutopsyUI:drawOscillatingSaw(c)
     local y = self.bladeY;
     local shake = 0;
     if self.cutting and self.ribActive then
-        shake = (math.floor(getTimestampMs() / 30) % 2) * 2 - 1;
+        shake = math.sin(getTimestampMs() / 12) * 1.2;
     end
-    self:thickLineScreen(x - 5 + shake, y, x + 5 + shake, y, 3, c, 1);
-    self:thickLineScreen(x + shake, y, x + 4, y + 10, 2, STEEL, 1);
+    self:drawRect(x - 5 + shake, y - 1.5, 10, 3, 1, c.r, c.g, c.b);
+    self:thickLineScreen(x + 0.5, y + 1, x + 4, y + 10, 2, STEEL, 1);
     self:thickLineScreen(x + 4, y + 10, x + 20, y + 38, 9, CUTTER_HANDLE, 1);
     self:thickLineScreen(x + 14, y + 27, x + 17, y + 32, 2, GREEN, 1);
 end
