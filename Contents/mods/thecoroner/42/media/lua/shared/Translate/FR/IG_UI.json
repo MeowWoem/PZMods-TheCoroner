@@ -80,5 +80,9 @@
     "IGUI_TCA_Organ_bladder": "Vessie",
     "IGUI_TCA_DebugPrev": "[Debug] prev step",
     "IGUI_TCA_DebugNext": "[Debug] next step",
-    "IGUI_TCA_InstrPlastron": "Saisis le plastron et retire-le de la cage thoracique."
+    "IGUI_TCA_InstrPlastron": "Saisis le plastron et retire-le de la cage thoracique.",
+    "IGUI_TCA_MorgueDrawerTop": "Tiroir de morgue du haut",
+    "IGUI_TCA_MorgueDrawerBottom": "Tiroir de morgue du bas",
+    "IGUI_TCA_MorgueOn": "réfrigéré",
+    "IGUI_TCA_MorgueOff": "éteint"
 }

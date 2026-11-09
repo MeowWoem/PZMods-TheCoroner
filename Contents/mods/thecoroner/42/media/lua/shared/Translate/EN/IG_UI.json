@@ -80,5 +80,9 @@
     "IGUI_TCA_Organ_bladder": "Bladder",
     "IGUI_TCA_DebugPrev": "[Debug] prev step",
     "IGUI_TCA_DebugNext": "[Debug] next step",
-    "IGUI_TCA_InstrPlastron": "Grab the chest plate and lift it out."
+    "IGUI_TCA_InstrPlastron": "Grab the chest plate and lift it out.",
+    "IGUI_TCA_MorgueDrawerTop": "Upper morgue drawer",
+    "IGUI_TCA_MorgueDrawerBottom": "Lower morgue drawer",
+    "IGUI_TCA_MorgueOn": "refrigerated",
+    "IGUI_TCA_MorgueOff": "off"
 }

@@ -3,5 +3,7 @@
     "ContextMenu_TCA_RemoveFromTable": "Remove corpse from table",
     "ContextMenu_TCA_Autopsy": "Perform an autopsy",
     "ContextMenu_TCA_DebugReset": "[DEBUG] Reset autopsy",
-    "ContextMenu_TCA_DebugReference": "[DEBUG] 1:1 reference image"
+    "ContextMenu_TCA_DebugReference": "[DEBUG] 1:1 reference image",
+    "ContextMenu_TCA_MorguePowerOn": "Turn on drawer refrigeration",
+    "ContextMenu_TCA_MorguePowerOff": "Turn off drawer refrigeration"
 }

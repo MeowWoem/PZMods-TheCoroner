@@ -5,5 +5,6 @@
     "Tooltip_TCA_AlreadyAutopsied": "This corpse has already been autopsied.",
     "Tooltip_TCA_MustUndress": "Undress the corpse first (still wearing: %1).",
     "Tooltip_TCA_NeedForceps": "Requires forceps or tweezers.",
-    "Tooltip_TCA_NeedRibTool": "Requires bolt cutters or a saw."
+    "Tooltip_TCA_NeedRibTool": "Requires bolt cutters or a saw.",
+    "Tooltip_TCA_MorgueNoPower": "No power: the drawers will not cool down until they are powered."
 }

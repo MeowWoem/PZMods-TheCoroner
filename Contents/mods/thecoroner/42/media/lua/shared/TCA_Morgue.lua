@@ -1,0 +1,185 @@
+TCA = TCA or {};
+TCA.Morgue = TCA.Morgue or {};
+
+TCA.Morgue.SPRITES = { "location_community_medical_01_66", "location_community_medical_01_67" };
+TCA.Morgue.SPRITE_SET = {};
+for _, name in ipairs(TCA.Morgue.SPRITES) do
+    TCA.Morgue.SPRITE_SET[name] = true;
+end
+
+TCA.Morgue.DRAWERS = 2;
+TCA.Morgue.CAPACITY = 30;
+TCA.Morgue.TYPE_ON = "fridge";
+TCA.Morgue.TYPE_OFF = "locker";
+TCA.Morgue.CORPSE_CHANCE = 10;
+TCA.Morgue.PRIORITY = 5;
+
+function TCA.Morgue.isDrawer(obj)
+    if not obj or not instanceof(obj, "IsoObject") then
+        return false;
+    end
+    local sprite = obj:getSprite();
+    if not sprite then
+        return false;
+    end
+    local name = sprite:getName();
+    return name ~= nil and TCA.Morgue.SPRITE_SET[name] == true;
+end
+
+function TCA.Morgue.findOnSquare(sq)
+    if not sq then
+        return nil;
+    end
+    local objects = sq:getObjects();
+    for i = 0, objects:size() - 1 do
+        local obj = objects:get(i);
+        if TCA.Morgue.isDrawer(obj) then
+            return obj;
+        end
+    end
+    return nil;
+end
+
+function TCA.Morgue.isOn(obj)
+    local container = obj:getContainerByIndex(0);
+    return container ~= nil and container:getType() == TCA.Morgue.TYPE_ON;
+end
+
+function TCA.Morgue.isPowered(obj)
+    local container = obj:getContainerByIndex(0);
+    return container ~= nil and container:isPowered();
+end
+
+function TCA.Morgue.getDrawerName(obj, container)
+    local key = "IGUI_TCA_MorgueDrawerTop";
+    if obj:getContainerIndex(container) > 0 then
+        key = "IGUI_TCA_MorgueDrawerBottom";
+    end
+    local state = "IGUI_TCA_MorgueOff";
+    if TCA.Morgue.isOn(obj) then
+        state = "IGUI_TCA_MorgueOn";
+    end
+    return getText(key) .. " (" .. getText(state) .. ")";
+end
+
+function TCA.Morgue.addRandomCorpse(container)
+    if ZombRand(100) >= TCA.Morgue.CORPSE_CHANCE then
+        return;
+    end
+    local itemType = "Base.CorpseMale";
+    if ZombRand(2) == 0 then
+        itemType = "Base.CorpseFemale";
+    end
+    container:AddItem(itemType);
+end
+
+function TCA.Morgue.ensureContainers(obj, fillCorpses)
+    if obj:getContainerCount() >= TCA.Morgue.DRAWERS then
+        return false;
+    end
+    local sq = obj:getSquare();
+    local containerType = TCA.Morgue.TYPE_OFF;
+    if obj:getContainerCount() > 0 and TCA.Morgue.isOn(obj) then
+        containerType = TCA.Morgue.TYPE_ON;
+    end
+    while obj:getContainerCount() < TCA.Morgue.DRAWERS do
+        local container = ItemContainer.new(containerType, sq, obj);
+        container:setCapacity(TCA.Morgue.CAPACITY);
+        container:setExplored(true);
+        if obj:getContainer() == nil then
+            obj:setContainer(container);
+        else
+            obj:addSecondaryContainer(container);
+        end
+        if fillCorpses then
+            TCA.Morgue.addRandomCorpse(container);
+        end
+    end
+    return true;
+end
+
+function TCA.Morgue.applyType(obj, on)
+    local containerType = TCA.Morgue.TYPE_OFF;
+    if on then
+        containerType = TCA.Morgue.TYPE_ON;
+    end
+    for i = 0, obj:getContainerCount() - 1 do
+        local container = obj:getContainerByIndex(i);
+        if container then
+            container:setType(containerType);
+        end
+    end
+end
+
+function TCA.Morgue.refreshGenerators(obj)
+    local chunk = obj:getChunk();
+    if chunk then
+        if TCA.Morgue.isOn(obj) then
+            chunk:addObjectPoweredByGenerator(obj);
+        else
+            chunk:removeObjectPoweredByGenerator(obj);
+        end
+    end
+    IsoGenerator.updateGenerator(obj:getSquare());
+end
+
+function TCA.Morgue.refreshLocal(obj)
+    if not isServer() then
+        obj:checkHaveElectricity();
+        triggerEvent("OnContainerUpdate", obj);
+    end
+end
+
+function TCA.Morgue.setPowered(obj, on)
+    TCA.Morgue.ensureContainers(obj, false);
+    TCA.Morgue.applyType(obj, on);
+    TCA.Morgue.refreshGenerators(obj);
+    TCA.Morgue.refreshLocal(obj);
+    if isServer() then
+        local sq = obj:getSquare();
+        local args = {};
+        args.x = sq:getX();
+        args.y = sq:getY();
+        args.z = sq:getZ();
+        args.on = on;
+        sendServerCommand("TCA", "morguePower", args);
+    end
+end
+
+function TCA.Morgue.onPowerCommand(args)
+    if not args or not args.x or not args.y or not args.z then
+        return;
+    end
+    local sq = getCell():getGridSquare(args.x, args.y, args.z);
+    local obj = TCA.Morgue.findOnSquare(sq);
+    if not obj then
+        return;
+    end
+    TCA.Morgue.ensureContainers(obj, false);
+    TCA.Morgue.applyType(obj, args.on == true);
+    TCA.Morgue.refreshLocal(obj);
+end
+
+function TCA.Morgue.onNewDrawer(obj)
+    if isClient() then
+        return;
+    end
+    TCA.Morgue.ensureContainers(obj, true);
+end
+
+function TCA.Morgue.onLoadDrawer(obj)
+    TCA.Morgue.ensureContainers(obj, not isClient());
+end
+
+function TCA.Morgue.onObjectAdded(obj)
+    if not TCA.Morgue.isDrawer(obj) then
+        return;
+    end
+    if TCA.Morgue.ensureContainers(obj, false) then
+        TCA.Morgue.refreshLocal(obj);
+    end
+end
+
+MapObjects.OnNewWithSprite(TCA.Morgue.SPRITES, TCA.Morgue.onNewDrawer, TCA.Morgue.PRIORITY);
+MapObjects.OnLoadWithSprite(TCA.Morgue.SPRITES, TCA.Morgue.onLoadDrawer, TCA.Morgue.PRIORITY);
+Events.OnObjectAdded.Add(TCA.Morgue.onObjectAdded);
