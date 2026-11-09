@@ -386,6 +386,13 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
             addTooltip(option, getText("Tooltip_TCA_TableTooSmall"));
         elseif occupied then
             addTooltip(option, getText("Tooltip_TCA_TableOccupied"));
+        else
+            local clutter = TCA.getTableClutter(tableObj);
+            if clutter == "object" then
+                addTooltip(option, getText("Tooltip_TCA_TableClutterObject"));
+            elseif clutter == "items" then
+                addTooltip(option, getText("Tooltip_TCA_TableClutterItems"));
+            end
         end
     end
 end

@@ -163,6 +163,59 @@ function TCA.getTableFootprint(tableObj)
     return sx, sy, 1, 1;
 end
 
+TCA.SURFACE_ITEM_MIN_Z = 0.05;
+
+function TCA.isTableClutterObject(obj)
+    if not obj or instanceof(obj, "IsoWorldInventoryObject") or instanceof(obj, "IsoMovingObject") then
+        return false;
+    end
+    if TCA.isTableObject(obj) then
+        return false;
+    end
+    if obj:isTableTopObject() then
+        return true;
+    end
+    return obj:getRenderYOffset() > 0;
+end
+
+function TCA.getSquareClutter(sq)
+    if not sq then
+        return nil;
+    end
+    if sq:has("IsTableTop") then
+        return "object";
+    end
+    local objects = sq:getObjects();
+    for i = 0, objects:size() - 1 do
+        if TCA.isTableClutterObject(objects:get(i)) then
+            return "object";
+        end
+    end
+    local items = sq:getWorldObjects();
+    for i = 0, items:size() - 1 do
+        local item = items:get(i);
+        if item and item:getOffZ() > TCA.SURFACE_ITEM_MIN_Z then
+            return "items";
+        end
+    end
+    return nil;
+end
+
+function TCA.getTableClutter(tableObj)
+    local ox, oy, w, h = TCA.getTableFootprint(tableObj);
+    local z = tableObj:getSquare():getZ();
+    local cell = getCell();
+    for dx = 0, w - 1 do
+        for dy = 0, h - 1 do
+            local clutter = TCA.getSquareClutter(cell:getGridSquare(ox + dx, oy + dy, z));
+            if clutter then
+                return clutter;
+            end
+        end
+    end
+    return nil;
+end
+
 function TCA.isLongTable(tableObj)
     local ox, oy, w, h = TCA.getTableFootprint(tableObj);
     return math.max(w, h) >= 2;

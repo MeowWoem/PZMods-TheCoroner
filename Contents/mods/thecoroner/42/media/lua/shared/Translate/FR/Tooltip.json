@@ -11,5 +11,7 @@
     "Tooltip_TCA_Organ": "Organe prélevé lors d'une autopsie.",
     "Tooltip_TCA_BoneSawOscillating": "Scie électrique à pile. Coupe les côtes très vite et proprement.",
     "Tooltip_TCA_BoneSaw": "Scie conçue pour l'os : course plus courte, lame mieux guidée.",
-    "Tooltip_TCA_NeedBattery": "Nécessite une pile chargée."
+    "Tooltip_TCA_NeedBattery": "Nécessite une pile chargée.",
+    "Tooltip_TCA_TableClutterObject": "Il faut d'abord débarrasser la table : un objet est posé dessus.",
+    "Tooltip_TCA_TableClutterItems": "Il faut d'abord débarrasser la table : des affaires traînent dessus."
 }

@@ -16,6 +16,9 @@ function TCA_PlaceOnTableAction:isValid()
     if TCA.tableHasBody(self.tableObject) then
         return false;
     end
+    if TCA.getTableClutter(self.tableObject) then
+        return false;
+    end
     return true;
 end
 
@@ -44,6 +47,9 @@ function TCA_PlaceOnTableAction:perform()
 end
 
 function TCA_PlaceOnTableAction:complete()
+    if TCA.getTableClutter(self.tableObject) then
+        return false;
+    end
     local body = TCA.findBodyNearTable(self.tableObject, self.character);
     if not body then
         return false;
