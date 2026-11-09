@@ -92,29 +92,52 @@ function TCA.Morgue.prepareCorpse(item)
         return;
     end
     body:getModData()["_bloodSplatAmount"] = 0;
+    body:getWornItems():clear();
+    body:getAttachedItems():clear();
+    local inventory = body:getContainer();
+    if inventory then
+        inventory:removeAllItems();
+    end
     item:storeInByteData(body);
 end
 
 function TCA.Morgue.addRandomCorpse(container)
     if ZombRand(100) >= TCA.Morgue.CORPSE_CHANCE then
-        return;
+        return false;
     end
     local itemType = "Base.CorpseMale";
     if ZombRand(2) == 0 then
         itemType = "Base.CorpseFemale";
     end
     TCA.Morgue.prepareCorpse(container:AddItem(itemType));
+    return true;
+end
+
+function TCA.Morgue.turnOnAtSpawn(obj)
+    TCA.Morgue.applyType(obj, true);
+    local chunk = obj:getChunk();
+    if chunk then
+        chunk:addObjectPoweredByGenerator(obj);
+    end
+    if not isServer() then
+        obj:checkHaveElectricity();
+    end
 end
 
 function TCA.Morgue.fixUnpreparedCorpses(obj)
+    local fixed = false;
     for i = 0, obj:getContainerCount() - 1 do
         local items = obj:getContainerByIndex(i):getItems();
         for j = 0, items:size() - 1 do
             local item = items:get(j);
             if item:isHumanCorpse() and item:getByteData() == nil then
                 TCA.Morgue.prepareCorpse(item);
+                fixed = true;
             end
         end
+    end
+    if fixed then
+        TCA.Morgue.turnOnAtSpawn(obj);
     end
 end
 
@@ -123,6 +146,7 @@ function TCA.Morgue.ensureContainers(obj, fillCorpses)
         return false;
     end
     local sq = obj:getSquare();
+    local hasCorpse = false;
     while obj:getContainerCount() < TCA.Morgue.DRAWERS do
         local container = ItemContainer.new(TCA.Morgue.TYPE_OFF, sq, obj);
         container:setCapacity(TCA.Morgue.CAPACITY);
@@ -132,9 +156,12 @@ function TCA.Morgue.ensureContainers(obj, fillCorpses)
         else
             obj:addSecondaryContainer(container);
         end
-        if fillCorpses then
-            TCA.Morgue.addRandomCorpse(container);
+        if fillCorpses and TCA.Morgue.addRandomCorpse(container) then
+            hasCorpse = true;
         end
+    end
+    if hasCorpse then
+        TCA.Morgue.turnOnAtSpawn(obj);
     end
     return true;
 end
