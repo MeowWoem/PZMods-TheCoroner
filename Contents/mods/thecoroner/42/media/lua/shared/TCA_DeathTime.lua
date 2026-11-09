@@ -154,7 +154,7 @@ function D.onLoadGridsquare(square)
     end
 end
 
-function D.prepareCorpseItem(item, restartClock)
+function D.prepareCorpseItem(item, restartClock, viaGrab)
     if not item or not item:isHumanCorpse() then
         return;
     end
@@ -163,11 +163,19 @@ function D.prepareCorpseItem(item, restartClock)
         return;
     end
     D.ensure(body);
+    local coldStay = 0;
     if TCA.Cold then
-        TCA.Cold.mergeIntoBody(item, body);
+        coldStay = TCA.Cold.mergeIntoBody(item, body);
     end
     if restartClock then
-        body:setDeathTime(D.now());
+        if TCA.Rot then
+            TCA.Rot.applyExitAge(body, coldStay);
+            if viaGrab then
+                TCA.Rot.markPending(body);
+            end
+        else
+            body:setDeathTime(D.now());
+        end
     end
     item:storeInByteData(body);
 end
@@ -184,7 +192,7 @@ end
 
 function D.grabComplete(action)
     if not isClient() and action.item and action.item:isHumanCorpse() then
-        D.prepareCorpseItem(action.item, true);
+        D.prepareCorpseItem(action.item, true, true);
     end
     return D.originalGrabComplete(action);
 end

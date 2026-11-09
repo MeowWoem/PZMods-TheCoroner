@@ -128,7 +128,7 @@ end
 
 function C.mergeIntoBody(item, body)
     if not item or not body then
-        return;
+        return 0;
     end
     local now = D.now();
     C.settleItem(item, false, now);
@@ -143,6 +143,7 @@ function C.mergeIntoBody(item, body)
         bmd[C.KEY_HOURS] = (bmd[C.KEY_HOURS] or 0) + stay;
         bmd[C.KEY_LEFT] = now;
     end
+    return stay;
 end
 
 function C.getColdHours(body)

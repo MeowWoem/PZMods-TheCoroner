@@ -456,6 +456,11 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     square:addCorpse(newBody, false);
     newBody:invalidateCorpse();
     newBody:setInvalidateNextRender(true);
+    if onTable and not isClient() and TCA.Rot then
+        TCA.Rot.applyPending(newBody);
+        TCA.Rot.register(square);
+        TCA.Rot.guardBody(newBody);
+    end
 
     if isServer() then
         sendCorpse(newBody);
