@@ -2,10 +2,8 @@ require "TCA_AutopsyUI";
 require "TCA_Autopsy";
 require "TCA_Organs";
 
-TCA_AutopsyUI.ATTACH_PICK_RADIUS = 10;
-TCA_AutopsyUI.ATTACH_HOLD_MS = 700;
-TCA_AutopsyUI.ATTACH_HOLD_PER_LEVEL = 40;
-TCA_AutopsyUI.ATTACH_HOLD_MIN = 300;
+TCA_AutopsyUI.ATTACH_MAX_STEP = 8;
+TCA_AutopsyUI.ATTACH_DOT_STEP = 4;
 TCA_AutopsyUI.EXTRACT_DIST = 80;
 TCA_AutopsyUI.ORGAN_ROUGH_SPEED = 0.5;
 TCA_AutopsyUI.ORGAN_FLY_MS = 350;
@@ -15,7 +13,6 @@ TCA_AutopsyUI.ORGAN_DETAIL_LEVEL = 6;
 
 local O_WHITE = { r = 1, g = 1, b = 1 };
 local O_GREEN = { r = 0.2, g = 0.9, b = 0.3 };
-local O_RED = { r = 1, g = 0.2, b = 0.2 };
 local O_GAP = { r = 0.12, g = 0.02, b = 0.02 };
 local O_TIP_TITLE = { r = 1, g = 1, b = 1 };
 local O_TIP_TEXT = { r = 0.8, g = 0.8, b = 0.8 };
@@ -25,6 +22,19 @@ local function odist(x1, y1, x2, y2)
     local dx = x2 - x1;
     local dy = y2 - y1;
     return math.sqrt(dx * dx + dy * dy);
+end
+
+local function oproject(px, py, ax, ay, bx, by)
+    local vx = bx - ax;
+    local vy = by - ay;
+    local len2 = math.max(vx * vx + vy * vy, 0.0001);
+    local t = ((px - ax) * vx + (py - ay) * vy) / len2;
+    if t < 0 then
+        t = 0;
+    elseif t > 1 then
+        t = 1;
+    end
+    return t, odist(px, py, ax + vx * t, ay + vy * t);
 end
 
 local function oclamp01(v)
@@ -64,6 +74,24 @@ function TCA_AutopsyUI:initOrgans(body)
     end
     self.hasScalpel = false;
     self:resetCurrentOrgan();
+    self:loadAttachWork(organState.attach);
+end
+
+function TCA_AutopsyUI:loadAttachWork(str)
+    local organ = self:getCurrentOrgan();
+    if not organ then
+        return;
+    end
+    local work = TCA.Autopsy.decodeAttach(str, #organ.attaches);
+    for i = 1, #organ.attaches do
+        self.attachWork[i] = work[i];
+        self.attachCut[i] = work[i] >= 1;
+    end
+    self.startAttach = TCA.Autopsy.encodeAttach(self.attachWork);
+end
+
+function TCA_AutopsyUI:getAttachString()
+    return TCA.Autopsy.encodeAttach(self.attachWork);
 end
 
 function TCA_AutopsyUI:resetCurrentOrgan()
@@ -79,6 +107,7 @@ function TCA_AutopsyUI:resetCurrentOrgan()
     self.attachActive = nil;
     self.organDrag = nil;
     self.organSnap = nil;
+    self.startAttach = "";
 end
 
 function TCA_AutopsyUI:getStageAfterChest()
@@ -116,10 +145,17 @@ function TCA_AutopsyUI:refreshOrganTools()
     end
 end
 
-function TCA_AutopsyUI:getAttachScreen(index)
-    local organ = self:getCurrentOrgan();
-    local point = organ.attaches[index];
-    return self:toScreen(point.x, point.y);
+function TCA_AutopsyUI:getAttachSegmentScreen(index)
+    local point = self:getCurrentOrgan().attaches[index];
+    local ax, ay = self:toScreen(point.ax, point.ay);
+    local bx, by = self:toScreen(point.bx, point.by);
+    return ax, ay, bx, by;
+end
+
+function TCA_AutopsyUI:getAttachStartScreen(index)
+    local ax, ay, bx, by = self:getAttachSegmentScreen(index);
+    local t = self.attachWork[index];
+    return ax + (bx - ax) * t, ay + (by - ay) * t;
 end
 
 function TCA_AutopsyUI:findAttachAt(x, y)
@@ -128,10 +164,10 @@ function TCA_AutopsyUI:findAttachAt(x, y)
         return nil;
     end
     local best = nil;
-    local bestDist = TCA_AutopsyUI.ATTACH_PICK_RADIUS;
+    local bestDist = TCA_AutopsyUI.START_RADIUS;
     for i = 1, #organ.attaches do
         if not self.attachCut[i] then
-            local sx, sy = self:getAttachScreen(i);
+            local sx, sy = self:getAttachStartScreen(i);
             local d = odist(x, y, sx, sy);
             if d <= bestDist then
                 best = i;
@@ -161,11 +197,6 @@ function TCA_AutopsyUI:getHoverOrgan()
     return TCA.Organs.getFrontOrganAt(bx, by, self.organsDone);
 end
 
-function TCA_AutopsyUI:getAttachHoldMs()
-    local ms = TCA_AutopsyUI.ATTACH_HOLD_MS - self.character:getPerkLevel(Perks.Doctor) * TCA_AutopsyUI.ATTACH_HOLD_PER_LEVEL;
-    return math.max(ms, TCA_AutopsyUI.ATTACH_HOLD_MIN);
-end
-
 function TCA_AutopsyUI:damageOrgan(key)
     self.organDamage = self.organDamage + 1;
     HaloTextHelper.addBadText(self.character, getText(key));
@@ -184,7 +215,6 @@ function TCA_AutopsyUI:organMouseDown(x, y)
         if index then
             self.cutting = true;
             self.attachActive = index;
-            self.attachWork[index] = 0;
             self.lastMouseX = x;
             self.lastMouseY = y;
             self.lastTime = getTimestampMs();
@@ -204,9 +234,6 @@ function TCA_AutopsyUI:organMouseDown(x, y)
 end
 
 function TCA_AutopsyUI:organRelease()
-    if self.attachActive and not self.attachCut[self.attachActive] then
-        self.attachWork[self.attachActive] = 0;
-    end
     self.attachActive = nil;
     if self.organDrag then
         self.organSnap = { dx = self.organDrag.dx, dy = self.organDrag.dy, time = getTimestampMs() };
@@ -214,23 +241,35 @@ function TCA_AutopsyUI:organRelease()
     end
 end
 
+function TCA_AutopsyUI:attachSlip(key)
+    self.attachActive = nil;
+    self.cutting = false;
+    self.flashTime = getTimestampMs();
+    self:damageOrgan(key);
+end
+
 function TCA_AutopsyUI:updateAttachCut()
     local index = self.attachActive;
-    local sx, sy = self:getAttachScreen(index);
-    local d = odist(self.bladeX, self.bladeY, sx, sy);
+    if self.speed > TCA_AutopsyUI.MAX_SPEED then
+        self:attachSlip("IGUI_TCA_OrganTooFast");
+        return;
+    end
+    local ax, ay, bx, by = self:getAttachSegmentScreen(index);
+    local t, d = oproject(self.bladeX, self.bladeY, ax, ay, bx, by);
     if d > TCA_AutopsyUI.SLIP_DIST then
-        self.attachWork[index] = 0;
-        self.attachActive = nil;
-        self.cutting = false;
-        self:damageOrgan("IGUI_TCA_OrganNick");
+        self:attachSlip("IGUI_TCA_OrganNick");
         return;
     end
     if d > TCA_AutopsyUI.WARN_DIST then
         self.warn = true;
         return;
     end
-    self.attachWork[index] = self.attachWork[index] + self.dt / self:getAttachHoldMs();
-    if self.attachWork[index] >= 1 then
+    local work = self.attachWork[index];
+    local len = odist(ax, ay, bx, by);
+    if t > work and (t - work) * len <= TCA_AutopsyUI.ATTACH_MAX_STEP then
+        self.attachWork[index] = t;
+    end
+    if self.attachWork[index] >= TCA_AutopsyUI.SEGMENT_DONE then
         self.attachWork[index] = 1;
         self.attachCut[index] = true;
         self.attachActive = nil;
@@ -364,22 +403,31 @@ function TCA_AutopsyUI:drawAttaches()
         hover = self:findAttachAt(self.bladeX, self.bladeY);
     end
     for i = 1, #organ.attaches do
-        local sx, sy = self:getAttachScreen(i);
-        if self.attachCut[i] then
-            self:fillCircleScreen(sx, sy, 2.5, O_GAP, 0.9);
-        else
+        local ax, ay, bx, by = self:getAttachSegmentScreen(i);
+        local work = self.attachWork[i];
+        local cx = ax + (bx - ax) * work;
+        local cy = ay + (by - ay) * work;
+        if work > 0 then
+            self:thickLineScreen(ax, ay, cx, cy, 3, O_GAP, 0.9);
+        end
+        if not self.attachCut[i] then
+            local len = odist(ax, ay, bx, by);
+            local count = math.max(math.floor(len / TCA_AutopsyUI.ATTACH_DOT_STEP), 1);
+            for k = 0, count do
+                local t = k / count;
+                if t >= work then
+                    local x = ax + (bx - ax) * t;
+                    local y = ay + (by - ay) * t;
+                    self:drawRect(x - 1, y - 1, 2, 2, 0.85, O_WHITE.r, O_WHITE.g, O_WHITE.b);
+                end
+            end
             local c = O_WHITE;
-            local haloA = 0.15;
+            local haloA = 0.2;
             if i == hover or i == self.attachActive then
                 c = O_GREEN;
-                haloA = 0.35;
+                haloA = 0.5;
             end
-            self:fillCircleScreen(sx, sy, 5 + pulse * 2, c, haloA);
-            self:fillCircleScreen(sx, sy, 2, c, 0.85);
-            local work = self.attachWork[i];
-            if work > 0 then
-                self:fillCircleScreen(sx, sy, 2 + 5 * work, O_RED, 0.7);
-            end
+            self:fillCircleScreen(cx, cy, 3 + pulse * 2, c, haloA);
         end
     end
 end

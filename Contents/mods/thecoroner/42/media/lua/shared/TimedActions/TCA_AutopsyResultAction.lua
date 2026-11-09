@@ -153,7 +153,39 @@ function TCA_AutopsyResultAction:applyOrgans(body)
         md["TCA_A_odmg"] = damage;
         self.changed = true;
     end
+    self:applyAttach(body, stored.done);
     return xp;
+end
+
+function TCA_AutopsyResultAction:applyAttach(body, oldDone)
+    local A = TCA.Autopsy;
+    local md = body:getModData();
+    local done = A.getOrganState(body).done;
+    if done ~= oldDone and md["TCA_A_attach"] then
+        md["TCA_A_attach"] = nil;
+        self.changed = true;
+    end
+    local organ = TCA.Organs.LIST[done + 1];
+    if not organ or math.floor(tonumber(self.organs) or -1) ~= done then
+        return;
+    end
+    if not A.findScalpel(self.character) then
+        return;
+    end
+    local count = #organ.attaches;
+    local stored = A.decodeAttach(md["TCA_A_attach"], count);
+    local sent = A.decodeAttach(self.attach, count);
+    local changed = false;
+    for i = 1, count do
+        if sent[i] > stored[i] then
+            stored[i] = sent[i];
+            changed = true;
+        end
+    end
+    if changed then
+        md["TCA_A_attach"] = A.encodeAttach(stored);
+        self.changed = true;
+    end
 end
 
 function TCA_AutopsyResultAction:complete()
@@ -189,7 +221,7 @@ function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -205,6 +237,7 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.organs = organs;
     o.organDamage = organDamage;
     o.plastron = plastron;
+    o.attach = attach;
     o.maxTime = o:getDuration();
     o.stopOnWalk = false;
     o.stopOnRun = false;

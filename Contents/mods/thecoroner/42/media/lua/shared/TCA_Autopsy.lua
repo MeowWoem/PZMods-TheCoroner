@@ -152,7 +152,46 @@ function A.getOrganState(body)
     local state = {};
     state.done = math.floor(tonumber(md["TCA_A_organs"]) or 0);
     state.damage = math.floor(tonumber(md["TCA_A_odmg"]) or 0);
+    state.attach = md["TCA_A_attach"] or "";
     return state;
+end
+
+function A.decodeAttach(str, count)
+    local work = {};
+    for i = 1, count do
+        work[i] = 0;
+    end
+    local index = 1;
+    for value in string.gmatch(tostring(str or ""), "[^,]+") do
+        if index > count then
+            break;
+        end
+        local v = tonumber(value) or 0;
+        if v < 0 then
+            v = 0;
+        elseif v > 1 then
+            v = 1;
+        end
+        work[index] = v;
+        index = index + 1;
+    end
+    return work;
+end
+
+function A.encodeAttach(work)
+    local parts = {};
+    local any = false;
+    for i = 1, #work do
+        local v = math.floor(work[i] * 1000 + 0.5) / 1000;
+        if v > 0 then
+            any = true;
+        end
+        parts[i] = tostring(v);
+    end
+    if not any then
+        return "";
+    end
+    return table.concat(parts, ",");
 end
 
 function A.getOrganDecay(body)
@@ -324,6 +363,7 @@ function A.resetBody(body)
     md["TCA_A_tears"] = nil;
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
+    md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     body:transmitModData();
 end
@@ -355,6 +395,7 @@ function A.applyDebugPosition(body, pos)
     md["TCA_A_tears"] = nil;
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
+    md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     if pos >= 1 then
         md["TCA_Autopsied"] = true;

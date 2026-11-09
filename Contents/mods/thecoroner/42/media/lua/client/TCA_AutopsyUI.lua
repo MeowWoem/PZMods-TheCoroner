@@ -1317,7 +1317,8 @@ function TCA_AutopsyUI:collectResult()
     result.organs = self.organsDone;
     result.organDamage = self.organDamage;
     result.plastron = self.plastronRemoved and not self.startPlastron;
-    local organsChanged = result.plastron or self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage;
+    result.attach = self:getAttachString();
+    local organsChanged = result.plastron or self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage or result.attach ~= self.startAttach;
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
     local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
     result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged;

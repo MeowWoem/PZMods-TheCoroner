@@ -96,7 +96,10 @@ TCA.Organs.LIST = {
     {
         id = "heart", step = 2, texture = "media/textures/organs/organ_heart.png",
         x = -9, y = 118, w = 25, h = 30,
-        attaches = { { x = -1, y = 121 }, { x = 7.5, y = 123.5 } },
+        attaches = {
+            { x = -1, y = 121, ax = -5.6, ay = 122.8, bx = 3.6, by = 119.2 },
+            { x = 7.5, y = 123.5, ax = 2.8, ay = 121.9, bx = 12.2, by = 125.1 },
+        },
         mask = {
             "0000000000000000000000000",
             "0000011000000000000000000",
@@ -133,7 +136,9 @@ TCA.Organs.LIST = {
     {
         id = "lung_l", step = 3, texture = "media/textures/organs/organ_lung_l.png",
         x = 4, y = 102, w = 29, h = 57,
-        attaches = { { x = 9, y = 128 } },
+        attaches = {
+            { x = 9, y = 128, ax = 6.4, ay = 132.3, bx = 11.6, by = 123.7 },
+        },
         mask = {
             "00000000000000000000000000000",
             "00000011100000000000000000000",
@@ -197,7 +202,9 @@ TCA.Organs.LIST = {
     {
         id = "lung_r", step = 4, texture = "media/textures/organs/organ_lung_r.png",
         x = -32, y = 102, w = 29, h = 57,
-        attaches = { { x = -9, y = 128 } },
+        attaches = {
+            { x = -9, y = 128, ax = -11.6, ay = 123.8, bx = -6.4, by = 132.2 },
+        },
         mask = {
             "00000000000000000000000000000",
             "00000000000000000000110000000",
@@ -261,7 +268,10 @@ TCA.Organs.LIST = {
     {
         id = "liver", step = 5, texture = "media/textures/organs/organ_liver.png",
         x = -29, y = 145, w = 48, h = 35,
-        attaches = { { x = 2, y = 152 }, { x = -8, y = 160 } },
+        attaches = {
+            { x = 2, y = 152, ax = -0.5, ay = 147.7, bx = 4.5, by = 156.3 },
+            { x = -8, y = 160, ax = -10.9, ay = 164.1, bx = -5.1, by = 155.9 },
+        },
         mask = {
             "000000000000000000000000000000000000000000000000",
             "000000000000000000000000000000000000000000000000",
@@ -303,7 +313,10 @@ TCA.Organs.LIST = {
     {
         id = "stomach", step = 6, texture = "media/textures/organs/organ_stomach.png",
         x = -12, y = 146, w = 38, h = 36,
-        attaches = { { x = 6.5, y = 149.5 }, { x = -8, y = 174 } },
+        attaches = {
+            { x = 6.5, y = 149.5, ax = 1.7, ay = 150.7, bx = 11.3, by = 148.3 },
+            { x = -8, y = 174, ax = -10, ay = 169.4, bx = -6, by = 178.6 },
+        },
         mask = {
             "00000000000000000000000000000000000000",
             "00000000000000000011100000000000000000",
@@ -346,7 +359,10 @@ TCA.Organs.LIST = {
     {
         id = "intestines", step = 7, texture = "media/textures/organs/organ_intestines.png",
         x = -27, y = 170, w = 56, h = 53,
-        attaches = { { x = -18, y = 177 }, { x = 8, y = 217 } },
+        attaches = {
+            { x = -18, y = 177, ax = -21.5, ay = 180.5, bx = -14.5, by = 173.5 },
+            { x = 8, y = 217, ax = 3.2, ay = 218.5, bx = 12.8, by = 215.5 },
+        },
         mask = {
             "00000000000000000000000000000000000000000000000000000000",
             "00000000000000000000000000000000000000000000000000000000",
@@ -406,7 +422,9 @@ TCA.Organs.LIST = {
     {
         id = "pancreas", step = 8, texture = "media/textures/organs/organ_pancreas.png",
         x = -7, y = 163, w = 30, h = 19,
-        attaches = { { x = -2, y = 175 } },
+        attaches = {
+            { x = -2, y = 175, ax = -3.4, ay = 170.2, bx = -0.6, by = 179.8 },
+        },
         mask = {
             "000000000000000000000000000000",
             "000000000000000000000000000000",
@@ -432,7 +450,9 @@ TCA.Organs.LIST = {
     {
         id = "kidney_r", step = 9, texture = "media/textures/organs/organ_kidney_r.png",
         x = -23, y = 152, w = 17, h = 28,
-        attaches = { { x = -10.5, y = 163.5 } },
+        attaches = {
+            { x = -10.5, y = 163.5, ax = -13.2, ay = 159.3, bx = -7.8, by = 167.7 },
+        },
         mask = {
             "00000000000000000",
             "00000000000000000",
@@ -467,7 +487,9 @@ TCA.Organs.LIST = {
     {
         id = "kidney_l", step = 10, texture = "media/textures/organs/organ_kidney_l.png",
         x = 7, y = 152, w = 17, h = 27,
-        attaches = { { x = 11.5, y = 163.5 } },
+        attaches = {
+            { x = 11.5, y = 163.5, ax = 9.1, ay = 167.9, bx = 13.9, by = 159.1 },
+        },
         mask = {
             "00000000000000000",
             "01110000000000000",
@@ -501,7 +523,9 @@ TCA.Organs.LIST = {
     {
         id = "spleen", step = 11, texture = "media/textures/organs/organ_spleen.png",
         x = 20, y = 155, w = 11, h = 17,
-        attaches = { { x = 22, y = 163 } },
+        attaches = {
+            { x = 22, y = 163, ax = 21.3, ay = 167.9, bx = 22.7, by = 158.1 },
+        },
         mask = {
             "00000000000",
             "00001100000",
@@ -525,7 +549,9 @@ TCA.Organs.LIST = {
     {
         id = "bladder", step = 12, texture = "media/textures/organs/organ_bladder.png",
         x = -8, y = 202, w = 18, h = 21,
-        attaches = { { x = 1, y = 219 } },
+        attaches = {
+            { x = 1, y = 219, ax = -4, ay = 219, bx = 6, by = 219 },
+        },
         mask = {
             "000000000000000000",
             "000000011100000000",
