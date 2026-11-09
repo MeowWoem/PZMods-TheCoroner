@@ -1,0 +1,106 @@
+module TCA
+{
+    sound TCA_OscStart
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/osc_start.ogg,
+            volume = 0.45,
+        }
+    }
+
+    sound TCA_OscIdleLoop
+    {
+        category = Item,
+        is3D = false,
+        loop = true,
+        clip
+        {
+            file = media/sound/tca/osc_idle_loop.ogg,
+            volume = 0.45,
+        }
+    }
+
+    sound TCA_OscCutStart
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/osc_cut_start.ogg,
+            volume = 0.4,
+        }
+    }
+
+    sound TCA_OscCutLoop
+    {
+        category = Item,
+        is3D = false,
+        loop = true,
+        clip
+        {
+            file = media/sound/tca/osc_cut_loop.ogg,
+            volume = 0.3,
+        }
+    }
+
+    sound TCA_OscCutStop
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/osc_cut_stop.ogg,
+            volume = 0.4,
+        }
+    }
+
+    sound TCA_OscStop
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/osc_stop.ogg,
+            volume = 0.5,
+        }
+    }
+
+    sound TCA_Scalpel
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/scalpel_01.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/scalpel_02.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/scalpel_03.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/scalpel_04.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/scalpel_05.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/scalpel_06.ogg,
+            volume = 1.0,
+        }
+    }
+}

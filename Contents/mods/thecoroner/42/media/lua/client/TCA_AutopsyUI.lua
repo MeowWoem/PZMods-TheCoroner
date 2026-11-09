@@ -819,6 +819,9 @@ function TCA_AutopsyUI:updateStage()
     elseif self.stage == "organs" then
         self:updateOrgans();
     end
+    if self.updateSound then
+        self:updateSound();
+    end
 end
 
 function TCA_AutopsyUI:onMouseDown(x, y)
@@ -1372,6 +1375,9 @@ function TCA_AutopsyUI:collectResult()
 end
 
 function TCA_AutopsyUI:closeSilently()
+    if self.stopSounds then
+        self:stopSounds();
+    end
     self:setVisible(false);
     self:removeFromUIManager();
     if TCA_AutopsyUI.instance == self then
