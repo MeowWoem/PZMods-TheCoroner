@@ -10,5 +10,7 @@
     "TCA.Organ_kidney_r": "Right kidney",
     "TCA.Organ_kidney_l": "Left kidney",
     "TCA.Organ_spleen": "Spleen",
-    "TCA.Organ_bladder": "Bladder"
+    "TCA.Organ_bladder": "Bladder",
+    "TCA.BoneSawOscillating": "Oscillating bone saw",
+    "TCA.BoneSaw": "Bone saw"
 }

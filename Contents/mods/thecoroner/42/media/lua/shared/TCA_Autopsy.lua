@@ -48,13 +48,20 @@ A.RIBS = {
 
 A.FORCEPS_TYPES = { "SutureNeedleHolder", "Forceps_Forged", "Tweezers" };
 
+A.OSCILLATING_SAW = "TCA.BoneSawOscillating";
+A.BONE_SAW = "TCA.BoneSaw";
+
 A.RIB_TOOLS = {
-    { tag = ItemTag.BOLT_CUTTERS, mode = "cutter" },
-    { tag = ItemTag.SAW, mode = "saw" },
-    { tag = ItemTag.SMALL_SAW, mode = "saw" },
-    { tag = ItemTag.METAL_SAW, mode = "saw" },
-    { tag = ItemTag.CRUDE_SAW, mode = "saw" },
+    { id = "oscillating", itemType = A.OSCILLATING_SAW, mode = "cutter", needsCharge = true, holdMul = 0.2, slipMul = 1.5, xpMul = 1.5 },
+    { id = "bonesaw", itemType = A.BONE_SAW, mode = "saw", travelMul = 0.6, slipMul = 1.5, cutChance = 10, xpMul = 1.5 },
+    { id = "cutter", tag = ItemTag.BOLT_CUTTERS, mode = "cutter" },
+    { id = "saw", tag = ItemTag.SAW, mode = "saw" },
+    { id = "saw", tag = ItemTag.SMALL_SAW, mode = "saw" },
+    { id = "saw", tag = ItemTag.METAL_SAW, mode = "saw" },
+    { id = "saw", tag = ItemTag.CRUDE_SAW, mode = "saw" },
 };
+
+A.BATTERY_TYPE = "Base.Battery";
 
 local function segLength(seg)
     local dx = seg.bx - seg.ax;
@@ -289,17 +296,45 @@ function A.findForceps(character)
     return nil;
 end
 
+function A.hasCharge(item)
+    return item ~= nil and item:getCurrentUsesFloat() > 0;
+end
+
+function A.isUsableRibTool(item)
+    return isNotBroken(item) and (not item:IsDrainable() or A.hasCharge(item));
+end
+
+function A.findRibToolItem(inv, def)
+    if def.itemType then
+        return inv:getFirstTypeEvalRecurse(def.itemType, A.isUsableRibTool);
+    end
+    if def.tag then
+        return inv:getFirstTagEvalRecurse(def.tag, isNotBroken);
+    end
+    return nil;
+end
+
 function A.findRibTool(character)
     local inv = character:getInventory();
     for _, def in ipairs(A.RIB_TOOLS) do
-        if def.tag then
-            local item = inv:getFirstTagEvalRecurse(def.tag, isNotBroken);
-            if item then
-                return item, def.mode;
-            end
+        local item = A.findRibToolItem(inv, def);
+        if item then
+            return item, def.mode, def;
         end
     end
-    return nil, nil;
+    return nil, nil, nil;
+end
+
+function A.useCharge(item, count)
+    if not item or not item:IsDrainable() then
+        return;
+    end
+    for i = 1, count do
+        if item:getCurrentUsesFloat() <= 0 then
+            return;
+        end
+        item:Use(false, false, isServer());
+    end
 end
 
 function A.hasToolForStage(character, stage)

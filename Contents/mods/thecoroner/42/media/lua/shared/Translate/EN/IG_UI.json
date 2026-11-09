@@ -155,5 +155,7 @@
     "IGUI_TCA_ExamDebug": "[DEBUG] True: %1 / cold: %2 h / effective age (decay): %3",
     "IGUI_TCA_DebugCold": "Cold total: %1 h, left the cold: %2",
     "IGUI_TCA_DebugNever": "never",
-    "IGUI_TCA_ExamDebugEdit": "[Debug] Markers"
+    "IGUI_TCA_ExamDebugEdit": "[Debug] Markers",
+    "IGUI_TCA_InstrRibsOscillating": "Click a marker and hold the saw in place.",
+    "IGUI_TCA_OscillatingSlip": "The blade slipped off the rib"
 }

@@ -57,7 +57,7 @@ function TCA_Server.onAutopsyCommitCommand(player, args)
     if math.abs(player:getX() - (args.x + 0.5)) > 4 or math.abs(player:getY() - (args.y + 0.5)) > 4 then
         return;
     end
-    TCA_AutopsyResultAction.create(player, tableObj, args):complete();
+    TCA_AutopsyResultAction.fromResult(player, tableObj, args):complete();
 end
 
 function TCA_Server.onResetExamCommand(player, args)

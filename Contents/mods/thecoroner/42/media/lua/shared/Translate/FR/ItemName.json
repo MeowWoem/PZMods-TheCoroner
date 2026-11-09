@@ -10,5 +10,7 @@
     "TCA.Organ_kidney_r": "Rein droit",
     "TCA.Organ_kidney_l": "Rein gauche",
     "TCA.Organ_spleen": "Rate",
-    "TCA.Organ_bladder": "Vessie"
+    "TCA.Organ_bladder": "Vessie",
+    "TCA.BoneSawOscillating": "Scie à os oscillante",
+    "TCA.BoneSaw": "Scie à os"
 }

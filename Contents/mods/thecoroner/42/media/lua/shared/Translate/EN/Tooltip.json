@@ -5,8 +5,11 @@
     "Tooltip_TCA_AlreadyAutopsied": "This corpse has already been autopsied.",
     "Tooltip_TCA_MustUndress": "Undress the corpse first (still wearing: %1).",
     "Tooltip_TCA_NeedForceps": "Requires forceps or tweezers.",
-    "Tooltip_TCA_NeedRibTool": "Requires bolt cutters or a saw.",
+    "Tooltip_TCA_NeedRibTool": "Requires a bone saw, bolt cutters or a saw.",
     "Tooltip_TCA_MorgueNoPower": "No power: the drawers will not cool down until they are powered.",
     "Tooltip_TCA_Thermometer": "Used to take a body's temperature during a forensic examination.",
-    "Tooltip_TCA_Organ": "Organ removed during an autopsy."
+    "Tooltip_TCA_Organ": "Organ removed during an autopsy.",
+    "Tooltip_TCA_BoneSawOscillating": "Battery-powered saw. Cuts ribs very fast and cleanly.",
+    "Tooltip_TCA_BoneSaw": "Saw made for bone: shorter strokes, better guided blade.",
+    "Tooltip_TCA_NeedBattery": "Requires a charged battery."
 }

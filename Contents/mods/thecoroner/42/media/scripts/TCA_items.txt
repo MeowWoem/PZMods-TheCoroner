@@ -124,4 +124,28 @@ module TCA
         Icon = TCA_Organ_bladder,
         Tooltip = Tooltip_TCA_Organ,
     }
+
+    item BoneSawOscillating
+    {
+        DisplayName = BoneSawOscillating,
+        DisplayCategory = FirstAid,
+        ItemType = base:drainable,
+        Weight = 1.2,
+        Icon = TCA_BoneSawOscillating,
+        Tooltip = Tooltip_TCA_BoneSawOscillating,
+        UseDelta = 0.02,
+        KeepOnDeplete = true,
+        DisappearOnUse = false,
+        cantBeConsolided = true,
+    }
+
+    item BoneSaw
+    {
+        DisplayName = BoneSaw,
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.6,
+        Icon = TCA_BoneSaw,
+        Tooltip = Tooltip_TCA_BoneSaw,
+    }
 }

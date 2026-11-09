@@ -98,7 +98,8 @@ function TCA_AutopsyResultAction:applyRibs(body)
     if A.getStep(body) ~= A.STEP_OPENED then
         return 0;
     end
-    if not A.findRibTool(self.character) then
+    local tool, mode, def = A.findRibTool(self.character);
+    if not tool then
         return 0;
     end
     local stored = A.getRibs(body);
@@ -115,7 +116,10 @@ function TCA_AutopsyResultAction:applyRibs(body)
     end
     local md = body:getModData();
     md["TCA_A_ribs"] = A.encodeRibs(stored);
-    return A.XP_PER_RIB * added;
+    if def.needsCharge then
+        A.useCharge(tool, added);
+    end
+    return A.XP_PER_RIB * (def.xpMul or 1) * added;
 end
 
 function TCA_AutopsyResultAction:applyPlastron(body)
@@ -243,7 +247,7 @@ function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
-function TCA_AutopsyResultAction.create(character, tableObject, r)
+function TCA_AutopsyResultAction.fromResult(character, tableObject, r)
     return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach);
 end
 

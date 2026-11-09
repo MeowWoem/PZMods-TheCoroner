@@ -12,6 +12,7 @@ require "TCA_Exam";
 require "TCA_Cold";
 require "TCA_ExamUI";
 require "TimedActions/TCA_ExamAction";
+require "TimedActions/TCA_SawBatteryAction";
 
 TCA_Client = TCA_Client or {};
 
@@ -102,7 +103,7 @@ function TCA_Client.commitAutopsy(playerObj, tableObj, result)
         sendClientCommand(playerObj, "TCA", "autopsyCommit", args);
         return;
     end
-    TCA_AutopsyResultAction.create(playerObj, tableObj, result):complete();
+    TCA_AutopsyResultAction.fromResult(playerObj, tableObj, result):complete();
 end
 
 function TCA_Client.onDebugDeathTime(playerObj, body)
@@ -195,6 +196,45 @@ function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
         return true;
     end
     TCA_Client.addExamOptions(context, playerObj, body, TCA_Client.isDebug());
+end
+
+function TCA_Client.onSawBattery(playerObj, saw, battery)
+    ISInventoryPaneContextMenu.transferIfNeeded(playerObj, saw);
+    if battery then
+        ISInventoryPaneContextMenu.transferIfNeeded(playerObj, battery);
+    end
+    ISTimedActionQueue.add(TCA_SawBatteryAction:new(playerObj, saw, battery));
+end
+
+function TCA_Client.isChargedBattery(item)
+    return item:getCurrentUsesFloat() > 0;
+end
+
+function TCA_Client.onFillInventoryMenu(player, context, items)
+    local playerObj = getSpecificPlayer(player);
+    if not playerObj then
+        return;
+    end
+    local actual = ISInventoryPane.getActualItems(items);
+    if #actual ~= 1 then
+        return;
+    end
+    local saw = actual[1];
+    if saw:getFullType() ~= TCA.Autopsy.OSCILLATING_SAW then
+        return;
+    end
+    if saw:getCurrentUsesFloat() > 0 then
+        context:addOption(getText("ContextMenu_TCA_SawRemoveBattery"), playerObj, TCA_Client.onSawBattery, saw, nil);
+        return;
+    end
+    local battery = playerObj:getInventory():getFirstTypeEvalRecurse(TCA.Autopsy.BATTERY_TYPE, TCA_Client.isChargedBattery);
+    local option = context:addOption(getText("ContextMenu_TCA_SawInsertBattery"), playerObj, TCA_Client.onSawBattery, saw, battery);
+    if not battery then
+        option.notAvailable = true;
+        local tooltip = ISInventoryPaneContextMenu.addToolTip();
+        tooltip.description = getText("Tooltip_TCA_NeedBattery");
+        option.toolTip = tooltip;
+    end
 end
 
 function TCA_Client.onDebugReference(playerObj, tableObj)
@@ -352,6 +392,7 @@ end
 
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillWorldObjectContextMenu);
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillFloorBodyMenu);
+Events.OnFillInventoryObjectContextMenu.Add(TCA_Client.onFillInventoryMenu);
 Events.OnDeadBodySpawn.Add(TCA_Client.onDeadBodySpawn);
 Events.OnTick.Add(TCA_Client.onTick);
 Events.OnServerCommand.Add(TCA_Client.onServerCommand);

@@ -202,6 +202,7 @@ function TCA_AutopsyUI:initialise()
     self.ribActive = nil;
     self.ribTool = nil;
     self.ribMode = nil;
+    self.ribDef = nil;
     self.toolCheckTime = 0;
     self.hasForceps = false;
 
@@ -403,7 +404,7 @@ function TCA_AutopsyUI:refreshTools(force)
     self.toolCheckTime = now;
 
     if self.stage == "ribs" and not self.cutting then
-        self.ribTool, self.ribMode = TCA.Autopsy.findRibTool(self.character);
+        self.ribTool, self.ribMode, self.ribDef = TCA.Autopsy.findRibTool(self.character);
     end
     if self.stage == "open" and not self.cutting then
         self.forcepsTool = TCA.Autopsy.findForceps(self.character);
@@ -701,14 +702,33 @@ function TCA_AutopsyUI:getStrength()
     return self.character:getPerkLevel(Perks.Strength);
 end
 
+function TCA_AutopsyUI:getRibParam(key, default)
+    if self.ribDef and self.ribDef[key] ~= nil then
+        return self.ribDef[key];
+    end
+    return default;
+end
+
 function TCA_AutopsyUI:getCutterHoldMs()
     local ms = TCA_AutopsyUI.CUTTER_HOLD_MS - self:getStrength() * TCA_AutopsyUI.CUTTER_HOLD_PER_STR;
-    return math.max(ms, TCA_AutopsyUI.CUTTER_HOLD_MIN);
+    return math.max(ms, TCA_AutopsyUI.CUTTER_HOLD_MIN) * self:getRibParam("holdMul", 1);
 end
 
 function TCA_AutopsyUI:getSawTravel()
     local travel = TCA_AutopsyUI.SAW_TRAVEL - self:getStrength() * TCA_AutopsyUI.SAW_TRAVEL_PER_STR;
-    return math.max(travel, TCA_AutopsyUI.SAW_TRAVEL_MIN);
+    return math.max(travel, TCA_AutopsyUI.SAW_TRAVEL_MIN) * self:getRibParam("travelMul", 1);
+end
+
+function TCA_AutopsyUI:getRibSlipDist()
+    return TCA_AutopsyUI.SLIP_DIST * self:getRibParam("slipMul", 1);
+end
+
+function TCA_AutopsyUI:getRibWarnDist()
+    return TCA_AutopsyUI.WARN_DIST * self:getRibParam("slipMul", 1);
+end
+
+function TCA_AutopsyUI:isOscillating()
+    return self.ribDef ~= nil and self.ribDef.id == "oscillating";
 end
 
 function TCA_AutopsyUI:ribSlip()
@@ -717,10 +737,14 @@ function TCA_AutopsyUI:ribSlip()
     self.ribActive = nil;
     if self.ribMode == "cutter" then
         self.ribWork[index] = 0;
-        HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_CutterSlip"));
+        if self:isOscillating() then
+            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_OscillatingSlip"));
+        else
+            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_CutterSlip"));
+        end
         return;
     end
-    if ZombRand(100) < TCA_AutopsyUI.SAW_CUT_CHANCE then
+    if ZombRand(100) < self:getRibParam("cutChance", TCA_AutopsyUI.SAW_CUT_CHANCE) then
         self:slip("IGUI_TCA_SawSlipHurt");
     else
         HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_SawSlip"));
@@ -732,6 +756,10 @@ function TCA_AutopsyUI:finishRib(index)
     self.ribWork[index] = 1;
     self.cutting = false;
     self.ribActive = nil;
+    if self.ribDef and self.ribDef.needsCharge then
+        self:commitProgress();
+        self:refreshTools(true);
+    end
     if TCA.Autopsy.countRibs(self.ribs) >= #TCA.Autopsy.RIBS then
         self:setStage("plastron");
     end
@@ -746,11 +774,11 @@ function TCA_AutopsyUI:updateRibs()
 
     if self.ribMode == "cutter" then
         local d = dist(self.bladeX, self.bladeY, sx, sy);
-        if d > TCA_AutopsyUI.SLIP_DIST then
+        if d > self:getRibSlipDist() then
             self:ribSlip();
             return;
         end
-        if d > TCA_AutopsyUI.WARN_DIST then
+        if d > self:getRibWarnDist() then
             self.warn = true;
             return;
         end
@@ -758,11 +786,12 @@ function TCA_AutopsyUI:updateRibs()
     else
         local side = math.abs(self.bladeX - sx);
         local along = math.abs(self.bladeY - sy);
-        if side > TCA_AutopsyUI.SLIP_DIST or along > TCA_AutopsyUI.SAW_STROKE_SLIP then
+        local slipMul = self:getRibParam("slipMul", 1);
+        if side > self:getRibSlipDist() or along > TCA_AutopsyUI.SAW_STROKE_SLIP * slipMul then
             self:ribSlip();
             return;
         end
-        if side > TCA_AutopsyUI.WARN_DIST or along > TCA_AutopsyUI.SAW_STROKE_WARN then
+        if side > self:getRibWarnDist() or along > TCA_AutopsyUI.SAW_STROKE_WARN * slipMul then
             self.warn = true;
             return;
         end
@@ -1050,6 +1079,19 @@ function TCA_AutopsyUI:drawSaw(c)
     self:thickLineScreen(x + 1, y + 16, x + 1, y + 30, 8, HANDLE, 1);
 end
 
+function TCA_AutopsyUI:drawOscillatingSaw(c)
+    local x = self.bladeX;
+    local y = self.bladeY;
+    local shake = 0;
+    if self.cutting and self.ribActive then
+        shake = (math.floor(getTimestampMs() / 30) % 2) * 2 - 1;
+    end
+    self:thickLineScreen(x - 5 + shake, y, x + 5 + shake, y, 3, c, 1);
+    self:thickLineScreen(x + shake, y, x + 4, y + 10, 2, STEEL, 1);
+    self:thickLineScreen(x + 4, y + 10, x + 20, y + 38, 9, CUTTER_HANDLE, 1);
+    self:thickLineScreen(x + 14, y + 27, x + 17, y + 32, 2, GREEN, 1);
+end
+
 function TCA_AutopsyUI:drawForceps(c)
     local x = self.bladeX;
     local y = self.bladeY;
@@ -1074,7 +1116,9 @@ function TCA_AutopsyUI:drawTool()
             self:drawForceps(c);
         end
     elseif self.stage == "ribs" then
-        if self.ribMode == "cutter" then
+        if self:isOscillating() then
+            self:drawOscillatingSaw(c);
+        elseif self.ribMode == "cutter" then
             self:drawCutter(c);
         elseif self.ribMode == "saw" then
             self:drawSaw(c);
@@ -1121,7 +1165,9 @@ function TCA_AutopsyUI:getInstructionText()
     elseif stage == "open" then
         return getText("IGUI_TCA_InstrOpen");
     elseif stage == "ribs" then
-        if self.ribMode == "cutter" then
+        if self:isOscillating() then
+            return getText("IGUI_TCA_InstrRibsOscillating");
+        elseif self.ribMode == "cutter" then
             return getText("IGUI_TCA_InstrRibsCutter");
         elseif self.ribMode == "saw" then
             return getText("IGUI_TCA_InstrRibsSaw");

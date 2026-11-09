@@ -311,6 +311,11 @@ function TCA_AutopsyUI:commitProgress()
         return;
     end
     TCA_Client.commitAutopsy(self.character, self.tableObject, result);
+    self.startFraction = self:getProgress();
+    self.startOpenL = self.openL;
+    self.startOpenR = self.openR;
+    self.startTears = self.tears;
+    self.startRibCount = TCA.Autopsy.countRibs(self.ribs);
     self.startOrgansDone = self.organsDone;
     self.startOrganDamage = self.organDamage;
     self.startAttach = result.attach;
