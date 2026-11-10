@@ -393,7 +393,7 @@ function W.describe(body)
     return lines;
 end
 
-W.REGION_ORDER = { "w_Hand_L", "w_Hand_R", "w_ForeArm_L", "w_ForeArm_R", "w_UpperArm_L", "w_UpperArm_R", "w_Torso_Upper", "w_Torso_Lower", "w_Head", "w_Neck", "w_Groin", "w_UpperLeg_L", "w_UpperLeg_R", "w_LowerLeg_L", "w_LowerLeg_R", "w_Foot_L", "w_Foot_R" };
+W.REGION_ORDER = { "w_Head", "w_Neck", "w_Torso_Upper", "w_UpperArm_R", "w_UpperArm_L", "w_Torso_Lower", "w_ForeArm_R", "w_ForeArm_L", "w_Groin", "w_Hand_R", "w_Hand_L", "w_UpperLeg_R", "w_UpperLeg_L", "w_LowerLeg_R", "w_LowerLeg_L", "w_Foot_R", "w_Foot_L" };
 W.REGION_PARTS = {
     w_Hand_L = { Hand_L = true },
     w_Hand_R = { Hand_R = true },
