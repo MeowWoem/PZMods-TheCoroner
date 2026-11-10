@@ -13,5 +13,6 @@
     "Tooltip_TCA_BoneSaw": "Saw made for bone: shorter strokes, better guided blade.",
     "Tooltip_TCA_NeedBattery": "Requires a charged battery.",
     "Tooltip_TCA_TableClutterObject": "Clear the table first: something is standing on it.",
-    "Tooltip_TCA_TableClutterItems": "Clear the table first: there are items on it."
+    "Tooltip_TCA_TableClutterItems": "Clear the table first: there are items on it.",
+    "Tooltip_TCA_ChestPlate": "Chest plate removed during an autopsy."
 }

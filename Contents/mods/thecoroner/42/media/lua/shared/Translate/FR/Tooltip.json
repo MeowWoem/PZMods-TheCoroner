@@ -13,5 +13,6 @@
     "Tooltip_TCA_BoneSaw": "Scie conçue pour l'os : course plus courte, lame mieux guidée.",
     "Tooltip_TCA_NeedBattery": "Nécessite une pile chargée.",
     "Tooltip_TCA_TableClutterObject": "Il faut d'abord débarrasser la table : un objet est posé dessus.",
-    "Tooltip_TCA_TableClutterItems": "Il faut d'abord débarrasser la table : des affaires traînent dessus."
+    "Tooltip_TCA_TableClutterItems": "Il faut d'abord débarrasser la table : des affaires traînent dessus.",
+    "Tooltip_TCA_ChestPlate": "Plastron retiré lors d'une autopsie."
 }

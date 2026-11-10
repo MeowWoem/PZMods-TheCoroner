@@ -132,6 +132,7 @@ function TCA_AutopsyResultAction:applyPlastron(body)
     end
     body:getModData()["TCA_A_step"] = A.STEP_CHEST;
     self.changed = true;
+    self:giveBodyItem(body, A.CHEST_PLATE_ITEM);
     return A.XP_PLASTRON;
 end
 
@@ -168,7 +169,11 @@ function TCA_AutopsyResultAction:giveOrgan(body, organ)
     if not organ then
         return;
     end
-    local item = instanceItem(TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id);
+    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id);
+end
+
+function TCA_AutopsyResultAction:giveBodyItem(body, fullType)
+    local item = instanceItem(fullType);
     if not item then
         return;
     end
