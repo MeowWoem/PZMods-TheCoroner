@@ -133,4 +133,74 @@ module TCA {
             rotate = -58.8093 -8.7973 63.6676,
         }
     }
+
+    model Formalin
+    {
+        mesh = WorldItems/Disinfectant,
+        texture = WorldItems/TCA_Formalin,
+        scale = 0.4,
+    }
+
+    model Specimen_Heart
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Heart,
+        scale = 0.1,
+    }
+
+    model Specimen_Lung
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Lung,
+        scale = 0.1,
+    }
+
+    model Specimen_Liver
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Liver,
+        scale = 0.1,
+    }
+
+    model Specimen_Stomach
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Stomach,
+        scale = 0.1,
+    }
+
+    model Specimen_Intestines
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Intestines,
+        scale = 0.1,
+    }
+
+    model Specimen_Pancreas
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Pancreas,
+        scale = 0.1,
+    }
+
+    model Specimen_Kidney
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Kidney,
+        scale = 0.1,
+    }
+
+    model Specimen_Spleen
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Spleen,
+        scale = 0.1,
+    }
+
+    model Specimen_Bladder
+    {
+        mesh = WorldItems/Jar_Specimen,
+        texture = WorldItems/TCA_Jar_Specimen_Bladder,
+        scale = 0.1,
+    }
 }

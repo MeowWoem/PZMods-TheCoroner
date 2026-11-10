@@ -15,5 +15,15 @@
     "TCA.BoneSaw": "Scie à os",
     "TCA.ChestPlate": "Plastron",
     "TCA.HumanBone": "Os humain",
-    "TCA.BladderCanteen": "Gourde en vessie"
+    "TCA.BladderCanteen": "Gourde en vessie",
+    "TCA.Formalin": "Formol",
+    "TCA.Specimen_Heart": "Cœur en bocal",
+    "TCA.Specimen_Lung": "Poumon en bocal",
+    "TCA.Specimen_Liver": "Foie en bocal",
+    "TCA.Specimen_Stomach": "Estomac en bocal",
+    "TCA.Specimen_Intestines": "Intestins en bocal",
+    "TCA.Specimen_Pancreas": "Pancréas en bocal",
+    "TCA.Specimen_Kidney": "Rein en bocal",
+    "TCA.Specimen_Spleen": "Rate en bocal",
+    "TCA.Specimen_Bladder": "Vessie en bocal"
 }

@@ -18,6 +18,10 @@ D.ENTRIES = {
     { list = "UniversityStorageScience", item = "TCA.Thermometer", weight = 2 },
     { list = "UniversityStorageScience", item = "TCA.BoneSaw", weight = 1 },
     { list = "ArmyStorageMedical", item = "TCA.BoneSaw", weight = 2 },
+    { list = "MorgueChemicals", item = "TCA.Formalin", weight = 10 },
+    { list = "MorgueChemicals", item = "TCA.Formalin", weight = 4 },
+    { list = "TestingLab", item = "TCA.Formalin", weight = 4 },
+    { list = "UniversityStorageScience", item = "TCA.Formalin", weight = 4 },
 };
 
 D.ROOM_ENTRIES = {

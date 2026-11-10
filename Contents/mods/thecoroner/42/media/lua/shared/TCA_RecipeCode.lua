@@ -7,6 +7,9 @@ R.CATGUT_MAX_DECAY = 1;
 R.CATGUT_MAX_DAMAGE = 2;
 R.CANTEEN_MAX_DECAY = 1;
 R.CANTEEN_MAX_DAMAGE = 0;
+R.SPECIMEN_ALCOHOL_MAX_DECAY = 1;
+R.SPECIMEN_FORMALIN_MAX_DECAY = 2;
+R.ORGAN_PREFIX = "TCA.Organ_";
 
 function R.getDecay(item)
     return math.floor(tonumber(item:getModData()["TCA_Decay"]) or 0);
@@ -51,4 +54,22 @@ function R.testBladderCanteen(item, character)
         return false;
     end
     return R.getDamage(item) <= R.CANTEEN_MAX_DAMAGE;
+end
+
+function R.isOrgan(item)
+    return item ~= nil and string.sub(item:getFullType(), 1, #R.ORGAN_PREFIX) == R.ORGAN_PREFIX;
+end
+
+function R.testSpecimenAlcohol(item, character)
+    if not R.isOrgan(item) then
+        return true;
+    end
+    return R.getDecay(item) <= R.SPECIMEN_ALCOHOL_MAX_DECAY;
+end
+
+function R.testSpecimenFormalin(item, character)
+    if not R.isOrgan(item) then
+        return true;
+    end
+    return R.getDecay(item) <= R.SPECIMEN_FORMALIN_MAX_DECAY;
 end

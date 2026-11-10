@@ -80,4 +80,418 @@ module TCA
             item 1 TCA.BladderCanteen,
         }
     }
+
+    craftRecipe TCA_MakeSpecimen_Heart_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_heart],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Heart,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Heart_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_heart],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Heart,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Lung_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Lung,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Lung_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Lung,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Liver_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_liver],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Liver,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Liver_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_liver],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Liver,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Stomach_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_stomach],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Stomach,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Stomach_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_stomach],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Stomach,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Intestines_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_intestines],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Intestines,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Intestines_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_intestines],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Intestines,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Pancreas_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_pancreas],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Pancreas,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Pancreas_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_pancreas],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Pancreas,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Kidney_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Kidney,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Kidney_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Kidney,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Spleen_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_spleen],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Spleen,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Spleen_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_spleen],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Spleen,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Bladder_Alcohol
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenAlcohol,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
+        inputs
+        {
+            item 1 [TCA.Organ_bladder],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [RubbingAlcohol;Vodka;Gin;Rum;Whiskey;Scotch;Tequila;Brandy],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Bladder,
+        }
+    }
+
+    craftRecipe TCA_MakeSpecimen_Bladder_Formalin
+    {
+        timedAction = Making,
+        time = 150,
+        Tags = AnySurfaceCraft,
+        category = Medical,
+        xpAward = Doctor:5,
+        OnTest = TCA_RecipeCode.testSpecimenFormalin,
+        Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
+        inputs
+        {
+            item 1 [TCA.Organ_bladder],
+            item 1 [Base.EmptyJar] mode:destroy,
+            item 1 [Base.JarLid] mode:destroy,
+            item 1 [*],
+            -fluid 0.5 [TCA_Formalin],
+        }
+        outputs
+        {
+            item 1 TCA.Specimen_Bladder,
+        }
+    }
 }

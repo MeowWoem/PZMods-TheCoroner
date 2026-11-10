@@ -15,5 +15,15 @@
     "TCA.BoneSaw": "Bone saw",
     "TCA.ChestPlate": "Chest plate",
     "TCA.HumanBone": "Human Bone",
-    "TCA.BladderCanteen": "Bladder Canteen"
+    "TCA.BladderCanteen": "Bladder Canteen",
+    "TCA.Formalin": "Formalin",
+    "TCA.Specimen_Heart": "Heart Specimen",
+    "TCA.Specimen_Lung": "Lung Specimen",
+    "TCA.Specimen_Liver": "Liver Specimen",
+    "TCA.Specimen_Stomach": "Stomach Specimen",
+    "TCA.Specimen_Intestines": "Intestines Specimen",
+    "TCA.Specimen_Pancreas": "Pancreas Specimen",
+    "TCA.Specimen_Kidney": "Kidney Specimen",
+    "TCA.Specimen_Spleen": "Spleen Specimen",
+    "TCA.Specimen_Bladder": "Bladder Specimen"
 }

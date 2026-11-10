@@ -1,0 +1,31 @@
+module TCA
+{
+    fluid TCA_Formalin
+    {
+        ColorReference = White,
+        DisplayName = Fluid_Name_TCA_Formalin,
+        Categories
+        {
+            Hazardous,
+            Medical,
+        }
+        Properties
+        {
+            ThirstChange = -20.0,
+        }
+        Poison
+        {
+            maxEffect = Deadly,
+            minAmount = 0.2,
+            diluteRatio = 0.1,
+        }
+        BlendWhiteList
+        {
+            whitelist = true,
+            categories
+            {
+                Industrial,
+            }
+        }
+    }
+}

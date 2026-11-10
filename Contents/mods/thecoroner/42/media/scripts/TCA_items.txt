@@ -251,4 +251,128 @@ module TCA
             }
         }
     }
+
+    item Formalin
+    {
+        DisplayName = Formalin,
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = TCA_Formalin,
+        CustomContextMenu = Drink,
+        CustomEatSound = DrinkingFromBottlePlastic,
+        FillFromDispenserSound = GetWaterFromDispenserPlasticMedium,
+        FillFromLakeSound = GetWaterFromLakeBottle,
+        FillFromTapSound = GetWaterFromTapPlasticMedium,
+        Tooltip = Tooltip_TCA_Formalin,
+        WorldStaticModel = TCA.Formalin,
+        component FluidContainer
+        {
+            ContainerName = Bottle,
+            Capacity = 0.5,
+            Fluids
+            {
+                fluid = TCA_Formalin:1.0,
+            }
+        }
+    }
+
+    item Specimen_Heart
+    {
+        DisplayName = Specimen_Heart,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = TCA_Specimen_Heart,
+        WorldStaticModel = TCA.Specimen_Heart,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Lung
+    {
+        DisplayName = Specimen_Lung,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.8,
+        Icon = TCA_Specimen_Lung,
+        WorldStaticModel = TCA.Specimen_Lung,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Liver
+    {
+        DisplayName = Specimen_Liver,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 2.7,
+        Icon = TCA_Specimen_Liver,
+        WorldStaticModel = TCA.Specimen_Liver,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Stomach
+    {
+        DisplayName = Specimen_Stomach,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.4,
+        Icon = TCA_Specimen_Stomach,
+        WorldStaticModel = TCA.Specimen_Stomach,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Intestines
+    {
+        DisplayName = Specimen_Intestines,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 3.2,
+        Icon = TCA_Specimen_Intestines,
+        WorldStaticModel = TCA.Specimen_Intestines,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Pancreas
+    {
+        DisplayName = Specimen_Pancreas,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.3,
+        Icon = TCA_Specimen_Pancreas,
+        WorldStaticModel = TCA.Specimen_Pancreas,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Kidney
+    {
+        DisplayName = Specimen_Kidney,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.35,
+        Icon = TCA_Specimen_Kidney,
+        WorldStaticModel = TCA.Specimen_Kidney,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Spleen
+    {
+        DisplayName = Specimen_Spleen,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.35,
+        Icon = TCA_Specimen_Spleen,
+        WorldStaticModel = TCA.Specimen_Spleen,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
+
+    item Specimen_Bladder
+    {
+        DisplayName = Specimen_Bladder,
+        DisplayCategory = Memento,
+        ItemType = base:normal,
+        Weight = 1.25,
+        Icon = TCA_Specimen_Bladder,
+        WorldStaticModel = TCA.Specimen_Bladder,
+        Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
+    }
 }
