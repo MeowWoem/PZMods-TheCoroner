@@ -22,6 +22,18 @@ D.ENTRIES = {
     { list = "MorgueChemicals", item = "TCA.Formalin", weight = 4 },
     { list = "TestingLab", item = "TCA.Formalin", weight = 4 },
     { list = "UniversityStorageScience", item = "TCA.Formalin", weight = 4 },
+    { list = "MedicalOfficeBooks", item = "TCA.ForensicsBook1", weight = 6 },
+    { list = "MedicalOfficeBooks", item = "TCA.ForensicsBook2", weight = 4 },
+    { list = "MedicalOfficeBooks", item = "TCA.ForensicsBook3", weight = 2 },
+    { list = "BookstoreMedical", item = "TCA.ForensicsBook1", weight = 6 },
+    { list = "BookstoreMedical", item = "TCA.ForensicsBook2", weight = 4 },
+    { list = "BookstoreMedical", item = "TCA.ForensicsBook3", weight = 2 },
+    { list = "LibraryMedical", item = "TCA.ForensicsBook1", weight = 6 },
+    { list = "LibraryMedical", item = "TCA.ForensicsBook2", weight = 4 },
+    { list = "LibraryMedical", item = "TCA.ForensicsBook3", weight = 2 },
+    { list = "LaboratoryBooks", item = "TCA.ForensicsBook1", weight = 4 },
+    { list = "LaboratoryBooks", item = "TCA.ForensicsBook2", weight = 3 },
+    { list = "LaboratoryBooks", item = "TCA.ForensicsBook3", weight = 2 },
 };
 
 D.ROOM_ENTRIES = {

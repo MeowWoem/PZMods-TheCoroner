@@ -20,5 +20,8 @@
     "TCA_MakeSpecimen_Spleen_Alcohol": "Conserver une rate dans l'alcool",
     "TCA_MakeSpecimen_Spleen_Formalin": "Conserver une rate dans le formol",
     "TCA_MakeSpecimen_Bladder_Alcohol": "Conserver une vessie dans l'alcool",
-    "TCA_MakeSpecimen_Bladder_Formalin": "Conserver une vessie dans le formol"
+    "TCA_MakeSpecimen_Bladder_Formalin": "Conserver une vessie dans le formol",
+    "TCA_Forensics1": "Aide-mémoire : signes précoces",
+    "TCA_Forensics2": "Aide-mémoire : chronologie de la mort",
+    "TCA_Forensics3": "Aide-mémoire : le froid et les cas particuliers"
 }

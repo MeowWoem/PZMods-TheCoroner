@@ -43,6 +43,8 @@ TCA_ExamUI.GUIDE_LINES = 9;
 local WHITE = { r = 1, g = 1, b = 1 };
 local GREEN = { r = 0.2, g = 0.9, b = 0.3 };
 local GREY = { r = 0.55, g = 0.55, b = 0.58 };
+local GUIDE_TITLE = { r = 0.95, g = 0.85, b = 0.6 };
+local GUIDE_TEXT = { r = 0.85, g = 0.85, b = 0.85 };
 local RED = { r = 1, g = 0.3, b = 0.25 };
 local ORANGE = { r = 1, g = 0.6, b = 0.25 };
 local LIVOR = { r = 0.42, g = 0.16, b = 0.36 };
@@ -601,18 +603,45 @@ function TCA_ExamUI:getInstructionText()
     return getText("IGUI_TCA_ExamInstr"), GREY;
 end
 
+function TCA_ExamUI:drawWrapped(text, x, y, maxW, c)
+    local lines = TCA_ExamUI.wrapText(UIFont.Small, text, maxW);
+    for _, line in ipairs(lines) do
+        self:drawText(line, x, y, c.r, c.g, c.b, 1, UIFont.Small);
+        y = y + self.smallH;
+    end
+    return y;
+end
+
+function TCA_ExamUI:drawGuide(x, y, maxW)
+    local startY = y;
+    local K = TCA.Knowledge;
+    for t = 1, #K.TIERS do
+        local tier = K.TIERS[t];
+        local known = K.hasTier(self.character, tier);
+        local title = getText("IGUI_TCA_ExamGuideTier" .. tostring(t));
+        if known then
+            y = self:drawWrapped(title, x, y, maxW, GUIDE_TITLE);
+            y = y + 2;
+            for _, index in ipairs(tier.lines) do
+                y = self:drawWrapped(getText("IGUI_TCA_ExamGuide" .. tostring(index)), x + 10, y, maxW - 10, GUIDE_TEXT);
+                y = y + 5;
+            end
+        else
+            y = self:drawWrapped(title, x, y, maxW, GREY);
+            y = y + 2;
+            local bookName = getItemNameFromFullType(tier.book);
+            y = self:drawWrapped(getText("IGUI_TCA_ExamGuideLocked", bookName, tier.level), x + 10, y, maxW - 10, GREY);
+            y = y + 5;
+        end
+        y = y + 6;
+    end
+    return y - startY;
+end
+
 function TCA_ExamUI:drawNotesContent(x, y, maxW)
     local startY = y;
     if self.showGuide then
-        for i = 1, TCA_ExamUI.GUIDE_LINES do
-            local lines = TCA_ExamUI.wrapText(UIFont.Small, getText("IGUI_TCA_ExamGuide" .. tostring(i)), maxW);
-            for _, line in ipairs(lines) do
-                self:drawText(line, x, y, 0.85, 0.85, 0.85, 1, UIFont.Small);
-                y = y + self.smallH;
-            end
-            y = y + 5;
-        end
-        return y - startY;
+        return self:drawGuide(x, y, maxW);
     end
     for _, id in ipairs(TCA_ExamUI.ORDER) do
         self:drawText(getText("IGUI_TCA_ExamZone_" .. id), x, y, 0.95, 0.85, 0.6, 1, UIFont.Small);

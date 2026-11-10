@@ -21,5 +21,6 @@
     "Tooltip_TCA_Recipe_BladderCanteen": "Fresh, uninfected and completely intact bladder only.",
     "Tooltip_TCA_Formalin": "Preservative used in morgues and laboratories. Highly toxic.",
     "Tooltip_TCA_Recipe_Specimen_Alcohol": "Strong alcohol or rubbing alcohol. The organ must be fresh.",
-    "Tooltip_TCA_Recipe_Specimen_Formalin": "Formalin fixes tissue better: accepts an organ already starting to decompose."
+    "Tooltip_TCA_Recipe_Specimen_Formalin": "Formalin fixes tissue better: accepts an organ already starting to decompose.",
+    "Tooltip_TCA_ForensicsBook": "Forensic medicine textbook. Completes the coroner’s notes of the external examination."
 }

@@ -159,5 +159,9 @@
     "IGUI_TCA_DebugNever": "never",
     "IGUI_TCA_ExamDebugEdit": "[Debug] Markers",
     "IGUI_TCA_InstrRibsOscillating": "Click a marker and hold the saw in place.",
-    "IGUI_TCA_OscillatingSlip": "The blade slipped off the rib"
+    "IGUI_TCA_OscillatingSlip": "The blade slipped off the rib",
+    "IGUI_TCA_ExamGuideTier1": "Early signs",
+    "IGUI_TCA_ExamGuideTier2": "Timeline of death",
+    "IGUI_TCA_ExamGuideTier3": "Cold and special cases",
+    "IGUI_TCA_ExamGuideLocked": "Unknown chapter. Read “%1” or reach First Aid level %2."
 }

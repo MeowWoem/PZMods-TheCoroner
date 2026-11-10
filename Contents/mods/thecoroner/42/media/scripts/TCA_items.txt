@@ -584,4 +584,46 @@ module TCA
         WorldStaticModel = TCA.Specimen_Bladder,
         Tags = base:ignorezombiedensity;base:ismemento;base:hasmetal,
     }
+
+    item ForensicsBook1
+    {
+        DisplayName = ForensicsBook1,
+        DisplayCategory = RecipeResource,
+        ItemType = base:literature,
+        Weight = 1.0,
+        Icon = Book7,
+        NumberOfPages = 180,
+        LearnedRecipes = TCA_Forensics1,
+        Tooltip = Tooltip_TCA_ForensicsBook,
+        StaticModel = BookGrey,
+        WorldStaticModel = BookGrey_Ground,
+    }
+
+    item ForensicsBook2
+    {
+        DisplayName = ForensicsBook2,
+        DisplayCategory = RecipeResource,
+        ItemType = base:literature,
+        Weight = 1.0,
+        Icon = Book7,
+        NumberOfPages = 220,
+        LearnedRecipes = TCA_Forensics2,
+        Tooltip = Tooltip_TCA_ForensicsBook,
+        StaticModel = BookGrey,
+        WorldStaticModel = BookGrey_Ground,
+    }
+
+    item ForensicsBook3
+    {
+        DisplayName = ForensicsBook3,
+        DisplayCategory = RecipeResource,
+        ItemType = base:literature,
+        Weight = 1.0,
+        Icon = Book7,
+        NumberOfPages = 260,
+        LearnedRecipes = TCA_Forensics3,
+        Tooltip = Tooltip_TCA_ForensicsBook,
+        StaticModel = BookGrey,
+        WorldStaticModel = BookGrey_Ground,
+    }
 }

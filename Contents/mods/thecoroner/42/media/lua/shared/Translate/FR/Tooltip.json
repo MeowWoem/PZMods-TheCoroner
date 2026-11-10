@@ -21,5 +21,6 @@
     "Tooltip_TCA_Recipe_BladderCanteen": "Vessie fraîche, non infectée et parfaitement intacte uniquement.",
     "Tooltip_TCA_Formalin": "Liquide de conservation des morgues et des laboratoires. Très toxique.",
     "Tooltip_TCA_Recipe_Specimen_Alcohol": "Alcool fort ou alcool à friction. L'organe doit être frais.",
-    "Tooltip_TCA_Recipe_Specimen_Formalin": "Le formol fixe mieux les tissus : accepte un organe déjà en début de décomposition."
+    "Tooltip_TCA_Recipe_Specimen_Formalin": "Le formol fixe mieux les tissus : accepte un organe déjà en début de décomposition.",
+    "Tooltip_TCA_ForensicsBook": "Manuel de médecine légale. Complète l'aide-mémoire de l'examen externe."
 }

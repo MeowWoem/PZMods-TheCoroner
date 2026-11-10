@@ -25,5 +25,8 @@
     "TCA.Specimen_Pancreas": "Pancreas Specimen",
     "TCA.Specimen_Kidney": "Kidney Specimen",
     "TCA.Specimen_Spleen": "Spleen Specimen",
-    "TCA.Specimen_Bladder": "Bladder Specimen"
+    "TCA.Specimen_Bladder": "Bladder Specimen",
+    "TCA.ForensicsBook1": "Forensic Medicine I: Early Signs",
+    "TCA.ForensicsBook2": "Forensic Medicine II: Timeline of Death",
+    "TCA.ForensicsBook3": "Forensic Medicine III: Cold and Special Cases"
 }

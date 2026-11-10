@@ -159,5 +159,9 @@
     "IGUI_TCA_DebugNever": "jamais",
     "IGUI_TCA_ExamDebugEdit": "[Debug] Repères",
     "IGUI_TCA_InstrRibsOscillating": "Clique sur un repère et maintiens la scie en place.",
-    "IGUI_TCA_OscillatingSlip": "La lame a glissé de la côte"
+    "IGUI_TCA_OscillatingSlip": "La lame a glissé de la côte",
+    "IGUI_TCA_ExamGuideTier1": "Les signes précoces",
+    "IGUI_TCA_ExamGuideTier2": "Chronologie de la mort",
+    "IGUI_TCA_ExamGuideTier3": "Le froid et les cas particuliers",
+    "IGUI_TCA_ExamGuideLocked": "Chapitre inconnu. À lire dans « %1 », ou à partir de Premiers soins niveau %2."
 }
