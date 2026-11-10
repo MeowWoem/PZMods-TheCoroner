@@ -58,6 +58,7 @@
     "IGUI_TCA_OrganAttached": "Encore attaché (%1)",
     "IGUI_TCA_OrganFree": "Prêt à être retiré",
     "IGUI_TCA_OrganDamagedCount": "Abîmé (%1)",
+    "IGUI_TCA_OrganIntact": "Intact",
     "IGUI_TCA_OrganLook": "Aspect : %1",
     "IGUI_TCA_OrganLook_0": "normal",
     "IGUI_TCA_OrganLook_1": "légèrement décoloré",
