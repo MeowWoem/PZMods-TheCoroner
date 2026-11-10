@@ -757,6 +757,9 @@ function TCA_AutopsyUI:finishRib(index)
     self.ribWork[index] = 1;
     self.cutting = false;
     self.ribActive = nil;
+    if self.playRibCrack then
+        self:playRibCrack();
+    end
     if self.ribDef and self.ribDef.needsCharge then
         self:commitProgress();
         self:refreshTools(true);

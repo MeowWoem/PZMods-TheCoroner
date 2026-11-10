@@ -103,4 +103,137 @@ module TCA
             volume = 1.0,
         }
     }
+
+    sound TCA_SawPush
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/saw_push_01.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_02.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_03.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_04.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_05.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_07.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_08.ogg,
+            volume = 0.6,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_push_09.ogg,
+            volume = 0.6,
+        }
+    }
+
+    sound TCA_SawPull
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/saw_pull_01.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_02.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_03.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_04.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_05.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_06.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_07.ogg,
+            volume = 0.9,
+        }
+        clip
+        {
+            file = media/sound/tca/saw_pull_08.ogg,
+            volume = 0.9,
+        }
+    }
+
+    sound TCA_RibCrack
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/rib_crack_01.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_02.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_03.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_04.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_05.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_06.ogg,
+            volume = 0.7,
+        }
+        clip
+        {
+            file = media/sound/tca/rib_crack_07.ogg,
+            volume = 0.7,
+        }
+    }
 }

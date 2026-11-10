@@ -8,12 +8,17 @@ TCA_AutopsyUI.SND_OSC_CUT = "TCA_OscCutLoop";
 TCA_AutopsyUI.SND_OSC_CUT_STOP = "TCA_OscCutStop";
 TCA_AutopsyUI.SND_OSC_STOP = "TCA_OscStop";
 TCA_AutopsyUI.SND_SCALPEL = "TCA_Scalpel";
+TCA_AutopsyUI.SND_SAW_PUSH = "TCA_SawPush";
+TCA_AutopsyUI.SND_SAW_PULL = "TCA_SawPull";
+TCA_AutopsyUI.SND_RIB_CRACK = "TCA_RibCrack";
 
 TCA_AutopsyUI.SND_SCALPEL_HOLD_MS = 150;
 TCA_AutopsyUI.SND_SCALPEL_MIN_MS = 450;
 TCA_AutopsyUI.SND_SCALPEL_MAX_MS = 750;
 TCA_AutopsyUI.SND_SCALPEL_FADE_MS = 150;
 TCA_AutopsyUI.SND_IDLE_FADE_MS = 80;
+TCA_AutopsyUI.SND_SAW_STROKE_MIN = 6;
+TCA_AutopsyUI.SND_SAW_FADE_MS = 60;
 
 function TCA_AutopsyUI:initSound()
     local snd = {};
@@ -23,6 +28,10 @@ function TCA_AutopsyUI:initSound()
     snd.scalpelNext = 0;
     snd.lastMetric = nil;
     snd.lastStage = nil;
+    snd.sawId = nil;
+    snd.sawDir = 0;
+    snd.sawAcc = 0;
+    snd.sawFired = false;
     self.snd = snd;
 end
 
@@ -197,12 +206,68 @@ function TCA_AutopsyUI:updateScalpel()
     snd.scalpelNext = now + TCA_AutopsyUI.SND_SCALPEL_MIN_MS + ZombRand(TCA_AutopsyUI.SND_SCALPEL_MAX_MS - TCA_AutopsyUI.SND_SCALPEL_MIN_MS + 1);
 end
 
+function TCA_AutopsyUI:isManualSawing()
+    return self.stage == "ribs" and self.ribMode == "saw" and self.cutting and self.ribActive ~= nil;
+end
+
+function TCA_AutopsyUI:stopSaw()
+    local snd = self.snd;
+    if snd.sawId then
+        TCA.Sound.fadeOut(self.character, snd.sawId, 1, TCA_AutopsyUI.SND_SAW_FADE_MS);
+        snd.sawId = nil;
+    end
+    snd.sawDir = 0;
+    snd.sawAcc = 0;
+    snd.sawFired = false;
+end
+
+function TCA_AutopsyUI:updateSaw()
+    local snd = self.snd;
+    if not self:isManualSawing() then
+        if snd.sawDir ~= 0 or snd.sawId then
+            self:stopSaw();
+        end
+        return;
+    end
+    local dy = self.mouseDY or 0;
+    if dy == 0 then
+        return;
+    end
+    local dir = 1;
+    if dy < 0 then
+        dir = -1;
+    end
+    if dir ~= snd.sawDir then
+        snd.sawDir = dir;
+        snd.sawAcc = 0;
+        snd.sawFired = false;
+    end
+    snd.sawAcc = snd.sawAcc + math.abs(dy);
+    if snd.sawFired or snd.sawAcc < TCA_AutopsyUI.SND_SAW_STROKE_MIN then
+        return;
+    end
+    snd.sawFired = true;
+    if snd.sawId then
+        TCA.Sound.fadeOut(self.character, snd.sawId, 1, TCA_AutopsyUI.SND_SAW_FADE_MS);
+    end
+    local name = TCA_AutopsyUI.SND_SAW_PULL;
+    if dir < 0 then
+        name = TCA_AutopsyUI.SND_SAW_PUSH;
+    end
+    snd.sawId = TCA.Sound.play(self.character, name);
+end
+
+function TCA_AutopsyUI:playRibCrack()
+    TCA.Sound.play(self.character, TCA_AutopsyUI.SND_RIB_CRACK);
+end
+
 function TCA_AutopsyUI:updateSound()
     if not self.snd then
         self:initSound();
     end
     self:updateOscillating();
     self:updateScalpel();
+    self:updateSaw();
 end
 
 function TCA_AutopsyUI:stopSounds()
@@ -211,4 +276,5 @@ function TCA_AutopsyUI:stopSounds()
     end
     self:stopOscillating(true);
     self:stopScalpel();
+    self:stopSaw();
 end
