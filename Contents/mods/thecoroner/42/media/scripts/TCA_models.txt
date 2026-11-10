@@ -105,4 +105,16 @@ module TCA {
         scale = 0.4,
     }
 
+    model AutopsySawHand
+    {
+        mesh = TCA_AutopsySawHand,
+        texture = WorldItems/TCA_AutopsySaw,
+    }
+
+    model SawBoneHand
+    {
+        mesh = TCA_SawBoneHand,
+        texture = WorldItems/TCA_SawBone,
+    }
+
 }

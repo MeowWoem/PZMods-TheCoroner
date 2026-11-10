@@ -155,7 +155,7 @@ module TCA
         ItemType = base:drainable,
         Weight = 1.2,
         Icon = TCA_BoneSawOscillating,
-        StaticModel = TCA.AutopsySaw,
+        StaticModel = TCA.AutopsySawHand,
         WorldStaticModel = TCA.AutopsySaw,
         Tooltip = Tooltip_TCA_BoneSawOscillating,
         UseDelta = 0.02,
@@ -171,7 +171,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.6,
         Icon = TCA_BoneSaw,
-        StaticModel = TCA.SawBone,
+        StaticModel = TCA.SawBoneHand,
         WorldStaticModel = TCA.SawBone,
         Tooltip = Tooltip_TCA_BoneSaw,
     }
