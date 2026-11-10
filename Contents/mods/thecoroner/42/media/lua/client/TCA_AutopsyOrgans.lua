@@ -199,7 +199,8 @@ end
 
 function TCA_AutopsyUI:damageOrgan(key)
     self.organDamage = self.organDamage + 1;
-    HaloTextHelper.addBadText(self.character, getText(key));
+    self.flashTime = getTimestampMs();
+    self:addBadMessage(key);
 end
 
 function TCA_AutopsyUI:organMouseDown(x, y)
@@ -219,7 +220,7 @@ function TCA_AutopsyUI:organMouseDown(x, y)
             self.lastMouseY = y;
             self.lastTime = getTimestampMs();
         elseif self:isOverOrgan(organ, self.bladeX, self.bladeY) then
-            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_OrganStillAttached"));
+            self:addBadMessage("IGUI_TCA_OrganStillAttached");
         end
         return;
     end

@@ -53,6 +53,10 @@ TCA_AutopsyUI.TOOL_CHECK_MS = 500;
 
 TCA_AutopsyUI.HIDE_CURSOR = true;
 
+TCA_AutopsyUI.MSG_MS = 2500;
+TCA_AutopsyUI.MSG_FADE_MS = 500;
+TCA_AutopsyUI.MSG_MAX = 3;
+
 local CUT = { r = 0.45, g = 0.05, b = 0.05 };
 local GAP = { r = 0.12, g = 0.02, b = 0.02 };
 local WHITE = { r = 1, g = 1, b = 1 };
@@ -214,6 +218,7 @@ function TCA_AutopsyUI:initialise()
     self.devCount = state.accSamples;
     self.devSum = (1 - state.accuracy) * TCA_AutopsyUI.WARN_DIST * state.accSamples;
     self.flashTime = 0;
+    self.messages = {};
     self.finished = false;
     self.lastMouseX = nil;
     self.lastMouseY = nil;
@@ -489,7 +494,7 @@ function TCA_AutopsyUI:slip(reasonKey)
     self.cuts = self.cuts + 1;
     self.cutting = false;
     self.flashTime = getTimestampMs();
-    HaloTextHelper.addBadText(self.character, getText(reasonKey));
+    self:addBadMessage(reasonKey);
     TCA_Client.requestCut(self.character);
 end
 
@@ -587,6 +592,49 @@ function TCA_AutopsyUI:findOpenEdgeAt(x, y)
     return nil;
 end
 
+function TCA_AutopsyUI:addBadMessage(key)
+    local text = getText(key);
+    HaloTextHelper.addBadText(self.character, text);
+    if not self.messages then
+        self.messages = {};
+    end
+    local msg = {};
+    msg.text = text;
+    msg.time = getTimestampMs();
+    table.insert(self.messages, msg);
+    while #self.messages > TCA_AutopsyUI.MSG_MAX do
+        table.remove(self.messages, 1);
+    end
+end
+
+function TCA_AutopsyUI:drawMessages()
+    if not self.messages or #self.messages == 0 then
+        return;
+    end
+    local now = getTimestampMs();
+    local keep = {};
+    for _, msg in ipairs(self.messages) do
+        if now - msg.time < TCA_AutopsyUI.MSG_MS then
+            table.insert(keep, msg);
+        end
+    end
+    self.messages = keep;
+    local tm = getTextManager();
+    local lineH = tm:getFontHeight(UIFont.Small) + 6;
+    local y = self.viewY + 8;
+    for i = #keep, 1, -1 do
+        local msg = keep[i];
+        local left = TCA_AutopsyUI.MSG_MS - (now - msg.time);
+        local a = math.min(1, left / TCA_AutopsyUI.MSG_FADE_MS);
+        local w = tm:MeasureStringX(UIFont.Small, msg.text) + 16;
+        local x = (self.width - w) / 2;
+        self:drawRect(x, y, w, lineH - 2, 0.75 * a, 0.08, 0.02, 0.02);
+        self:drawRectBorder(x, y, w, lineH - 2, 0.9 * a, 0.7, 0.15, 0.15);
+        self:drawTextCentre(msg.text, self.width / 2, y + 2, 1, 0.35, 0.35, a, UIFont.Small);
+        y = y + lineH;
+    end
+end
+
 function TCA_AutopsyUI:releaseFlap()
     self.cutting = false;
     self.pullSide = nil;
@@ -594,7 +642,7 @@ end
 
 function TCA_AutopsyUI:loseGrip()
     self:releaseFlap();
-    HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_GripLost"));
+    self:addBadMessage("IGUI_TCA_GripLost");
 end
 
 function TCA_AutopsyUI:tearSkin()
@@ -609,7 +657,8 @@ function TCA_AutopsyUI:tearSkin()
     if self.playSkinRip then
         self:playSkinRip();
     end
-    HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_SkinTear"));
+    self.flashTime = getTimestampMs();
+    self:addBadMessage("IGUI_TCA_SkinTear");
 end
 
 function TCA_AutopsyUI:updateOpen()
@@ -742,16 +791,16 @@ function TCA_AutopsyUI:ribSlip()
     if self.ribMode == "cutter" then
         self.ribWork[index] = 0;
         if self:isOscillating() then
-            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_OscillatingSlip"));
+            self:addBadMessage("IGUI_TCA_OscillatingSlip");
         else
-            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_CutterSlip"));
+            self:addBadMessage("IGUI_TCA_CutterSlip");
         end
         return;
     end
     if ZombRand(100) < self:getRibParam("cutChance", TCA_AutopsyUI.SAW_CUT_CHANCE) then
         self:slip("IGUI_TCA_SawSlipHurt");
     else
-        HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_SawSlip"));
+        self:addBadMessage("IGUI_TCA_SawSlip");
     end
 end
 
@@ -1350,6 +1399,7 @@ function TCA_AutopsyUI:render()
     if elapsed < 300 then
         self:drawRect(0, 0, self.width, self.height, 0.35 * (1 - elapsed / 300), 0.8, 0, 0);
     end
+    self:drawMessages();
     self:drawMissingToolTooltip();
     self:drawOrganTooltip();
 end
