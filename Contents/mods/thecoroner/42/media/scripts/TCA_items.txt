@@ -223,4 +223,32 @@ module TCA
         WeaponLength = 0.23,
         WeaponSprite = Bone,
     }
+
+    item BladderCanteen
+    {
+        DisplayName = BladderCanteen,
+        DisplayCategory = WaterContainer,
+        ItemType = base:clothing,
+        Weight = 0.15,
+        ClothingItem = TCA_BladderCanteen,
+        BodyLocation = base:satchel,
+        Icon = TCA_BladderCanteen,
+        StaticModel = TCA.BladderCanteen_Ground,
+        WorldStaticModel = TCA.BladderCanteen_Ground,
+        EatType = Bourbon,
+        CanHaveHoles = false,
+        WaterResistance = 1.0,
+        Tooltip = Tooltip_TCA_BladderCanteen,
+        component FluidContainer
+        {
+            ContainerName = TCA_BladderCanteen,
+            Capacity = 0.5,
+            InitialPercentMin = 0.0,
+            InitialPercentMax = 0.0,
+            Fluids
+            {
+                fluid = Water:1.0,
+            }
+        }
+    }
 }

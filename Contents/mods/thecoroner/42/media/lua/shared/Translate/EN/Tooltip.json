@@ -16,5 +16,7 @@
     "Tooltip_TCA_TableClutterItems": "Clear the table first: there are items on it.",
     "Tooltip_TCA_ChestPlate": "Chest plate removed during an autopsy.",
     "Tooltip_TCA_Recipe_LiverTan": "The liver must not be in an advanced state of decomposition.",
-    "Tooltip_TCA_Recipe_Catgut": "Fresh, uninfected and barely damaged intestines only."
+    "Tooltip_TCA_Recipe_Catgut": "Fresh, uninfected and barely damaged intestines only.",
+    "Tooltip_TCA_BladderCanteen": "A canteen made from a human bladder. Better not to think about it.",
+    "Tooltip_TCA_Recipe_BladderCanteen": "Fresh, uninfected and completely intact bladder only."
 }

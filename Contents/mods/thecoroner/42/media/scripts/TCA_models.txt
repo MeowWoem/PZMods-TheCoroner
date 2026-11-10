@@ -117,4 +117,20 @@ module TCA {
         texture = WorldItems/TCA_SawBone,
     }
 
+    model BladderCanteen_Ground
+    {
+        mesh = WorldItems/Canteen_Cowboy_Floor,
+        texture = TCA_BladderCanteen,
+        scale = 0.01,
+        attachment Bip01_Prop1
+        {
+            offset = 0.0501 0.0459 0.0118,
+            rotate = -60.949 -50.3277 34.5688,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0382 0.0556 -0.0107,
+            rotate = -58.8093 -8.7973 63.6676,
+        }
+    }
 }

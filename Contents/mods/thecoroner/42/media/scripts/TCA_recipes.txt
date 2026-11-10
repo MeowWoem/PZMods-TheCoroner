@@ -58,4 +58,26 @@ module TCA
             item 3 Base.Thread_Sinew,
         }
     }
+
+    craftRecipe TCA_MakeBladderCanteen
+    {
+        timedAction = SewingCloth,
+        time = 200,
+        Tags = AnySurfaceCraft,
+        category = Tailoring,
+        xpAward = Tailoring:15,
+        OnTest = TCA_RecipeCode.testBladderCanteen,
+        Tooltip = Tooltip_TCA_Recipe_BladderCanteen,
+        inputs
+        {
+            item 1 [TCA.Organ_bladder],
+            item 1 tags[base:scissors;base:sharpknife] mode:keep flags[IsNotDull;MayDegradeLight],
+            item 1 [Base.LeatherStrips] mode:destroy,
+            item 1 [Base.Twine],
+        }
+        outputs
+        {
+            item 1 TCA.BladderCanteen,
+        }
+    }
 }
