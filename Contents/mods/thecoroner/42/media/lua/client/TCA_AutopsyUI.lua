@@ -1,3 +1,4 @@
+require "TCA_UIDrag";
 require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Autopsy";
@@ -896,6 +897,9 @@ function TCA_AutopsyUI:updateStage()
 end
 
 function TCA_AutopsyUI:onMouseDown(x, y)
+    if not self.cutting and TCA_UIDrag.begin(self, x, y) then
+        return true;
+    end
     if self.stage == "incision" then
         local sx, sy = self:currentStartPoint();
         if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS then
@@ -948,11 +952,13 @@ function TCA_AutopsyUI:releaseTool()
 end
 
 function TCA_AutopsyUI:onMouseUp(x, y)
+    TCA_UIDrag.finish(self, "autopsy");
     self:releaseTool();
     return true;
 end
 
 function TCA_AutopsyUI:onMouseUpOutside(x, y)
+    TCA_UIDrag.finish(self, "autopsy");
     self:releaseTool();
     return true;
 end
@@ -1333,6 +1339,7 @@ function TCA_AutopsyUI:drawInfo()
 end
 
 function TCA_AutopsyUI:prerender()
+    TCA_UIDrag.update(self);
     ISPanel.prerender(self);
     self:updateStage();
 
@@ -1511,6 +1518,7 @@ function TCA_AutopsyUI.open(character, tableObject)
     local ui = TCA_AutopsyUI:new(x, y, w, h, character, tableObject);
     ui:initialise();
     ui:instantiate();
+    TCA_UIDrag.restore(ui, "autopsy");
     ui:addToUIManager();
     TCA_AutopsyUI.instance = ui;
     return ui;

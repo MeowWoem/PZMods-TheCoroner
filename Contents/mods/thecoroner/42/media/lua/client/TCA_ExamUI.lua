@@ -1,3 +1,4 @@
+require "TCA_UIDrag";
 require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Shared";
@@ -440,6 +441,9 @@ function TCA_ExamUI:isPull(id)
 end
 
 function TCA_ExamUI:onMouseDown(x, y)
+    if TCA_UIDrag.begin(self, x, y) then
+        return true;
+    end
     if self:editMouseDown(x, y) then
         return true;
     end
@@ -478,6 +482,7 @@ function TCA_ExamUI:releasePress()
 end
 
 function TCA_ExamUI:onMouseUp(x, y)
+    TCA_UIDrag.finish(self, "exam");
     self.dragHandle = nil;
     self.scrollDrag = nil;
     self:releaseEdit();
@@ -486,6 +491,7 @@ function TCA_ExamUI:onMouseUp(x, y)
 end
 
 function TCA_ExamUI:onMouseUpOutside(x, y)
+    TCA_UIDrag.finish(self, "exam");
     self.dragHandle = nil;
     self.scrollDrag = nil;
     self:releaseEdit();
@@ -814,6 +820,7 @@ function TCA_ExamUI:drawTimeline()
 end
 
 function TCA_ExamUI:prerender()
+    TCA_UIDrag.update(self);
     ISPanel.prerender(self);
     self:refreshTools();
     self:updatePress();
@@ -979,6 +986,7 @@ function TCA_ExamUI.open(character, body)
     local ui = TCA_ExamUI:new(x, y, w, h, character, body);
     ui:initialise();
     ui:instantiate();
+    TCA_UIDrag.restore(ui, "exam");
     ui:addToUIManager();
     TCA_ExamUI.instance = ui;
     return ui;

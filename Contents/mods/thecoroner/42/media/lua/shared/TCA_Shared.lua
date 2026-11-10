@@ -352,6 +352,51 @@ function TCA.tableHasBody(tableObj)
     return false;
 end
 
+function TCA.findBodiesNearTable(tableObj)
+    local ox, oy, w, h = TCA.getTableFootprint(tableObj);
+    local cx = ox + w / 2;
+    local cy = oy + h / 2;
+    local found = {};
+    local squares = TCA.getSquaresAround(tableObj, 2);
+    for _, s in ipairs(squares) do
+        local list = s:getStaticMovingObjects();
+        for i = 0, list:size() - 1 do
+            local o = list:get(i);
+            if instanceof(o, "IsoDeadBody") and not o:isAnimal() and isBodyOnFloor(o) then
+                local dx = o:getX() - cx;
+                local dy = o:getY() - cy;
+                local dist = math.sqrt(dx * dx + dy * dy);
+                if dist <= TCA.MAX_BODY_DISTANCE + math.max(w, h) / 2 then
+                    local entry = {};
+                    entry.body = o;
+                    entry.dist = dist;
+                    table.insert(found, entry);
+                end
+            end
+        end
+    end
+    table.sort(found, TCA.compareBodyDistance);
+    local bodies = {};
+    for i = 1, #found do
+        bodies[i] = found[i].body;
+    end
+    return bodies;
+end
+
+function TCA.compareBodyDistance(a, b)
+    return a.dist < b.dist;
+end
+
+function TCA.isBodyNearTable(tableObj, body)
+    local bodies = TCA.findBodiesNearTable(tableObj);
+    for i = 1, #bodies do
+        if bodies[i] == body then
+            return true;
+        end
+    end
+    return false;
+end
+
 function TCA.findBodyNearTable(tableObj, character)
     local playerID = nil;
     if character then

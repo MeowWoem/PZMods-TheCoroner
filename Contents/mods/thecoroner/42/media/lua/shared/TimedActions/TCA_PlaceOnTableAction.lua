@@ -50,7 +50,15 @@ function TCA_PlaceOnTableAction:complete()
     if TCA.getTableClutter(self.tableObject) then
         return false;
     end
-    local body = TCA.findBodyNearTable(self.tableObject, self.character);
+    local body = nil;
+    if self.bx then
+        body = TCA.findBodyAt(self.bx, self.by, self.bz);
+        if body and not TCA.isBodyNearTable(self.tableObject, body) then
+            body = nil;
+        end
+    else
+        body = TCA.findBodyNearTable(self.tableObject, self.character);
+    end
     if not body then
         return false;
     end
@@ -64,10 +72,13 @@ function TCA_PlaceOnTableAction:getDuration()
     return 80;
 end
 
-function TCA_PlaceOnTableAction:new(character, tableObject)
+function TCA_PlaceOnTableAction:new(character, tableObject, bx, by, bz)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
+    o.bx = bx;
+    o.by = by;
+    o.bz = bz;
     o.maxTime = o:getDuration();
     o.stopOnWalk = true;
     o.stopOnRun = true;

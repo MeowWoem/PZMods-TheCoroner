@@ -11,5 +11,6 @@
     "ContextMenu_TCA_DebugExamReset": "[DEBUG] Réinitialiser l'examen",
     "ContextMenu_TCA_SawInsertBattery": "Insérer une pile",
     "ContextMenu_TCA_SawRemoveBattery": "Retirer la pile",
-    "ContextMenu_TCA_HarvestMaggots": "Récolter les asticots"
+    "ContextMenu_TCA_HarvestMaggots": "Récolter les asticots",
+    "ContextMenu_TCA_Menu": "Médecine légale"
 }

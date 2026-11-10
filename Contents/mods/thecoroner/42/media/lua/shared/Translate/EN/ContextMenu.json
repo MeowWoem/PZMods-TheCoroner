@@ -11,5 +11,6 @@
     "ContextMenu_TCA_DebugExamReset": "[DEBUG] Reset examination",
     "ContextMenu_TCA_SawInsertBattery": "Insert battery",
     "ContextMenu_TCA_SawRemoveBattery": "Remove battery",
-    "ContextMenu_TCA_HarvestMaggots": "Harvest maggots"
+    "ContextMenu_TCA_HarvestMaggots": "Harvest maggots",
+    "ContextMenu_TCA_Menu": "Coroner"
 }

@@ -17,6 +17,13 @@ require "TimedActions/TCA_SawBatteryAction";
 
 TCA_Client = TCA_Client or {};
 
+local function addTooltip(option, text)
+    option.notAvailable = true;
+    local tooltip = ISWorldObjectContextMenu.addToolTip();
+    tooltip.description = text;
+    option.toolTip = tooltip;
+end
+
 TCA_Client.pending = {};
 TCA_Client.PENDING_TIMEOUT_MS = 5000;
 
@@ -175,19 +182,42 @@ function TCA_Client.onExam(playerObj, body)
     end
 end
 
+function TCA_Client.getSubMenu(context)
+    local name = getText("ContextMenu_TCA_Menu");
+    local option = context:getOptionFromName(name);
+    if option and option.subOption then
+        local existing = context:getSubMenu(option.subOption);
+        if existing then
+            return existing;
+        end
+    end
+    option = context:addOption(name);
+    local sub = ISContextMenu:getNew(context);
+    context:addSubMenu(option, sub);
+    return sub;
+end
+
+function TCA_Client.addBodyOption(context, body, name, target, onSelect, param1, param2)
+    local option = context:addOption(name, target, onSelect, param1, param2);
+    ISWorldObjectContextMenu.initWorldItemHighlightOption(option, body);
+    return option;
+end
+
 function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
-    context:addOption(getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
+    TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
     if TCA.Exam.getHarvestCount(body) > 0 then
-        context:addOption(getText("ContextMenu_TCA_HarvestMaggots"), playerObj, TCA_Client.onHarvestMaggots, body);
+        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_HarvestMaggots"), playerObj, TCA_Client.onHarvestMaggots, body);
     end
     if debugMode then
-        context:addOption(getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
-        context:addOption(getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
+        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
+        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
     end
 end
 
-function TCA_Client.findFloorBody(worldobjects)
+function TCA_Client.findFloorBodies(worldobjects)
     local seen = {};
+    local known = {};
+    local found = {};
     for _, obj in ipairs(worldobjects) do
         local sq = obj:getSquare();
         if sq and not seen[sq] then
@@ -196,14 +226,19 @@ function TCA_Client.findFloorBody(worldobjects)
             if bodies then
                 for i = 0, bodies:size() - 1 do
                     local body = bodies:get(i);
-                    if body and not body:isAnimal() and TCA.isBodyOnFloor(body) then
-                        return body;
+                    if body and not known[body] and not body:isAnimal() and TCA.isBodyOnFloor(body) then
+                        known[body] = true;
+                        table.insert(found, body);
                     end
                 end
             end
         end
     end
-    return nil;
+    return found;
+end
+
+function TCA_Client.findFloorBody(worldobjects)
+    return TCA_Client.findFloorBodies(worldobjects)[1];
 end
 
 function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
@@ -211,14 +246,26 @@ function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
     if not playerObj or playerObj:getVehicle() or playerObj:isDraggingCorpse() then
         return;
     end
-    local body = TCA_Client.findFloorBody(worldobjects);
-    if not body then
+    local bodies = TCA_Client.findFloorBodies(worldobjects);
+    if #bodies == 0 then
         return;
     end
     if test then
         return true;
     end
-    TCA_Client.addExamOptions(context, playerObj, body, TCA_Client.isDebug());
+    local sub = TCA_Client.getSubMenu(context);
+    local debugMode = TCA_Client.isDebug();
+    if #bodies == 1 then
+        TCA_Client.addExamOptions(sub, playerObj, bodies[1], debugMode);
+        return;
+    end
+    for i = 1, #bodies do
+        local option = sub:addOption(getText("IGUI_ItemCat_Corpse"));
+        ISWorldObjectContextMenu.initWorldItemHighlightOption(option, bodies[i]);
+        local choice = ISContextMenu:getNew(sub);
+        sub:addSubMenu(option, choice);
+        TCA_Client.addExamOptions(choice, playerObj, bodies[i], debugMode);
+    end
 end
 
 function TCA_Client.onSawBattery(playerObj, saw, battery)
@@ -314,7 +361,7 @@ function TCA_Client.findTableInWorldObjects(worldobjects)
     return nil;
 end
 
-function TCA_Client.onPlaceOnTable(playerObj, tableObj)
+function TCA_Client.onPlaceOnTable(playerObj, tableObj, body)
     if playerObj:isDraggingCorpse() then
         if luautils.walkAdj(playerObj, tableObj:getSquare(), false) then
             ISTimedActionQueue.add(TCA_LetGoForTableAction:new(playerObj, tableObj));
@@ -322,7 +369,60 @@ function TCA_Client.onPlaceOnTable(playerObj, tableObj)
         return;
     end
     if luautils.walkAdj(playerObj, tableObj:getSquare(), false) then
-        ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(playerObj, tableObj));
+        if body then
+            ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(playerObj, tableObj, body:getX(), body:getY(), body:getZ()));
+        else
+            ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(playerObj, tableObj));
+        end
+    end
+end
+
+function TCA_Client.getPlaceBlockReason(tableObj, occupied)
+    if not TCA.isLongTable(tableObj) then
+        return getText("Tooltip_TCA_TableTooSmall");
+    elseif occupied then
+        return getText("Tooltip_TCA_TableOccupied");
+    end
+    local clutter = TCA.getTableClutter(tableObj);
+    if clutter == "object" then
+        return getText("Tooltip_TCA_TableClutterObject");
+    elseif clutter == "items" then
+        return getText("Tooltip_TCA_TableClutterItems");
+    end
+    return nil;
+end
+
+function TCA_Client.addPlaceOptions(sub, playerObj, tableObj, occupied, dragging)
+    local reason = TCA_Client.getPlaceBlockReason(tableObj, occupied);
+    local name = getText("ContextMenu_TCA_PlaceOnTable");
+    if dragging then
+        local option = sub:addOption(name, playerObj, TCA_Client.onPlaceOnTable, tableObj, nil);
+        if reason then
+            addTooltip(option, reason);
+        end
+        return;
+    end
+    local bodies = TCA.findBodiesNearTable(tableObj);
+    if #bodies == 0 then
+        return;
+    end
+    if #bodies == 1 then
+        local option = sub:addOption(name, playerObj, TCA_Client.onPlaceOnTable, tableObj, bodies[1]);
+        ISWorldObjectContextMenu.initWorldItemHighlightOption(option, bodies[1]);
+        if reason then
+            addTooltip(option, reason);
+        end
+        return;
+    end
+    local parent = sub:addOption(name);
+    local choice = ISContextMenu:getNew(sub);
+    sub:addSubMenu(parent, choice);
+    for i = 1, #bodies do
+        local option = choice:addOption(getText("IGUI_ItemCat_Corpse"), playerObj, TCA_Client.onPlaceOnTable, tableObj, bodies[i]);
+        ISWorldObjectContextMenu.initWorldItemHighlightOption(option, bodies[i]);
+        if reason then
+            addTooltip(option, reason);
+        end
     end
 end
 
@@ -345,13 +445,6 @@ function TCA_Client.getMissingToolText(stage)
         return getText("Tooltip_TCA_NeedRibTool");
     end
     return getText("Tooltip_TCA_NeedScalpel");
-end
-
-local function addTooltip(option, text)
-    option.notAvailable = true;
-    local tooltip = ISWorldObjectContextMenu.addToolTip();
-    tooltip.description = text;
-    option.toolTip = tooltip;
 end
 
 function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, test)
@@ -381,8 +474,9 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
         return true;
     end
 
+    local sub = TCA_Client.getSubMenu(context);
     if canUseBody then
-        local autopsy = context:addOption(getText("ContextMenu_TCA_Autopsy"), playerObj, TCA_Client.onAutopsy, tableObj);
+        local autopsy = sub:addOption(getText("ContextMenu_TCA_Autopsy"), playerObj, TCA_Client.onAutopsy, tableObj);
         local clothing = TCA.Autopsy.getBlockingClothing(body);
         local stage = TCA.Autopsy.getStage(body);
         if stage == "done" then
@@ -392,32 +486,21 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
         elseif not TCA.Autopsy.hasToolForStage(playerObj, stage) then
             addTooltip(autopsy, TCA_Client.getMissingToolText(stage));
         end
-        context:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
-        TCA_Client.addExamOptions(context, playerObj, body, debugMode);
+        sub:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
+        TCA_Client.addExamOptions(sub, playerObj, body, debugMode);
         if debugMode then
-            context:addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
+            sub:addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
         end
-    end
-
-    if debugMode then
-        context:addOption(getText("ContextMenu_TCA_DebugReference"), playerObj, TCA_Client.onDebugReference, tableObj);
     end
 
     if canPlace then
-        local option = context:addOption(getText("ContextMenu_TCA_PlaceOnTable"), playerObj, TCA_Client.onPlaceOnTable, tableObj);
-        if not TCA.isLongTable(tableObj) then
-            addTooltip(option, getText("Tooltip_TCA_TableTooSmall"));
-        elseif occupied then
-            addTooltip(option, getText("Tooltip_TCA_TableOccupied"));
-        else
-            local clutter = TCA.getTableClutter(tableObj);
-            if clutter == "object" then
-                addTooltip(option, getText("Tooltip_TCA_TableClutterObject"));
-            elseif clutter == "items" then
-                addTooltip(option, getText("Tooltip_TCA_TableClutterItems"));
-            end
-        end
+        TCA_Client.addPlaceOptions(sub, playerObj, tableObj, occupied, dragging);
     end
+
+    if debugMode then
+        sub:addOption(getText("ContextMenu_TCA_DebugReference"), playerObj, TCA_Client.onDebugReference, tableObj);
+    end
+
 end
 
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillWorldObjectContextMenu);
