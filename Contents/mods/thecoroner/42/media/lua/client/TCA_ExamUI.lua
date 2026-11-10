@@ -172,6 +172,8 @@ function TCA_ExamUI:initialise()
     self.values = E.readAll(self.body, self.level);
     self.done = {};
     self.texts = {};
+    self.observedAt = {};
+    self:loadObservations();
     self.press = nil;
     self.blanch = nil;
     self.warnTime = 0;
@@ -524,13 +526,59 @@ function TCA_ExamUI:updatePress()
     end
 end
 
+function TCA_ExamUI:loadObservations()
+    local E = TCA.Exam;
+    local mine = E.getObservations(self.body, E.getObserverKey(self.character));
+    if not mine then
+        return;
+    end
+    for _, zone in ipairs(TCA_ExamUI.ORDER) do
+        local obs = E.decodeObservation(zone, mine[zone]);
+        if obs then
+            self.texts[zone] = E.getObservationText(zone, obs);
+            self.observedAt[zone] = obs.time;
+            self.done[zone] = true;
+        end
+    end
+end
+
+function TCA_ExamUI:saveObservation(zone, reading)
+    local E = TCA.Exam;
+    local now = getGameTime():getWorldAgeHours();
+    local data = E.encodeObservation(zone, reading, self.level, now);
+    if not data then
+        return;
+    end
+    self.observedAt[zone] = now;
+    E.storeObservation(self.body, E.getObserverKey(self.character), zone, data);
+    if isClient() then
+        TCA_Client.sendExamObservation(self.character, self.body, zone, data);
+    end
+end
+
+function TCA_ExamUI:getObservationAge(zone)
+    local t = self.observedAt[zone];
+    if not t then
+        return nil;
+    end
+    local age = getGameTime():getWorldAgeHours() - t;
+    if age < TCA.Exam.OBS_AGE_SHOW then
+        return nil;
+    end
+    return age;
+end
+
 function TCA_ExamUI:completeZone(zone, x, y)
     local E = TCA.Exam;
+    local reading = nil;
     if zone == "temp" then
-        self.texts.temp = E.getTempText(E.readTemperature(self.body, self.level));
+        reading = E.readTemperature(self.body, self.level);
+        self.texts.temp = E.getTempText(reading);
     elseif zone == "jaw" or zone == "arm" then
+        reading = self.values[zone];
         self.texts[zone] = getText(E.getRigorKey(self.values[zone], self.level));
     elseif zone == "livor" then
+        reading = self.values.livor;
         self.texts.livor = E.getLivorText(self.values.livor, self.level);
         local blanch = {};
         blanch.x = x;
@@ -538,9 +586,13 @@ function TCA_ExamUI:completeZone(zone, x, y)
         blanch.time = getTimestampMs();
         self.blanch = blanch;
     elseif zone == "decomp" then
+        reading = self.values.decomp;
         self.texts.decomp = E.getDecompText(self.values.decomp);
     end
     self.done[zone] = true;
+    if reading ~= nil then
+        self:saveObservation(zone, reading);
+    end
 end
 
 function TCA_ExamUI:barMouseDown(x, y)
@@ -656,6 +708,10 @@ function TCA_ExamUI:drawNotesContent(x, y, maxW)
         for _, line in ipairs(lines) do
             self:drawText(line, x + 10, y, c.r, c.g, c.b, 1, UIFont.Small);
             y = y + self.smallH;
+        end
+        local age = self:getObservationAge(id);
+        if age then
+            y = self:drawWrapped(getText("IGUI_TCA_ExamObservedAgo", TCA.Exam.formatHours(age)), x + 10, y, maxW - 10, GREY);
         end
         y = y + 8;
     end

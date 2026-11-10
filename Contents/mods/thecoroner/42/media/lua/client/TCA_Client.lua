@@ -146,6 +146,16 @@ function TCA_Client.onDebugExamReset(playerObj, body)
     TCA.Exam.resetResult(body);
 end
 
+function TCA_Client.sendExamObservation(playerObj, body, zone, data)
+    local args = {};
+    args.x = body:getX();
+    args.y = body:getY();
+    args.z = body:getZ();
+    args.zone = zone;
+    args.data = data;
+    sendClientCommand(playerObj, "TCA", "examObserve", args);
+end
+
 function TCA_Client.onExam(playerObj, body)
     if not body or not body:getSquare() then
         return;

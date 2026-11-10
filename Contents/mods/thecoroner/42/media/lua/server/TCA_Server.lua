@@ -74,6 +74,22 @@ function TCA_Server.onResetExamCommand(player, args)
     end
 end
 
+function TCA_Server.onExamObserveCommand(player, args)
+    if not args or not TCA.Exam.isValidObservation(args.zone, args.data) then
+        return;
+    end
+    if math.abs(player:getX() - args.x) > 4 or math.abs(player:getY() - args.y) > 4 then
+        return;
+    end
+    local body = TCA.findBodyAt(args.x, args.y, args.z);
+    if not body then
+        return;
+    end
+    if TCA.Exam.storeObservation(body, TCA.Exam.getObserverKey(player), args.zone, args.data) then
+        body:transmitModData();
+    end
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -88,6 +104,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onAutopsyCommitCommand(player, args);
     elseif command == "resetExam" then
         TCA_Server.onResetExamCommand(player, args);
+    elseif command == "examObserve" then
+        TCA_Server.onExamObserveCommand(player, args);
     end
 end
 

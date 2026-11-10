@@ -174,5 +174,6 @@
     "IGUI_TCA_Grade2": "Good work",
     "IGUI_TCA_Grade3": "Acceptable work",
     "IGUI_TCA_Grade4": "Sloppy work",
-    "IGUI_TCA_Grade5": "Butchery"
+    "IGUI_TCA_Grade5": "Butchery",
+    "IGUI_TCA_ExamObservedAgo": "(noted %1 ago)"
 }

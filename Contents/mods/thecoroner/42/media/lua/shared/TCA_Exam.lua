@@ -41,6 +41,10 @@ E.WIDE_RATIO = 30;
 E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
+E.KEY_OBS = "TCA_ExamObs";
+E.OBS_ZONES = { temp = true, jaw = true, arm = true, livor = true, decomp = true };
+E.OBS_MAX_LEN = 120;
+E.OBS_AGE_SHOW = 0.25;
 
 E.TICKS = { 1, 6, 24, 48, 168, 720, 2160, 8760 };
 
@@ -360,6 +364,107 @@ end
 
 function E.resetResult(body)
     body:getModData()[E.KEY_RESULT] = nil;
+    body:getModData()[E.KEY_OBS] = nil;
+end
+
+function E.getObserverKey(character)
+    local name = character:getUsername();
+    if not name or name == "" then
+        name = character:getFullName();
+    end
+    return tostring(name);
+end
+
+function E.encodeObservation(zone, reading, level, time)
+    if zone == "temp" then
+        return string.format("%.3f|%d|%.3f|%.3f|%d", time, level, reading.body, reading.air, reading.decimals);
+    elseif zone == "jaw" or zone == "arm" then
+        return string.format("%.3f|%d|%.4f", time, level, reading);
+    elseif zone == "livor" then
+        return string.format("%.3f|%d|%.4f|%.4f", time, level, reading.visible, reading.blanch);
+    elseif zone == "decomp" then
+        return string.format("%.3f|%d|%d", time, level, reading);
+    end
+    return nil;
+end
+
+function E.splitObservation(str)
+    local parts = {};
+    for part in string.gmatch(str, "[^|]+") do
+        table.insert(parts, tonumber(part));
+    end
+    return parts;
+end
+
+function E.decodeObservation(zone, str)
+    if type(str) ~= "string" then
+        return nil;
+    end
+    local p = E.splitObservation(str);
+    if not p[1] or not p[2] or not p[3] then
+        return nil;
+    end
+    local obs = {};
+    obs.time = p[1];
+    obs.level = p[2];
+    if zone == "temp" then
+        if not p[4] or not p[5] then
+            return nil;
+        end
+        obs.reading = { body = p[3], air = p[4], decimals = p[5] };
+    elseif zone == "livor" then
+        if not p[4] then
+            return nil;
+        end
+        obs.reading = { visible = p[3], blanch = p[4] };
+    else
+        obs.reading = p[3];
+    end
+    return obs;
+end
+
+function E.getObservationText(zone, obs)
+    if zone == "temp" then
+        return E.getTempText(obs.reading);
+    elseif zone == "jaw" or zone == "arm" then
+        return getText(E.getRigorKey(obs.reading, obs.level));
+    elseif zone == "livor" then
+        return E.getLivorText(obs.reading, obs.level);
+    elseif zone == "decomp" then
+        return E.getDecompText(obs.reading);
+    end
+    return nil;
+end
+
+function E.getObservations(body, key)
+    local all = body:getModData()[E.KEY_OBS];
+    if type(all) ~= "table" then
+        return nil;
+    end
+    local mine = all[key];
+    if type(mine) ~= "table" then
+        return nil;
+    end
+    return mine;
+end
+
+function E.isValidObservation(zone, data)
+    return E.OBS_ZONES[zone] == true and type(data) == "string" and #data <= E.OBS_MAX_LEN and E.decodeObservation(zone, data) ~= nil;
+end
+
+function E.storeObservation(body, key, zone, data)
+    if not E.isValidObservation(zone, data) then
+        return false;
+    end
+    local md = body:getModData();
+    if type(md[E.KEY_OBS]) ~= "table" then
+        md[E.KEY_OBS] = {};
+    end
+    if type(md[E.KEY_OBS][key]) ~= "table" then
+        md[E.KEY_OBS][key] = {};
+    end
+    md[E.KEY_OBS][key][zone] = data;
+    return true;
 end
 
 function E.showResult(character, ok, xp)

@@ -174,5 +174,6 @@
     "IGUI_TCA_Grade2": "Bon travail",
     "IGUI_TCA_Grade3": "Travail correct",
     "IGUI_TCA_Grade4": "Travail médiocre",
-    "IGUI_TCA_Grade5": "Boucherie"
+    "IGUI_TCA_Grade5": "Boucherie",
+    "IGUI_TCA_ExamObservedAgo": "(relevé il y a %1)"
 }
