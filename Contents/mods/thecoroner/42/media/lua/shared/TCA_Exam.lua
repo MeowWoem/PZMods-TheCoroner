@@ -51,7 +51,7 @@ E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
 E.KEY_OBS = "TCA_ExamObs";
-E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true, w_head = true, w_torso = true, w_arm_r = true, w_arm_l = true, w_leg_r = true, w_leg_l = true };
+E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true, w_Hand_L = true, w_Hand_R = true, w_ForeArm_L = true, w_ForeArm_R = true, w_UpperArm_L = true, w_UpperArm_R = true, w_Torso_Upper = true, w_Torso_Lower = true, w_Head = true, w_Neck = true, w_Groin = true, w_UpperLeg_L = true, w_UpperLeg_R = true, w_LowerLeg_L = true, w_LowerLeg_R = true, w_Foot_L = true, w_Foot_R = true };
 E.OBS_MAX_LEN = 120;
 E.OBS_AGE_SHOW = 0.25;
 

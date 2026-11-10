@@ -1,5 +1,6 @@
 require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
+require "TCA_Wounds";
 require "TCA_Autopsy";
 
 TCA_AutopsyResultAction = ISBaseTimedAction:derive("TCA_AutopsyResultAction");
@@ -154,10 +155,14 @@ function TCA_AutopsyResultAction:applyOrgans(body)
         md["TCA_A_organs"] = done;
         xp = A.XP_PER_ORGAN * (done - stored.done);
         self.changed = true;
+        TCA.Wounds.ensureBullets(body, stored.done);
+        local bullets = 0;
         for i = stored.done + 1, done do
             self:giveOrgan(body, TCA.Organs.LIST[i], current);
+            bullets = bullets + TCA.Wounds.takeBullets(body, TCA.Organs.LIST[i].id, self.character);
             current = 0;
         end
+        TCA.Wounds.notifyBullets(self.character, bullets);
     end
     if damage > stored.damage then
         md["TCA_A_odmg"] = damage;

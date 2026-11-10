@@ -13,5 +13,10 @@
     "ContextMenu_TCA_SawRemoveBattery": "Remove battery",
     "ContextMenu_TCA_HarvestMaggots": "Harvest maggots",
     "ContextMenu_TCA_Menu": "Coroner",
-    "ContextMenu_TCA_DebugWounds": "[DEBUG] Wounds"
+    "ContextMenu_TCA_DebugWounds": "[DEBUG] Wounds",
+    "ContextMenu_TCA_DebugWoundsShow": "Show report",
+    "ContextMenu_TCA_DebugWoundsRandom": "Randomize",
+    "ContextMenu_TCA_DebugWoundsClear": "Clear",
+    "ContextMenu_TCA_DebugWoundsAddAnte": "Add a wound (before death)",
+    "ContextMenu_TCA_DebugWoundsAddPost": "Add a hit (after death)"
 }

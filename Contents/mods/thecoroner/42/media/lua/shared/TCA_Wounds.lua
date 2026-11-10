@@ -52,6 +52,17 @@ function W.pickWeighted(list)
     return list[#list];
 end
 
+function W.getAmmoKey(weapon)
+    if not weapon or not weapon:isRanged() then
+        return nil;
+    end
+    local ammo = weapon:getAmmoType();
+    if not ammo then
+        return nil;
+    end
+    return ammo:getItemKey();
+end
+
 function W.getWeaponKind(weapon, target)
     if not weapon then
         return "unknown";
@@ -77,22 +88,30 @@ function W.getWeaponKind(weapon, target)
     return "blunt";
 end
 
-function W.encodeHit(time, part, kind)
-    return string.format("%.3f|%s|%s", time, part or "?", kind or "unknown");
+function W.encodeHit(time, part, kind, extra)
+    local text = string.format("%.3f|%s|%s", time, part or "?", kind or "unknown");
+    if extra and extra ~= "" then
+        text = text .. "|" .. extra;
+    end
+    return text;
 end
 
 function W.decodeHit(str)
     if type(str) ~= "string" then
         return nil;
     end
-    local t, part, kind = string.match(str, "^([%-%d%.]+)|([^|]+)|([^|]+)$");
-    if not t then
+    local fields = {};
+    for field in string.gmatch(str, "[^|]+") do
+        table.insert(fields, field);
+    end
+    if #fields < 3 or not tonumber(fields[1]) then
         return nil;
     end
     local hit = {};
-    hit.time = tonumber(t);
-    hit.part = part;
-    hit.kind = kind;
+    hit.time = tonumber(fields[1]);
+    hit.part = fields[2];
+    hit.kind = fields[3];
+    hit.extra = fields[4];
     return hit;
 end
 
@@ -119,13 +138,13 @@ function W.getLastHit(target)
     return W.decodeHit(hits[#hits]);
 end
 
-function W.addHit(target, part, kind)
+function W.addHit(target, part, kind, extra)
     local md = target:getModData();
     if type(md[W.KEY_HITS]) ~= "table" then
         md[W.KEY_HITS] = {};
     end
     local hits = md[W.KEY_HITS];
-    table.insert(hits, W.encodeHit(W.now(), part, kind));
+    table.insert(hits, W.encodeHit(W.now(), part, kind, extra));
     while #hits > W.MAX_HITS do
         table.remove(hits, 1);
     end
@@ -323,14 +342,14 @@ function W.onHitZombie(zombie, wielder, bodyPart, weapon)
     if bodyPart then
         part = BodyPartType.ToString(bodyPart);
     end
-    W.addHit(zombie, part, W.getWeaponKind(weapon, zombie));
+    W.addHit(zombie, part, W.getWeaponKind(weapon, zombie), W.getAmmoKey(weapon));
 end
 
 function W.onWeaponHitCharacter(wielder, target, weapon, damage)
     if isClient() or not target or not instanceof(target, "IsoPlayer") then
         return;
     end
-    W.addHit(target, "?", W.getWeaponKind(weapon, target));
+    W.addHit(target, "?", W.getWeaponKind(weapon, target), W.getAmmoKey(weapon));
 end
 
 function W.onPlayerGetDamage(character, damageType, damage)
@@ -374,17 +393,28 @@ function W.describe(body)
     return lines;
 end
 
-W.REGION_ORDER = { "w_head", "w_torso", "w_arm_r", "w_arm_l", "w_leg_r", "w_leg_l" };
+W.REGION_ORDER = { "w_Hand_L", "w_Hand_R", "w_ForeArm_L", "w_ForeArm_R", "w_UpperArm_L", "w_UpperArm_R", "w_Torso_Upper", "w_Torso_Lower", "w_Head", "w_Neck", "w_Groin", "w_UpperLeg_L", "w_UpperLeg_R", "w_LowerLeg_L", "w_LowerLeg_R", "w_Foot_L", "w_Foot_R" };
 W.REGION_PARTS = {
-    w_head = { Head = true, Neck = true },
-    w_torso = { Torso_Upper = true, Torso_Lower = true, Groin = true },
-    w_arm_r = { UpperArm_R = true, ForeArm_R = true, Hand_R = true },
-    w_arm_l = { UpperArm_L = true, ForeArm_L = true, Hand_L = true },
-    w_leg_r = { UpperLeg_R = true, LowerLeg_R = true, Foot_R = true },
-    w_leg_l = { UpperLeg_L = true, LowerLeg_L = true, Foot_L = true },
+    w_Hand_L = { Hand_L = true },
+    w_Hand_R = { Hand_R = true },
+    w_ForeArm_L = { ForeArm_L = true },
+    w_ForeArm_R = { ForeArm_R = true },
+    w_UpperArm_L = { UpperArm_L = true },
+    w_UpperArm_R = { UpperArm_R = true },
+    w_Torso_Upper = { Torso_Upper = true },
+    w_Torso_Lower = { Torso_Lower = true },
+    w_Head = { Head = true },
+    w_Neck = { Neck = true },
+    w_Groin = { Groin = true },
+    w_UpperLeg_L = { UpperLeg_L = true },
+    w_UpperLeg_R = { UpperLeg_R = true },
+    w_LowerLeg_L = { LowerLeg_L = true },
+    w_LowerLeg_R = { LowerLeg_R = true },
+    w_Foot_L = { Foot_L = true },
+    w_Foot_R = { Foot_R = true },
 };
 W.HIT_TO_WOUND = { firearm = "bullet", fire = "burn" };
-W.UNKNOWN_PART_KINDS = { fire = "w_torso" };
+W.UNKNOWN_PART_KINDS = { fire = "w_Torso_Upper" };
 W.DETECT = { scratch = 0.35, glass = 0.4, bite = 0.7 };
 W.DETECT_DEFAULT = 0.6;
 W.DETECT_PER_LEVEL = 0.06;
@@ -496,6 +526,190 @@ function W.regionShowsBite(body, regionId, level)
         end
     end
     return false;
+end
+
+W.KEY_BULLETS = "TCA_Bullets";
+W.BULLET_ITEM = "TCA.SpentBullet";
+W.BULLET_RETAIN = 60;
+W.BULLET_ORGANS = {
+    Torso_Upper = { "heart", "lung_l", "lung_r" },
+    Torso_Lower = { "liver", "stomach", "intestines", "pancreas", "kidney_l", "kidney_r", "spleen" },
+    Groin = { "bladder", "intestines" },
+};
+
+function W.collectBulletSources(body)
+    local sources = {};
+    local hits = W.getHits(body);
+    local lastAmmo = "";
+    for i = 1, #hits do
+        if hits[i].kind == "firearm" and hits[i].part == "?" and hits[i].extra then
+            lastAmmo = hits[i].extra;
+        end
+    end
+    local wounds = W.getWounds(body);
+    for i = 1, #wounds do
+        if wounds[i].kind == "bullet" and W.BULLET_ORGANS[wounds[i].part] then
+            table.insert(sources, { part = wounds[i].part, ammo = lastAmmo });
+        end
+    end
+    for i = 1, #hits do
+        if hits[i].kind == "firearm" and W.BULLET_ORGANS[hits[i].part] then
+            table.insert(sources, { part = hits[i].part, ammo = hits[i].extra or "" });
+        end
+    end
+    return sources;
+end
+
+function W.pickRemainingOrgan(candidates, remaining)
+    local pool = {};
+    for i = 1, #candidates do
+        if remaining[candidates[i]] then
+            table.insert(pool, candidates[i]);
+        end
+    end
+    if #pool == 0 then
+        return nil;
+    end
+    return pool[ZombRand(#pool) + 1];
+end
+
+function W.ensureBullets(body, doneCount)
+    local md = body:getModData();
+    if type(md[W.KEY_BULLETS]) == "table" then
+        return;
+    end
+    local remaining = {};
+    for i = doneCount + 1, #TCA.Organs.LIST do
+        remaining[TCA.Organs.LIST[i].id] = true;
+    end
+    local list = {};
+    local sources = W.collectBulletSources(body);
+    for i = 1, #sources do
+        if ZombRand(100) < W.BULLET_RETAIN then
+            local organ = W.pickRemainingOrgan(W.BULLET_ORGANS[sources[i].part], remaining);
+            if organ then
+                table.insert(list, organ .. "|" .. sources[i].ammo);
+            end
+        end
+    end
+    md[W.KEY_BULLETS] = list;
+end
+
+function W.takeBullets(body, organId, character)
+    local list = body:getModData()[W.KEY_BULLETS];
+    if type(list) ~= "table" then
+        return 0;
+    end
+    local found = 0;
+    local inv = character:getInventory();
+    local i = 1;
+    while i <= #list do
+        local organ, ammo = string.match(list[i], "^([^|]+)|?(.*)$");
+        if organ == organId then
+            local item = instanceItem(W.BULLET_ITEM);
+            if item then
+                if ammo and ammo ~= "" then
+                    item:getModData()["TCA_Ammo"] = ammo;
+                end
+                inv:AddItem(item);
+                if isServer() then
+                    sendAddItemToContainer(inv, item);
+                end
+                found = found + 1;
+            end
+            table.remove(list, i);
+        else
+            i = i + 1;
+        end
+    end
+    return found;
+end
+
+function W.showBulletHalo(character, count)
+    if not character then
+        return;
+    end
+    HaloTextHelper.addGoodText(character, getText("IGUI_TCA_BulletFound", count));
+end
+
+function W.notifyBullets(character, count)
+    if count <= 0 then
+        return;
+    end
+    if isServer() then
+        local args = {};
+        args.count = count;
+        sendServerCommand(character, "TCA", "bullets", args);
+    else
+        W.showBulletHalo(character, count);
+    end
+end
+
+W.DEBUG_WOUND_KINDS = { "bite", "scratch", "laceration", "deep", "bullet", "glass", "burn", "fracture" };
+W.DEBUG_HIT_KINDS = { "blunt", "blade", "axe", "spear", "firearm", "unarmed", "stomp" };
+W.DEBUG_PARTS = { "Head", "Neck", "Torso_Upper", "Torso_Lower", "Groin", "UpperArm_L", "ForeArm_L", "Hand_L", "UpperArm_R", "ForeArm_R", "Hand_R", "UpperLeg_L", "LowerLeg_L", "Foot_L", "UpperLeg_R", "LowerLeg_R", "Foot_R" };
+W.DEBUG_HIT_PARTS = { "Head", "Torso_Upper", "Torso_Lower" };
+W.DEBUG_AMMO = "Base.Bullets9mm";
+
+function W.listContains(list, value)
+    for i = 1, #list do
+        if list[i] == value then
+            return true;
+        end
+    end
+    return false;
+end
+
+function W.debugClear(body)
+    local md = body:getModData();
+    md[W.KEY_WOUNDS] = {};
+    md[W.KEY_HITS] = nil;
+    md[W.KEY_BULLETS] = nil;
+end
+
+function W.debugAddWound(body, kind, part)
+    local md = body:getModData();
+    if type(md[W.KEY_WOUNDS]) ~= "table" then
+        md[W.KEY_WOUNDS] = {};
+    end
+    table.insert(md[W.KEY_WOUNDS], W.encodeWound(part, kind));
+    md[W.KEY_BULLETS] = nil;
+end
+
+function W.debugAddHit(body, kind, part)
+    local extra = nil;
+    if kind == "firearm" then
+        extra = W.DEBUG_AMMO;
+    end
+    W.addHit(body, part, kind, extra);
+    body:getModData()[W.KEY_BULLETS] = nil;
+end
+
+function W.debugRandomize(body)
+    W.debugClear(body);
+    local wounds = ZombRand(3) + 1;
+    for i = 1, wounds do
+        W.debugAddWound(body, W.DEBUG_WOUND_KINDS[ZombRand(#W.DEBUG_WOUND_KINDS) + 1], W.DEBUG_PARTS[ZombRand(#W.DEBUG_PARTS) + 1]);
+    end
+    local hits = ZombRand(4);
+    for i = 1, hits do
+        W.debugAddHit(body, W.DEBUG_HIT_KINDS[ZombRand(#W.DEBUG_HIT_KINDS) + 1], W.DEBUG_HIT_PARTS[ZombRand(#W.DEBUG_HIT_PARTS) + 1]);
+    end
+end
+
+function W.debugApply(body, op, kind, part)
+    if op == "clear" then
+        W.debugClear(body);
+    elseif op == "random" then
+        W.debugRandomize(body);
+    elseif op == "wound" and W.listContains(W.DEBUG_WOUND_KINDS, kind) and W.listContains(W.DEBUG_PARTS, part) then
+        W.debugAddWound(body, kind, part);
+    elseif op == "hit" and W.listContains(W.DEBUG_HIT_KINDS, kind) and W.listContains(W.DEBUG_HIT_PARTS, part) then
+        W.debugAddHit(body, kind, part);
+    else
+        return false;
+    end
+    return true;
 end
 
 Events.OnCharacterDeath.Add(W.onCharacterDeath);

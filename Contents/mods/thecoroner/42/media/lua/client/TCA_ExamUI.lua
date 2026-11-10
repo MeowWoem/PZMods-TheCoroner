@@ -18,19 +18,31 @@ TCA_ExamUI.ZONES = {
     temp = { x = -30, y = 122, radius = 12 },
     eyes = { x = 12.5, y = 31.5, radius = 6 },
     insects = { x = 0, y = 44, radius = 6 },
-    w_head = { x = 0, y = 25, radius = 12 },
-    w_torso = { x = 0, y = 150, radius = 14 },
-    w_arm_r = { x = -58, y = 190, radius = 12 },
-    w_arm_l = { x = 58, y = 190, radius = 12 },
-    w_leg_r = { x = -18, y = 370, radius = 12 },
-    w_leg_l = { x = 18, y = 370, radius = 12 },
+    w_Hand_L = { x = 75, y = 250, radius = 9 },
+    w_Hand_R = { x = -75, y = 250, radius = 9 },
+    w_ForeArm_L = { x = 58, y = 200, radius = 9 },
+    w_ForeArm_R = { x = -58, y = 200, radius = 9 },
+    w_UpperArm_L = { x = 40, y = 140, radius = 9 },
+    w_UpperArm_R = { x = -40, y = 140, radius = 9 },
+    w_Torso_Upper = { x = 0, y = 135, radius = 9 },
+    w_Torso_Lower = { x = 0, y = 190, radius = 9 },
+    w_Head = { x = 0, y = 25, radius = 9 },
+    w_Neck = { x = 0, y = 80, radius = 9 },
+    w_Groin = { x = 0, y = 235, radius = 9 },
+    w_UpperLeg_L = { x = 18, y = 300, radius = 9 },
+    w_UpperLeg_R = { x = -18, y = 300, radius = 9 },
+    w_LowerLeg_L = { x = 18, y = 390, radius = 9 },
+    w_LowerLeg_R = { x = -18, y = 390, radius = 9 },
+    w_Foot_L = { x = 18, y = 465, radius = 9 },
+    w_Foot_R = { x = -18, y = 465, radius = 9 },
     jaw = { x = 0, y = 64, radius = 12 },
     arm = { x = 75, y = 250, radius = 12 },
     livor = { x = 25, y = 185, radius = 12 },
     decomp = { x = 0, y = 205, radius = 16 },
 };
 
-TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200, w_head = 800, w_torso = 800, w_arm_r = 800, w_arm_l = 800, w_leg_r = 800, w_leg_l = 800 };
+TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200 };
+TCA_ExamUI.WOUND_HOLD_MS = 800;
 TCA_ExamUI.HOLD_TOLERANCE = 10;
 TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
 TCA_ExamUI.PULL_DONE = 0.9;
@@ -566,7 +578,7 @@ function TCA_ExamUI:updatePress()
         self.press = nil;
         return;
     end
-    press.progress = clamp((getTimestampMs() - press.time) / TCA_ExamUI.HOLD_MS[press.zone], 0, 1);
+    press.progress = clamp((getTimestampMs() - press.time) / (TCA_ExamUI.HOLD_MS[press.zone] or TCA_ExamUI.WOUND_HOLD_MS), 0, 1);
     if press.progress >= 1 then
         self.press = nil;
         self:completeZone(press.zone, press.x, press.y);

@@ -1,3 +1,4 @@
+require "TCA_Wounds";
 require "TCA_Shared";
 require "TCA_Autopsy";
 require "TCA_Exam";
@@ -90,6 +91,16 @@ function TCA_Server.onExamObserveCommand(player, args)
     end
 end
 
+function TCA_Server.onDebugWoundsCommand(player, args)
+    if not player:getRole():hasCapability(Capability.AddItem) or not args then
+        return;
+    end
+    local body = TCA.findBodyAt(args.x, args.y, args.z);
+    if body and TCA.Wounds.debugApply(body, args.op, args.kind, args.part) then
+        body:transmitModData();
+    end
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -106,6 +117,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onResetExamCommand(player, args);
     elseif command == "examObserve" then
         TCA_Server.onExamObserveCommand(player, args);
+    elseif command == "debugWounds" then
+        TCA_Server.onDebugWoundsCommand(player, args);
     end
 end
 

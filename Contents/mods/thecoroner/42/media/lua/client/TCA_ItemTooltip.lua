@@ -94,8 +94,23 @@ function T.drawExtra(tip, lines)
     end
 end
 
+function T.getBulletLines(item)
+    local lines = {};
+    local ammo = item:getModData()["TCA_Ammo"];
+    if ammo then
+        table.insert(lines, { text = getText("IGUI_TCA_BulletCaliber", getItemNameFromFullType(ammo)), color = T.TEXT });
+    else
+        table.insert(lines, { text = getText("IGUI_TCA_BulletUnknown"), color = T.TEXT });
+    end
+    return lines;
+end
+
 function T.render(self)
     T.originalRender(self);
+    if self.item and self.item:getFullType() == "TCA.SpentBullet" then
+        T.drawExtra(self, T.getBulletLines(self.item));
+        return;
+    end
     if not T.isBodyItem(self.item) then
         return;
     end

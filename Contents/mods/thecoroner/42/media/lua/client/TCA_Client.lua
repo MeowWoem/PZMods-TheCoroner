@@ -174,6 +174,84 @@ function TCA_Client.onHarvestMaggots(playerObj, body)
     end
 end
 
+function TCA_Client.debugWounds(playerObj, body, op, kind, part)
+    if not body then
+        return;
+    end
+    if isClient() then
+        local args = {};
+        args.x = body:getX();
+        args.y = body:getY();
+        args.z = body:getZ();
+        args.op = op;
+        args.kind = kind;
+        args.part = part;
+        sendClientCommand(playerObj, "TCA", "debugWounds", args);
+        return;
+    end
+    TCA.Wounds.debugApply(body, op, kind, part);
+end
+
+function TCA_Client.onDebugWoundsRandom(playerObj, body)
+    TCA_Client.debugWounds(playerObj, body, "random", nil, nil);
+end
+
+function TCA_Client.onDebugWoundsClear(playerObj, body)
+    TCA_Client.debugWounds(playerObj, body, "clear", nil, nil);
+end
+
+function TCA_Client.onDebugWoundsAdd(playerObj, body, choice)
+    TCA_Client.debugWounds(playerObj, body, choice.op, choice.kind, choice.part);
+end
+
+function TCA_Client.getPartName(part)
+    local bpt = BodyPartType.FromString(part);
+    if bpt then
+        return BodyPartType.getDisplayName(bpt);
+    end
+    return part;
+end
+
+function TCA_Client.getDebugKindName(kind)
+    if kind == "firearm" then
+        return getText("IGUI_TCA_Wound_bullet");
+    end
+    return getText("IGUI_TCA_Wound_" .. kind);
+end
+
+function TCA_Client.addDebugKindMenu(menu, playerObj, body, op, kinds, parts)
+    for i = 1, #kinds do
+        local kindOption = TCA_Client.addBodyOption(menu, body, TCA_Client.getDebugKindName(kinds[i]));
+        local partMenu = ISContextMenu:getNew(menu);
+        menu:addSubMenu(kindOption, partMenu);
+        for j = 1, #parts do
+            local choice = {};
+            choice.op = op;
+            choice.kind = kinds[i];
+            choice.part = parts[j];
+            TCA_Client.addBodyOption(partMenu, body, TCA_Client.getPartName(parts[j]), playerObj, TCA_Client.onDebugWoundsAdd, body, choice);
+        end
+    end
+end
+
+function TCA_Client.addDebugWoundsMenu(context, playerObj, body)
+    local W = TCA.Wounds;
+    local root = TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugWounds"));
+    local menu = ISContextMenu:getNew(context);
+    context:addSubMenu(root, menu);
+    TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsShow"), playerObj, TCA_Client.onDebugWounds, body);
+    TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsRandom"), playerObj, TCA_Client.onDebugWoundsRandom, body);
+    TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsClear"), playerObj, TCA_Client.onDebugWoundsClear, body);
+    local anteOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsAddAnte"));
+    local anteMenu = ISContextMenu:getNew(menu);
+    menu:addSubMenu(anteOption, anteMenu);
+    TCA_Client.addDebugKindMenu(anteMenu, playerObj, body, "wound", W.DEBUG_WOUND_KINDS, W.DEBUG_PARTS);
+    local postOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsAddPost"));
+    local postMenu = ISContextMenu:getNew(menu);
+    menu:addSubMenu(postOption, postMenu);
+    TCA_Client.addDebugKindMenu(postMenu, playerObj, body, "hit", W.DEBUG_HIT_KINDS, W.DEBUG_HIT_PARTS);
+end
+
 function TCA_Client.onDebugWounds(playerObj, body)
     if not body then
         return;
@@ -224,7 +302,7 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     if debugMode then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
-        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugWounds"), playerObj, TCA_Client.onDebugWounds, body);
+        TCA_Client.addDebugWoundsMenu(context, playerObj, body);
     end
 end
 
@@ -335,6 +413,8 @@ function TCA_Client.onServerCommand(module, command, args)
     end
     if command == "xp" and args and args.xp then
         TCA.Autopsy.showXpHalo(getPlayer(), args.xp);
+    elseif command == "bullets" and args and args.count then
+        TCA.Wounds.showBulletHalo(getPlayer(), tonumber(args.count) or 1);
     elseif command == "examResult" and args then
         TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     end

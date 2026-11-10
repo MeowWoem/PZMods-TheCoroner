@@ -626,4 +626,16 @@ module TCA
         StaticModel = BookGrey,
         WorldStaticModel = BookGrey_Ground,
     }
+
+    item SpentBullet
+    {
+        DisplayName = SpentBullet,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.01,
+        Icon = PistolAmmo,
+        MetalValue = 1.0,
+        WorldStaticModel = 9mmRounds,
+        Tooltip = Tooltip_TCA_SpentBullet,
+    }
 }

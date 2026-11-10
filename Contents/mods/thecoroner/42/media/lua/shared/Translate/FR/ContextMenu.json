@@ -13,5 +13,10 @@
     "ContextMenu_TCA_SawRemoveBattery": "Retirer la pile",
     "ContextMenu_TCA_HarvestMaggots": "Récolter les asticots",
     "ContextMenu_TCA_Menu": "Médecine légale",
-    "ContextMenu_TCA_DebugWounds": "[DEBUG] Blessures"
+    "ContextMenu_TCA_DebugWounds": "[DEBUG] Blessures",
+    "ContextMenu_TCA_DebugWoundsShow": "Afficher le relevé",
+    "ContextMenu_TCA_DebugWoundsRandom": "Randomiser",
+    "ContextMenu_TCA_DebugWoundsClear": "Effacer",
+    "ContextMenu_TCA_DebugWoundsAddAnte": "Ajouter une blessure (avant la mort)",
+    "ContextMenu_TCA_DebugWoundsAddPost": "Ajouter un coup (après la mort)"
 }
