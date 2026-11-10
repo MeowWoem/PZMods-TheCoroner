@@ -57,6 +57,7 @@
     "IGUI_TCA_OrganStillAttached": "The organ is still attached",
     "IGUI_TCA_OrganAttached": "Still attached (%1)",
     "IGUI_TCA_OrganFree": "Ready to be removed",
+    "IGUI_TCA_OrganDamagedCount": "Damaged (%1)",
     "IGUI_TCA_OrganLook": "Appearance: %1",
     "IGUI_TCA_OrganLook_0": "normal",
     "IGUI_TCA_OrganLook_1": "slightly discolored",

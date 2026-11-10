@@ -163,6 +163,7 @@ function A.getOrganState(body)
     local state = {};
     state.done = math.floor(tonumber(md["TCA_A_organs"]) or 0);
     state.damage = math.floor(tonumber(md["TCA_A_odmg"]) or 0);
+    state.current = math.floor(tonumber(md["TCA_A_cdmg"]) or 0);
     state.attach = md["TCA_A_attach"] or "";
     return state;
 end
@@ -398,6 +399,7 @@ function A.resetBody(body)
     md["TCA_A_tears"] = nil;
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
+    md["TCA_A_cdmg"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     body:transmitModData();
@@ -430,6 +432,7 @@ function A.applyDebugPosition(body, pos)
     md["TCA_A_tears"] = nil;
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
+    md["TCA_A_cdmg"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     if pos >= 1 then

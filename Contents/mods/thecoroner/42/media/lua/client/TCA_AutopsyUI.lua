@@ -344,6 +344,7 @@ function TCA_AutopsyUI:debugGoTo(pos)
 
     self.organsDone = math.max(pos - 4, 0);
     self.organDamage = 0;
+    self.organCurrentDamage = 0;
     self.startOrgansDone = self.organsDone;
     self.startOrganDamage = 0;
     self.organFly = nil;

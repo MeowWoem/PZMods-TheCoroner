@@ -17,6 +17,7 @@ local O_GAP = { r = 0.12, g = 0.02, b = 0.02 };
 local O_TIP_TITLE = { r = 1, g = 1, b = 1 };
 local O_TIP_TEXT = { r = 0.8, g = 0.8, b = 0.8 };
 local O_TIP_STATUS = { r = 0.55, g = 0.9, b = 0.6 };
+local O_TIP_DAMAGE = { r = 1, g = 0.45, b = 0.4 };
 
 local function odist(x1, y1, x2, y2)
     local dx = x2 - x1;
@@ -62,6 +63,7 @@ function TCA_AutopsyUI:initOrgans(body)
     self.plastronTex = getTexture(TCA.Organs.PLASTRON.texture);
     self.organsDone = organState.done;
     self.organDamage = organState.damage;
+    self.organCurrentDamage = organState.current or 0;
     self.startOrgansDone = self.organsDone;
     self.startOrganDamage = self.organDamage;
     self.stepLayers = {};
@@ -199,6 +201,7 @@ end
 
 function TCA_AutopsyUI:damageOrgan(key)
     self.organDamage = self.organDamage + 1;
+    self.organCurrentDamage = (self.organCurrentDamage or 0) + 1;
     self.flashTime = getTimestampMs();
     self:addBadMessage(key);
 end
@@ -302,6 +305,7 @@ function TCA_AutopsyUI:extractOrgan()
     self.organDrag = nil;
     self.cutting = false;
     self.organsDone = index;
+    self.organCurrentDamage = 0;
     self:resetCurrentOrgan();
     self:commitProgress();
     if self.playSkinRip then
@@ -493,6 +497,9 @@ function TCA_AutopsyUI:getOrganTooltipLines(organ)
             table.insert(lines, { text = getText("IGUI_TCA_OrganAttached", left), color = O_TIP_STATUS });
         else
             table.insert(lines, { text = getText("IGUI_TCA_OrganFree"), color = O_TIP_STATUS });
+        end
+        if (self.organCurrentDamage or 0) > 0 then
+            table.insert(lines, { text = getText("IGUI_TCA_OrganDamagedCount", self.organCurrentDamage), color = O_TIP_DAMAGE });
         end
     end
     return lines;

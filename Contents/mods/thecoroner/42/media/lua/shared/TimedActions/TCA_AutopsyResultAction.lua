@@ -147,6 +147,7 @@ function TCA_AutopsyResultAction:applyOrgans(body)
     if damage < stored.damage then
         damage = stored.damage;
     end
+    local current = stored.current + damage - stored.damage;
     local xp = 0;
     local md = body:getModData();
     if done > stored.done and A.findScalpel(self.character) then
@@ -154,30 +155,42 @@ function TCA_AutopsyResultAction:applyOrgans(body)
         xp = A.XP_PER_ORGAN * (done - stored.done);
         self.changed = true;
         for i = stored.done + 1, done do
-            self:giveOrgan(body, TCA.Organs.LIST[i]);
+            self:giveOrgan(body, TCA.Organs.LIST[i], current);
+            current = 0;
         end
     end
     if damage > stored.damage then
         md["TCA_A_odmg"] = damage;
         self.changed = true;
     end
+    if current ~= stored.current then
+        if current > 0 then
+            md["TCA_A_cdmg"] = current;
+        else
+            md["TCA_A_cdmg"] = nil;
+        end
+        self.changed = true;
+    end
     self:applyAttach(body, stored.done);
     return xp;
 end
 
-function TCA_AutopsyResultAction:giveOrgan(body, organ)
+function TCA_AutopsyResultAction:giveOrgan(body, organ, damage)
     if not organ then
         return;
     end
-    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id);
+    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, damage or 0);
 end
 
-function TCA_AutopsyResultAction:giveBodyItem(body, fullType)
+function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage)
     local item = instanceItem(fullType);
     if not item then
         return;
     end
     local imd = item:getModData();
+    if damage then
+        imd["TCA_Damage"] = damage;
+    end
     imd["TCA_Decay"] = TCA.Autopsy.getOrganDecay(body);
     imd["TCA_Infected"] = TCA.isInfected(body);
     imd["TCA_DeathTime"] = TCA.DeathTime.get(body);
