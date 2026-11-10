@@ -276,24 +276,37 @@ function TCA_AutopsyUI:stopPeel()
     snd.peelNext = 0;
 end
 
-function TCA_AutopsyUI:getPeelInterval()
-    local t = 0;
-    if TCA_AutopsyUI.TEAR_SPEED and TCA_AutopsyUI.TEAR_SPEED > 0 then
-        t = math.max(0, math.min(1, (self.pullSpeed or 0) / TCA_AutopsyUI.TEAR_SPEED));
-    end
+function TCA_AutopsyUI:getPeelInterval(ratio)
+    local t = math.max(0, math.min(1, ratio or 0));
     local slow = TCA_AutopsyUI.SND_PEEL_SLOW_MS;
     local fast = TCA_AutopsyUI.SND_PEEL_FAST_MS;
     return slow + (fast - slow) * t;
 end
 
+function TCA_AutopsyUI:getPeelState()
+    if self.stage == "open" then
+        local ratio = 0;
+        if TCA_AutopsyUI.TEAR_SPEED and TCA_AutopsyUI.TEAR_SPEED > 0 then
+            ratio = (self.pullSpeed or 0) / TCA_AutopsyUI.TEAR_SPEED;
+        end
+        return (self.openL or 0) + (self.openR or 0), self.cutting and self.pullSide ~= nil, ratio;
+    end
+    if self.stage == "organs" and self.organDrag then
+        local drag = self.organDrag;
+        local ratio = 0;
+        if TCA_AutopsyUI.ORGAN_ROUGH_SPEED and TCA_AutopsyUI.ORGAN_ROUGH_SPEED > 0 then
+            ratio = (drag.speed or 0) / TCA_AutopsyUI.ORGAN_ROUGH_SPEED;
+        end
+        return math.sqrt(drag.dx * drag.dx + drag.dy * drag.dy), self.cutting, ratio;
+    end
+    return nil, false, 0;
+end
+
 function TCA_AutopsyUI:updatePeel()
     local snd = self.snd;
     local now = getTimestampMs();
-    local metric = nil;
-    if self.stage == "open" then
-        metric = (self.openL or 0) + (self.openR or 0);
-    end
-    if metric ~= nil and snd.peelLast ~= nil and metric > snd.peelLast + 0.00001 and self.cutting and self.pullSide then
+    local metric, pulling, ratio = self:getPeelState();
+    if metric ~= nil and snd.peelLast ~= nil and metric > snd.peelLast + 0.00001 and pulling then
         snd.peelLastPull = now;
     end
     snd.peelLast = metric;
@@ -318,7 +331,7 @@ function TCA_AutopsyUI:updatePeel()
         table.insert(keep, id);
         snd.peelIds = keep;
     end
-    local interval = self:getPeelInterval();
+    local interval = self:getPeelInterval(ratio);
     snd.peelNext = now + interval * (0.85 + ZombRand(31) / 100);
 end
 

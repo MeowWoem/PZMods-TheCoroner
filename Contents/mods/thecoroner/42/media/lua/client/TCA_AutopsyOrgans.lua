@@ -303,6 +303,9 @@ function TCA_AutopsyUI:extractOrgan()
     self.organsDone = index;
     self:resetCurrentOrgan();
     self:commitProgress();
+    if self.playSkinRip then
+        self:playSkinRip();
+    end
 end
 
 function TCA_AutopsyUI:commitProgress()
