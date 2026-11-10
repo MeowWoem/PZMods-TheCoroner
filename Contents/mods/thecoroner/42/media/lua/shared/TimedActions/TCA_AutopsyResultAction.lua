@@ -194,6 +194,7 @@ function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage)
     imd["TCA_Decay"] = TCA.Autopsy.getOrganDecay(body);
     imd["TCA_Infected"] = TCA.isInfected(body);
     imd["TCA_DeathTime"] = TCA.DeathTime.get(body);
+    TCA_OrganFood.applyExtraction(item, imd["TCA_Decay"], imd["TCA_Infected"]);
     local inv = self.character:getInventory();
     inv:AddItem(item);
     if isServer() then

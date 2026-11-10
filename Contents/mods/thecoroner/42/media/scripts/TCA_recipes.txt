@@ -31,7 +31,7 @@ module TCA
         {
             item 1 tags[base:bowl] mode:destroy flags[IsFull;ItemCount],
             -fluid 0.3 categories[Water] mode:mixture,
-            item 1 [TCA.Organ_liver],
+            item 1 [TCA.Organ_liver] mode:destroy,
         }
         outputs
         {
@@ -50,7 +50,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Catgut,
         inputs
         {
-            item 1 [TCA.Organ_intestines],
+            item 1 [TCA.Organ_intestines] mode:destroy,
             item 1 tags[base:sharpknife] mode:keep flags[MayDegradeLight;Prop1;IsNotDull],
         }
         outputs
@@ -70,7 +70,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_BladderCanteen,
         inputs
         {
-            item 1 [TCA.Organ_bladder],
+            item 1 [TCA.Organ_bladder] mode:destroy,
             item 1 tags[base:scissors;base:sharpknife] mode:keep flags[IsNotDull;MayDegradeLight],
             item 1 [Base.LeatherStrips] mode:destroy,
             item 1 [Base.Twine],
@@ -92,7 +92,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_heart],
+            item 1 [TCA.Organ_heart] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -115,7 +115,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_heart],
+            item 1 [TCA.Organ_heart] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -138,7 +138,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r],
+            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -161,7 +161,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r],
+            item 1 [TCA.Organ_lung_l;TCA.Organ_lung_r] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -184,7 +184,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_liver],
+            item 1 [TCA.Organ_liver] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -207,7 +207,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_liver],
+            item 1 [TCA.Organ_liver] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -230,7 +230,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_stomach],
+            item 1 [TCA.Organ_stomach] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -253,7 +253,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_stomach],
+            item 1 [TCA.Organ_stomach] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -276,7 +276,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_intestines],
+            item 1 [TCA.Organ_intestines] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -299,7 +299,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_intestines],
+            item 1 [TCA.Organ_intestines] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -322,7 +322,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_pancreas],
+            item 1 [TCA.Organ_pancreas] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -345,7 +345,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_pancreas],
+            item 1 [TCA.Organ_pancreas] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -368,7 +368,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r],
+            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -391,7 +391,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r],
+            item 1 [TCA.Organ_kidney_l;TCA.Organ_kidney_r] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -414,7 +414,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_spleen],
+            item 1 [TCA.Organ_spleen] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -437,7 +437,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_spleen],
+            item 1 [TCA.Organ_spleen] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -460,7 +460,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Alcohol,
         inputs
         {
-            item 1 [TCA.Organ_bladder],
+            item 1 [TCA.Organ_bladder] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],
@@ -483,7 +483,7 @@ module TCA
         Tooltip = Tooltip_TCA_Recipe_Specimen_Formalin,
         inputs
         {
-            item 1 [TCA.Organ_bladder],
+            item 1 [TCA.Organ_bladder] mode:destroy,
             item 1 [Base.EmptyJar] mode:destroy,
             item 1 [Base.JarLid] mode:destroy,
             item 1 [*],

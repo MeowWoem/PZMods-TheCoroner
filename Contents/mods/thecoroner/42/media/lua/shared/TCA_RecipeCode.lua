@@ -12,7 +12,7 @@ R.SPECIMEN_FORMALIN_MAX_DECAY = 2;
 R.ORGAN_PREFIX = "TCA.Organ_";
 
 function R.getDecay(item)
-    return math.floor(tonumber(item:getModData()["TCA_Decay"]) or 0);
+    return TCA_OrganFood.getDecayLevel(item);
 end
 
 function R.getDamage(item)

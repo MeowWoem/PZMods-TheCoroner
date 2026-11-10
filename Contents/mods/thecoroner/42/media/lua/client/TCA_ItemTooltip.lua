@@ -42,7 +42,10 @@ end
 function T.getLines(item, character)
     local lines = {};
     local md = item:getModData();
-    local decay = tonumber(md["TCA_Decay"]);
+    local decay = nil;
+    if md["TCA_Decay"] ~= nil or TCA_OrganFood.isFood(item) then
+        decay = TCA_OrganFood.getDecayLevel(item);
+    end
     local level = 0;
     if character then
         level = character:getPerkLevel(Perks.Doctor);
