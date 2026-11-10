@@ -105,9 +105,18 @@ function D.inventMorgueDeath()
 end
 
 function D.ensure(body)
-    if not body or body:isAnimal() or D.has(body) then
+    if not body or body:isAnimal() then
         return;
     end
+    if not D.has(body) then
+        D.ensureInternal(body);
+    end
+    if TCA.Wounds then
+        TCA.Wounds.ensureBody(body);
+    end
+end
+
+function D.ensureInternal(body)
     local md = body:getModData();
     if body:isZombie() then
         D.record(body, D.inventZombieDeath(body, body:getDeathTime()), false);

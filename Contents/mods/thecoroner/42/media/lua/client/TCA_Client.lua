@@ -10,6 +10,7 @@ require "TimedActions/TCA_HarvestMaggotsAction";
 require "TCA_AutopsyUI";
 require "TCA_ReferenceUI";
 require "TCA_Exam";
+require "TCA_Wounds";
 require "TCA_Cold";
 require "TCA_ExamUI";
 require "TimedActions/TCA_ExamAction";
@@ -173,6 +174,18 @@ function TCA_Client.onHarvestMaggots(playerObj, body)
     end
 end
 
+function TCA_Client.onDebugWounds(playerObj, body)
+    if not body then
+        return;
+    end
+    local lines = TCA.Wounds.describe(body);
+    print("TCA: wounds report");
+    for i = 1, #lines do
+        print("TCA:   " .. lines[i]);
+    end
+    playerObj:setHaloNote(table.concat(lines, " / "), 255, 255, 200, 600);
+end
+
 function TCA_Client.onExam(playerObj, body)
     if not body or not body:getSquare() then
         return;
@@ -211,6 +224,7 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     if debugMode then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
+        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugWounds"), playerObj, TCA_Client.onDebugWounds, body);
     end
 end
 

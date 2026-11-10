@@ -98,6 +98,9 @@ function TCA.Morgue.prepareCorpse(item)
     body:getModData()["TCA_Infected"] = ZombRand(100) < TCA.Morgue.INFECTED_CHANCE;
     local deathTime = TCA.DeathTime.inventMorgueDeath();
     TCA.DeathTime.record(body, deathTime, false);
+    if TCA.Wounds then
+        TCA.Wounds.ensureBody(body);
+    end
     if TCA.Cold then
         TCA.Cold.startStay(item, deathTime);
     end
