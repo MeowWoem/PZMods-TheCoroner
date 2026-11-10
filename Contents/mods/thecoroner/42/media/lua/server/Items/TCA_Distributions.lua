@@ -20,6 +20,12 @@ D.ENTRIES = {
     { list = "ArmyStorageMedical", item = "TCA.BoneSaw", weight = 2 },
 };
 
+D.ROOM_ENTRIES = {
+    { room = "all", container = "coffin", item = "TCA.HumanBone", weight = 6 },
+    { room = "all", container = "coffin", item = "TCA.HumanBone", weight = 4 },
+    { room = "all", container = "coffin", item = "TCA.HumanBone", weight = 2 },
+};
+
 function D.addEntry(entry)
     if not ProceduralDistributions or not ProceduralDistributions.list then
         return;
@@ -33,6 +39,20 @@ function D.addEntry(entry)
     table.insert(dist.items, entry.weight);
 end
 
+function D.addRoomEntry(entry)
+    if not SuburbsDistributions then
+        return;
+    end
+    local room = SuburbsDistributions[entry.room];
+    local container = room and room[entry.container];
+    if not container or not container.items then
+        print("TCA: distribution container not found: " .. tostring(entry.room) .. "." .. tostring(entry.container));
+        return;
+    end
+    table.insert(container.items, entry.item);
+    table.insert(container.items, entry.weight);
+end
+
 function D.apply()
     if D.applied then
         return;
@@ -40,6 +60,9 @@ function D.apply()
     D.applied = true;
     for i = 1, #D.ENTRIES do
         D.addEntry(D.ENTRIES[i]);
+    end
+    for i = 1, #D.ROOM_ENTRIES do
+        D.addRoomEntry(D.ROOM_ENTRIES[i]);
     end
 end
 

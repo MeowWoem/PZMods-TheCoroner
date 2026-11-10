@@ -13,5 +13,6 @@
     "TCA.Organ_bladder": "Bladder",
     "TCA.BoneSawOscillating": "Oscillating bone saw",
     "TCA.BoneSaw": "Bone saw",
-    "TCA.ChestPlate": "Chest plate"
+    "TCA.ChestPlate": "Chest plate",
+    "TCA.HumanBone": "Human Bone"
 }

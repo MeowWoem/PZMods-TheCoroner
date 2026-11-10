@@ -14,5 +14,7 @@
     "Tooltip_TCA_NeedBattery": "Requires a charged battery.",
     "Tooltip_TCA_TableClutterObject": "Clear the table first: something is standing on it.",
     "Tooltip_TCA_TableClutterItems": "Clear the table first: there are items on it.",
-    "Tooltip_TCA_ChestPlate": "Chest plate removed during an autopsy."
+    "Tooltip_TCA_ChestPlate": "Chest plate removed during an autopsy.",
+    "Tooltip_TCA_Recipe_LiverTan": "The liver must not be in an advanced state of decomposition.",
+    "Tooltip_TCA_Recipe_Catgut": "Fresh, uninfected and barely damaged intestines only."
 }

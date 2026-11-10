@@ -13,5 +13,6 @@
     "TCA.Organ_bladder": "Vessie",
     "TCA.BoneSawOscillating": "Scie à os oscillante",
     "TCA.BoneSaw": "Scie à os",
-    "TCA.ChestPlate": "Plastron"
+    "TCA.ChestPlate": "Plastron",
+    "TCA.HumanBone": "Os humain"
 }

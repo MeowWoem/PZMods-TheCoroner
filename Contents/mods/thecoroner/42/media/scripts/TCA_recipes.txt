@@ -1,0 +1,61 @@
+module TCA
+{
+    craftRecipe TCA_CutChestPlate
+    {
+        timedAction = SawLogs,
+        time = 300,
+        Tags = InHandCraft;CanBeDoneFromFloor,
+        category = Carving,
+        xpAward = Carving:5,
+        inputs
+        {
+            item 1 [TCA.ChestPlate] flags[Prop2],
+            item 1 tags[base:saw;base:smallsaw;base:crudesaw] mode:keep flags[MayDegradeLight;Prop1],
+        }
+        outputs
+        {
+            item 2 TCA.HumanBone,
+            item 6 Base.SmallAnimalBone,
+        }
+    }
+
+    craftRecipe TCA_CreateLiverTan
+    {
+        timedAction = MixingBowl,
+        time = 40,
+        category = Cooking,
+        Tags = InHandCraft;Cooking,
+        OnTest = TCA_RecipeCode.testLiverTan,
+        Tooltip = Tooltip_TCA_Recipe_LiverTan,
+        inputs
+        {
+            item 1 tags[base:bowl] mode:destroy flags[IsFull;ItemCount],
+            -fluid 0.3 categories[Water] mode:mixture,
+            item 1 [TCA.Organ_liver],
+        }
+        outputs
+        {
+            item 1 Base.BrainTan,
+        }
+    }
+
+    craftRecipe TCA_MakeCatgut
+    {
+        timedAction = SliceMeat_Surface,
+        time = 400,
+        Tags = AnySurfaceCraft,
+        category = Tailoring,
+        xpAward = Tailoring:10,
+        OnTest = TCA_RecipeCode.testCatgut,
+        Tooltip = Tooltip_TCA_Recipe_Catgut,
+        inputs
+        {
+            item 1 [TCA.Organ_intestines],
+            item 1 tags[base:sharpknife] mode:keep flags[MayDegradeLight;Prop1;IsNotDull],
+        }
+        outputs
+        {
+            item 3 Base.Thread_Sinew,
+        }
+    }
+}
