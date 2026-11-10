@@ -662,6 +662,7 @@ end
 
 function W.debugClear(body)
     local md = body:getModData();
+    md[W.KEY_CAUSE_RESULT] = nil;
     md[W.KEY_WOUNDS] = {};
     md[W.KEY_HITS] = nil;
     md[W.KEY_BULLETS] = nil;
@@ -685,12 +686,18 @@ function W.debugAddHit(body, kind, part)
     body:getModData()[W.KEY_BULLETS] = nil;
 end
 
+W.WOUND_TO_CAUSE = { bite = "infection", bullet = "firearm", laceration = "blade", deep = "blade", fracture = "fall", burn = "fire", scratch = "natural", glass = "natural" };
+
 function W.debugRandomize(body)
     W.debugClear(body);
     local wounds = ZombRand(3) + 1;
+    local first = nil;
     for i = 1, wounds do
-        W.debugAddWound(body, W.DEBUG_WOUND_KINDS[ZombRand(#W.DEBUG_WOUND_KINDS) + 1], W.DEBUG_PARTS[ZombRand(#W.DEBUG_PARTS) + 1]);
+        local kind = W.DEBUG_WOUND_KINDS[ZombRand(#W.DEBUG_WOUND_KINDS) + 1];
+        first = first or kind;
+        W.debugAddWound(body, kind, W.DEBUG_PARTS[ZombRand(#W.DEBUG_PARTS) + 1]);
     end
+    body:getModData()[W.KEY_CAUSE] = W.WOUND_TO_CAUSE[first] or "natural";
     local hits = ZombRand(4);
     for i = 1, hits do
         W.debugAddHit(body, W.DEBUG_HIT_KINDS[ZombRand(#W.DEBUG_HIT_KINDS) + 1], W.DEBUG_HIT_PARTS[ZombRand(#W.DEBUG_HIT_PARTS) + 1]);
@@ -706,10 +713,95 @@ function W.debugApply(body, op, kind, part)
         W.debugAddWound(body, kind, part);
     elseif op == "hit" and W.listContains(W.DEBUG_HIT_KINDS, kind) and W.listContains(W.DEBUG_HIT_PARTS, part) then
         W.debugAddHit(body, kind, part);
+    elseif op == "cause" and W.isCause(kind) then
+        body:getModData()[W.KEY_CAUSE] = kind;
+        body:getModData()[W.KEY_CAUSE_RESULT] = nil;
     else
         return false;
     end
     return true;
+end
+
+W.KEY_CAUSE_RESULT = "TCA_CauseResult";
+W.CAUSES = { "infection", "blunt", "blade", "axe", "spear", "firearm", "fall", "vehicle", "fire", "natural" };
+W.CAUSE_MAP = { unarmed = "blunt", stomp = "blunt", unknown = "natural", bite = "infection" };
+W.CAUSE_XP = 4;
+
+function W.isCause(cause)
+    return W.listContains(W.CAUSES, cause);
+end
+
+function W.getTrueCause(body)
+    local cause = body:getModData()[W.KEY_CAUSE];
+    if type(cause) ~= "string" then
+        return nil;
+    end
+    cause = W.CAUSE_MAP[cause] or cause;
+    if not W.isCause(cause) then
+        return nil;
+    end
+    return cause;
+end
+
+function W.getCauseResult(body)
+    local stored = body:getModData()[W.KEY_CAUSE_RESULT];
+    if type(stored) ~= "string" then
+        return nil;
+    end
+    local cause, ok = string.match(stored, "^([^,]+),(%d)$");
+    if not cause then
+        return nil;
+    end
+    local result = {};
+    result.cause = cause;
+    result.ok = ok == "1";
+    return result;
+end
+
+function W.showCauseResult(character, ok, xp)
+    if not character then
+        return;
+    end
+    if ok then
+        HaloTextHelper.addGoodText(character, getText("IGUI_TCA_CauseRight"));
+        if xp and xp > 0 then
+            TCA.Autopsy.showXpHalo(character, xp);
+        end
+        return;
+    end
+    HaloTextHelper.addBadText(character, getText("IGUI_TCA_CauseWrong"));
+end
+
+function W.applyCause(character, body, cause)
+    if not character or not body or not W.isCause(cause) or W.getCauseResult(body) then
+        return;
+    end
+    local truth = W.getTrueCause(body);
+    if not truth then
+        return;
+    end
+    local ok = truth == cause;
+    local flag = "0";
+    if ok then
+        flag = "1";
+    end
+    body:getModData()[W.KEY_CAUSE_RESULT] = cause .. "," .. flag;
+    if isServer() then
+        body:transmitModData();
+    end
+    local xp = 0;
+    if ok then
+        xp = W.CAUSE_XP;
+        addXp(character, Perks.Doctor, xp);
+    end
+    if isServer() then
+        local args = {};
+        args.ok = ok;
+        args.xp = xp;
+        sendServerCommand(character, "TCA", "causeResult", args);
+    else
+        W.showCauseResult(character, ok, xp);
+    end
 end
 
 Events.OnCharacterDeath.Add(W.onCharacterDeath);

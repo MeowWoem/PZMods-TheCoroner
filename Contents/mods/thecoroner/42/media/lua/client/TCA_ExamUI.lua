@@ -1,3 +1,4 @@
+require "ISUI/ISComboBox";
 require "TCA_Wounds";
 require "TCA_UIDrag";
 require "ISUI/ISPanel";
@@ -43,6 +44,7 @@ TCA_ExamUI.ZONES = {
 
 TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200 };
 TCA_ExamUI.WOUND_HOLD_MS = 800;
+TCA_ExamUI.CAUSE_H = 58;
 TCA_ExamUI.HOLD_TOLERANCE = 10;
 TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
 TCA_ExamUI.PULL_DONE = 0.9;
@@ -242,6 +244,21 @@ function TCA_ExamUI:createChildren()
     self.guideButton:instantiate();
     self:addChild(self.guideButton);
 
+    local causeY = self.notesY + self.notesH - TCA_ExamUI.CAUSE_H + 8;
+    local causeBtnW = 110;
+    self.causeCombo = ISComboBox:new(self.notesX + 10, causeY, self.notesW - causeBtnW - 30, 22, self, nil);
+    self.causeCombo:initialise();
+    self.causeCombo:instantiate();
+    for _, cause in ipairs(TCA.Wounds.CAUSES) do
+        self.causeCombo:addOptionWithData(getText("IGUI_TCA_Cause_" .. cause), cause);
+    end
+    self:addChild(self.causeCombo);
+    self.causeButton = ISButton:new(self.notesX + self.notesW - causeBtnW - 10, causeY, causeBtnW, 22, getText("IGUI_TCA_ExamConclude"), self, TCA_ExamUI.onCauseClick);
+    self.causeButton:initialise();
+    self.causeButton:instantiate();
+    self:addChild(self.causeButton);
+    self.causeGiven = nil;
+
     self.woundsButton = ISButton:new(self.notesX + self.notesW - guideW * 2 - 12, self.notesY + 6, guideW, 20, getText("IGUI_TCA_ExamWounds"), self, TCA_ExamUI.onWoundsClick);
     self.woundsButton:initialise();
     self.woundsButton:instantiate();
@@ -286,6 +303,7 @@ function TCA_ExamUI:onEditClick()
     self.editMode = not self.editMode;
     self.editZone = nil;
     self.press = nil;
+    self:updateCauseControls();
 end
 
 function TCA_ExamUI:editMouseDown(x, y)
@@ -337,7 +355,11 @@ function TCA_ExamUI:getNotesContentTop()
 end
 
 function TCA_ExamUI:getNotesContentH()
-    return self.notesY + self.notesH - self:getNotesContentTop() - 6;
+    local h = self.notesY + self.notesH - self:getNotesContentTop() - 6;
+    if self.mode == "wounds" then
+        h = h - TCA_ExamUI.CAUSE_H;
+    end
+    return h;
 end
 
 function TCA_ExamUI:getMaxScroll()
@@ -407,6 +429,54 @@ function TCA_ExamUI:onMouseWheel(del)
     return true;
 end
 
+function TCA_ExamUI:canConcludeCause()
+    local W = TCA.Wounds;
+    return self.mode == "wounds" and self.causeGiven == nil and W.getCauseResult(self.body) == nil and W.getTrueCause(self.body) ~= nil;
+end
+
+function TCA_ExamUI:updateCauseControls()
+    local show = self:canConcludeCause();
+    self.causeCombo:setVisible(show);
+    self.causeButton:setVisible(show);
+end
+
+function TCA_ExamUI:onCauseClick()
+    if not self:canConcludeCause() then
+        return;
+    end
+    local cause = self.causeCombo:getOptionData(self.causeCombo.selected);
+    if not cause then
+        return;
+    end
+    self.causeGiven = cause;
+    TCA_Client.concludeCause(self.character, self.body, cause);
+    self:updateCauseControls();
+end
+
+function TCA_ExamUI:drawCauseStrip()
+    if self.mode ~= "wounds" or self:canConcludeCause() then
+        return;
+    end
+    local W = TCA.Wounds;
+    local x = self.notesX + 10;
+    local y = self.notesY + self.notesH - TCA_ExamUI.CAUSE_H + 8;
+    local maxW = self.notesW - 20;
+    local result = W.getCauseResult(self.body);
+    if result then
+        local verdict = getText("IGUI_TCA_ExamGivenWrong");
+        local c = RED;
+        if result.ok then
+            verdict = getText("IGUI_TCA_ExamGivenRight");
+            c = GREEN;
+        end
+        self:drawWrapped(getText("IGUI_TCA_CauseGiven", getText("IGUI_TCA_Cause_" .. result.cause), verdict), x, y, maxW, c);
+    elseif self.causeGiven then
+        self:drawWrapped(getText("IGUI_TCA_CauseGivenPending", getText("IGUI_TCA_Cause_" .. self.causeGiven)), x, y, maxW, WHITE);
+    else
+        self:drawWrapped(getText("IGUI_TCA_CauseUnknown"), x, y, maxW, GREY);
+    end
+end
+
 function TCA_ExamUI:setMode(mode)
     self.scroll = 0;
     self.press = nil;
@@ -418,6 +488,7 @@ function TCA_ExamUI:setMode(mode)
     elseif mode == "wounds" then
         self.woundsButton:setTitle(getText("IGUI_TCA_ExamNotes"));
     end
+    self:updateCauseControls();
 end
 
 function TCA_ExamUI:onGuideClick()
@@ -922,6 +993,7 @@ function TCA_ExamUI:prerender()
     end
 
     self:drawNotes();
+    self:drawCauseStrip();
     self:drawTimeline();
 end
 

@@ -18,5 +18,6 @@
     "ContextMenu_TCA_DebugWoundsRandom": "Randomiser",
     "ContextMenu_TCA_DebugWoundsClear": "Effacer",
     "ContextMenu_TCA_DebugWoundsAddAnte": "Ajouter une blessure (avant la mort)",
-    "ContextMenu_TCA_DebugWoundsAddPost": "Ajouter un coup (après la mort)"
+    "ContextMenu_TCA_DebugWoundsAddPost": "Ajouter un coup (après la mort)",
+    "ContextMenu_TCA_DebugWoundsCause": "Définir la cause du décès"
 }

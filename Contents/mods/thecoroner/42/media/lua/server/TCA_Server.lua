@@ -101,6 +101,19 @@ function TCA_Server.onDebugWoundsCommand(player, args)
     end
 end
 
+function TCA_Server.onExamCauseCommand(player, args)
+    if not args or not TCA.Wounds.isCause(args.cause) then
+        return;
+    end
+    if math.abs(player:getX() - args.x) > 4 or math.abs(player:getY() - args.y) > 4 then
+        return;
+    end
+    local body = TCA.findBodyAt(args.x, args.y, args.z);
+    if body then
+        TCA.Wounds.applyCause(player, body, args.cause);
+    end
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -117,6 +130,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onResetExamCommand(player, args);
     elseif command == "examObserve" then
         TCA_Server.onExamObserveCommand(player, args);
+    elseif command == "examCause" then
+        TCA_Server.onExamCauseCommand(player, args);
     elseif command == "debugWounds" then
         TCA_Server.onDebugWoundsCommand(player, args);
     end

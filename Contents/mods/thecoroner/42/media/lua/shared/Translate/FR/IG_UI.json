@@ -256,5 +256,20 @@
     "IGUI_TCA_ExamZone_w_Foot_L": "Pied gauche",
     "IGUI_TCA_ExamHint_w_Foot_L": "maintiens le clic pour inspecter les blessures",
     "IGUI_TCA_ExamZone_w_Foot_R": "Pied droit",
-    "IGUI_TCA_ExamHint_w_Foot_R": "maintiens le clic pour inspecter les blessures"
+    "IGUI_TCA_ExamHint_w_Foot_R": "maintiens le clic pour inspecter les blessures",
+    "IGUI_TCA_Cause_infection": "Infection (morsure)",
+    "IGUI_TCA_Cause_blunt": "Coups contondants",
+    "IGUI_TCA_Cause_blade": "Arme blanche",
+    "IGUI_TCA_Cause_axe": "Hache",
+    "IGUI_TCA_Cause_spear": "Arme perforante (lance)",
+    "IGUI_TCA_Cause_firearm": "Arme à feu",
+    "IGUI_TCA_Cause_fall": "Chute",
+    "IGUI_TCA_Cause_vehicle": "Accident de véhicule",
+    "IGUI_TCA_Cause_fire": "Brûlures (feu)",
+    "IGUI_TCA_Cause_natural": "Mort naturelle",
+    "IGUI_TCA_CauseGiven": "Cause rendue : %1 (%2)",
+    "IGUI_TCA_CauseGivenPending": "Cause rendue : %1",
+    "IGUI_TCA_CauseUnknown": "Impossible d'établir la cause du décès sur ce corps.",
+    "IGUI_TCA_CauseRight": "Cause du décès juste",
+    "IGUI_TCA_CauseWrong": "Cause du décès fausse"
 }

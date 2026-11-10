@@ -18,5 +18,6 @@
     "ContextMenu_TCA_DebugWoundsRandom": "Randomize",
     "ContextMenu_TCA_DebugWoundsClear": "Clear",
     "ContextMenu_TCA_DebugWoundsAddAnte": "Add a wound (before death)",
-    "ContextMenu_TCA_DebugWoundsAddPost": "Add a hit (after death)"
+    "ContextMenu_TCA_DebugWoundsAddPost": "Add a hit (after death)",
+    "ContextMenu_TCA_DebugWoundsCause": "Set cause of death"
 }

@@ -246,6 +246,15 @@ function TCA_Client.addDebugWoundsMenu(context, playerObj, body)
     local anteMenu = ISContextMenu:getNew(menu);
     menu:addSubMenu(anteOption, anteMenu);
     TCA_Client.addDebugKindMenu(anteMenu, playerObj, body, "wound", W.DEBUG_WOUND_KINDS, W.DEBUG_PARTS);
+    local causeOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsCause"));
+    local causeMenu = ISContextMenu:getNew(menu);
+    menu:addSubMenu(causeOption, causeMenu);
+    for i = 1, #W.CAUSES do
+        local choice = {};
+        choice.op = "cause";
+        choice.kind = W.CAUSES[i];
+        TCA_Client.addBodyOption(causeMenu, body, getText("IGUI_TCA_Cause_" .. W.CAUSES[i]), playerObj, TCA_Client.onDebugWoundsAdd, body, choice);
+    end
     local postOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsAddPost"));
     local postMenu = ISContextMenu:getNew(menu);
     menu:addSubMenu(postOption, postMenu);
@@ -257,11 +266,28 @@ function TCA_Client.onDebugWounds(playerObj, body)
         return;
     end
     local lines = TCA.Wounds.describe(body);
+    table.insert(lines, 1, "truth=" .. tostring(TCA.Wounds.getTrueCause(body)));
     print("TCA: wounds report");
     for i = 1, #lines do
         print("TCA:   " .. lines[i]);
     end
     playerObj:setHaloNote(table.concat(lines, " / "), 255, 255, 200, 600);
+end
+
+function TCA_Client.concludeCause(playerObj, body, cause)
+    if not body then
+        return;
+    end
+    if isClient() then
+        local args = {};
+        args.x = body:getX();
+        args.y = body:getY();
+        args.z = body:getZ();
+        args.cause = cause;
+        sendClientCommand(playerObj, "TCA", "examCause", args);
+        return;
+    end
+    TCA.Wounds.applyCause(playerObj, body, cause);
 end
 
 function TCA_Client.onExam(playerObj, body)
@@ -415,6 +441,8 @@ function TCA_Client.onServerCommand(module, command, args)
         TCA.Autopsy.showXpHalo(getPlayer(), args.xp);
     elseif command == "bullets" and args and args.count then
         TCA.Wounds.showBulletHalo(getPlayer(), tonumber(args.count) or 1);
+    elseif command == "causeResult" and args then
+        TCA.Wounds.showCauseResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     elseif command == "examResult" and args then
         TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     end

@@ -437,6 +437,7 @@ end
 function E.resetResult(body)
     body:getModData()[E.KEY_RESULT] = nil;
     body:getModData()[E.KEY_OBS] = nil;
+    body:getModData()["TCA_CauseResult"] = nil;
 end
 
 function E.getObserverKey(character)
