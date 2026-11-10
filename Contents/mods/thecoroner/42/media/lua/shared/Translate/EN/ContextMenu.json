@@ -10,5 +10,6 @@
     "ContextMenu_TCA_Exam": "Estimate time of death",
     "ContextMenu_TCA_DebugExamReset": "[DEBUG] Reset examination",
     "ContextMenu_TCA_SawInsertBattery": "Insert battery",
-    "ContextMenu_TCA_SawRemoveBattery": "Remove battery"
+    "ContextMenu_TCA_SawRemoveBattery": "Remove battery",
+    "ContextMenu_TCA_HarvestMaggots": "Harvest maggots"
 }

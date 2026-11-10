@@ -32,6 +32,15 @@ E.LIVOR_FIX_START = 6;
 E.LIVOR_FIXED = 12;
 
 E.DECOMP_HOURS = { 24, 72, 168, 480, 1440 };
+E.EYES_HOURS = { 2, 12, 24 };
+E.EYES_FACTOR = 0.3;
+E.INSECT_HOURS = { 2, 20, 44, 72, 144, 288 };
+E.INSECT_MIN_TEMP = 10;
+E.INSECT_REF_TEMP = 25;
+E.INSECT_MAX_RATE = 1.5;
+E.MAGGOT_ITEM = "Base.Maggots";
+E.MAGGOT_COUNT = { [2] = 3, [3] = 5, [4] = 8 };
+E.KEY_MAGGOTS = "TCA_MaggotsTaken";
 
 E.MIN_HOURS = 0.5;
 E.MAX_HOURS = 17520;
@@ -42,7 +51,7 @@ E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
 E.KEY_OBS = "TCA_ExamObs";
-E.OBS_ZONES = { temp = true, jaw = true, arm = true, livor = true, decomp = true };
+E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true };
 E.OBS_MAX_LEN = 120;
 E.OBS_AGE_SHOW = 0.25;
 
@@ -162,6 +171,67 @@ function E.getDecompStage(body)
     return stage;
 end
 
+function E.countStage(hours, limits)
+    local stage = 0;
+    for _, limit in ipairs(limits) do
+        if hours >= limit then
+            stage = stage + 1;
+        end
+    end
+    return stage;
+end
+
+function E.getEyesStage(body)
+    return E.countStage(C.getEffectiveHours(body, E.EYES_FACTOR), E.EYES_HOURS);
+end
+
+function E.getInsectRate(body)
+    local t = E.getAmbient(body);
+    return clamp((t - E.INSECT_MIN_TEMP) / (E.INSECT_REF_TEMP - E.INSECT_MIN_TEMP), 0, E.INSECT_MAX_RATE);
+end
+
+function E.getInsectStage(body)
+    if body:isSkeleton() then
+        return #E.INSECT_HOURS;
+    end
+    local hours = C.getEffectiveHours(body, 0) * E.getInsectRate(body);
+    return E.countStage(hours, E.INSECT_HOURS);
+end
+
+function E.getHarvestCount(body)
+    if body:getModData()[E.KEY_MAGGOTS] then
+        return 0;
+    end
+    return E.MAGGOT_COUNT[E.getInsectStage(body)] or 0;
+end
+
+function E.misreadStage(body, key, stage, maxStage, level)
+    if math.abs(E.noise(body, key .. "_b", level)) < E.getMisreadChance(level) then
+        if E.noise(body, key .. "_a", level) >= 0 then
+            stage = stage + 1;
+        else
+            stage = stage - 1;
+        end
+    end
+    return math.floor(clamp(stage, 0, maxStage));
+end
+
+function E.readEyes(body, level)
+    return E.misreadStage(body, "eyes", E.getEyesStage(body), #E.EYES_HOURS, level);
+end
+
+function E.readInsects(body, level)
+    return E.misreadStage(body, "insects", E.getInsectStage(body), #E.INSECT_HOURS, level);
+end
+
+function E.getEyesText(stage)
+    return getText("IGUI_TCA_ExamEyes" .. tostring(stage));
+end
+
+function E.getInsectsText(stage)
+    return getText("IGUI_TCA_ExamInsects" .. tostring(stage));
+end
+
 function E.getTempSigma(level)
     return math.max(0.3, 2.5 - 0.22 * level);
 end
@@ -222,6 +292,8 @@ function E.readAll(body, level)
     values.arm = E.readRigor(body, "arm", level);
     values.livor = E.readLivor(body, level);
     values.decomp = E.readDecomp(body, level);
+    values.eyes = E.readEyes(body, level);
+    values.insects = E.readInsects(body, level);
     return values;
 end
 
@@ -382,7 +454,7 @@ function E.encodeObservation(zone, reading, level, time)
         return string.format("%.3f|%d|%.4f", time, level, reading);
     elseif zone == "livor" then
         return string.format("%.3f|%d|%.4f|%.4f", time, level, reading.visible, reading.blanch);
-    elseif zone == "decomp" then
+    elseif zone == "decomp" or zone == "eyes" or zone == "insects" then
         return string.format("%.3f|%d|%d", time, level, reading);
     end
     return nil;
@@ -432,6 +504,10 @@ function E.getObservationText(zone, obs)
         return E.getLivorText(obs.reading, obs.level);
     elseif zone == "decomp" then
         return E.getDecompText(obs.reading);
+    elseif zone == "eyes" then
+        return E.getEyesText(obs.reading);
+    elseif zone == "insects" then
+        return E.getInsectsText(obs.reading);
     end
     return nil;
 end

@@ -6,6 +6,7 @@ require "TimedActions/TCA_PlaceOnTableAction";
 require "TimedActions/TCA_RemoveFromTableAction";
 require "TimedActions/TCA_AutopsyAction";
 require "TimedActions/TCA_AutopsyResultAction";
+require "TimedActions/TCA_HarvestMaggotsAction";
 require "TCA_AutopsyUI";
 require "TCA_ReferenceUI";
 require "TCA_Exam";
@@ -156,6 +157,15 @@ function TCA_Client.sendExamObservation(playerObj, body, zone, data)
     sendClientCommand(playerObj, "TCA", "examObserve", args);
 end
 
+function TCA_Client.onHarvestMaggots(playerObj, body)
+    if not body or not body:getSquare() then
+        return;
+    end
+    if luautils.walkAdj(playerObj, body:getSquare(), false) then
+        ISTimedActionQueue.add(TCA_HarvestMaggotsAction:new(playerObj, body:getX(), body:getY(), body:getZ()));
+    end
+end
+
 function TCA_Client.onExam(playerObj, body)
     if not body or not body:getSquare() then
         return;
@@ -167,6 +177,9 @@ end
 
 function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     context:addOption(getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
+    if TCA.Exam.getHarvestCount(body) > 0 then
+        context:addOption(getText("ContextMenu_TCA_HarvestMaggots"), playerObj, TCA_Client.onHarvestMaggots, body);
+    end
     if debugMode then
         context:addOption(getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
         context:addOption(getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);

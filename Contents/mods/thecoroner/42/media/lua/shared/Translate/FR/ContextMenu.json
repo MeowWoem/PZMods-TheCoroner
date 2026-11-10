@@ -10,5 +10,6 @@
     "ContextMenu_TCA_Exam": "Estimer l'heure du décès",
     "ContextMenu_TCA_DebugExamReset": "[DEBUG] Réinitialiser l'examen",
     "ContextMenu_TCA_SawInsertBattery": "Insérer une pile",
-    "ContextMenu_TCA_SawRemoveBattery": "Retirer la pile"
+    "ContextMenu_TCA_SawRemoveBattery": "Retirer la pile",
+    "ContextMenu_TCA_HarvestMaggots": "Récolter les asticots"
 }

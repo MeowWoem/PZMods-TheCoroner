@@ -11,16 +11,18 @@ TCA_ExamUI.WIDTH = 800;
 TCA_ExamUI.HEIGHT = 660;
 TCA_ExamUI.VIEW = { x1 = -130, y1 = -20, x2 = 130, y2 = 490 };
 
-TCA_ExamUI.ORDER = { "temp", "jaw", "arm", "livor", "decomp" };
+TCA_ExamUI.ORDER = { "temp", "eyes", "jaw", "arm", "livor", "decomp", "insects" };
 TCA_ExamUI.ZONES = {
     temp = { x = -30, y = 122, radius = 12 },
+    eyes = { x = 12.5, y = 31.5, radius = 6 },
+    insects = { x = 0, y = 44, radius = 6 },
     jaw = { x = 0, y = 64, radius = 12 },
     arm = { x = 75, y = 250, radius = 12 },
     livor = { x = 25, y = 185, radius = 12 },
     decomp = { x = 0, y = 205, radius = 16 },
 };
 
-TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800 };
+TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200 };
 TCA_ExamUI.HOLD_TOLERANCE = 10;
 TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
 TCA_ExamUI.PULL_DONE = 0.9;
@@ -588,6 +590,12 @@ function TCA_ExamUI:completeZone(zone, x, y)
     elseif zone == "decomp" then
         reading = self.values.decomp;
         self.texts.decomp = E.getDecompText(self.values.decomp);
+    elseif zone == "eyes" then
+        reading = self.values.eyes;
+        self.texts.eyes = E.getEyesText(self.values.eyes);
+    elseif zone == "insects" then
+        reading = self.values.insects;
+        self.texts.insects = E.getInsectsText(self.values.insects);
     end
     self.done[zone] = true;
     if reading ~= nil then
@@ -753,6 +761,8 @@ function TCA_ExamUI:drawDebug(x, y, maxW)
     local C = TCA.Cold;
     local truth = D.getHoursSinceDeath(self.body);
     local text = getText("IGUI_TCA_ExamDebug", TCA.Exam.formatHours(truth), string.format("%.1f", C.getColdHours(self.body)), TCA.Exam.formatHours(C.getEffectiveHours(self.body, C.DECAY_FACTOR)));
+    local E = TCA.Exam;
+    text = text .. string.format(" / eyes %d / insects %d (rate %.2f, maggots %d)", E.getEyesStage(self.body), E.getInsectStage(self.body), E.getInsectRate(self.body), E.getHarvestCount(self.body));
     local lines = TCA_ExamUI.wrapText(UIFont.Small, text, maxW);
     for _, line in ipairs(lines) do
         self:drawText(line, x, y, 1, 0.85, 0.3, 1, UIFont.Small);
