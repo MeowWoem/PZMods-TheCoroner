@@ -1,3 +1,4 @@
+require "TCA_Wounds";
 require "TCA_UIDrag";
 require "ISUI/ISPanel";
 require "ISUI/ISButton";
@@ -17,13 +18,19 @@ TCA_ExamUI.ZONES = {
     temp = { x = -30, y = 122, radius = 12 },
     eyes = { x = 12.5, y = 31.5, radius = 6 },
     insects = { x = 0, y = 44, radius = 6 },
+    w_head = { x = 0, y = 25, radius = 12 },
+    w_torso = { x = 0, y = 150, radius = 14 },
+    w_arm_r = { x = -58, y = 190, radius = 12 },
+    w_arm_l = { x = 58, y = 190, radius = 12 },
+    w_leg_r = { x = -18, y = 370, radius = 12 },
+    w_leg_l = { x = 18, y = 370, radius = 12 },
     jaw = { x = 0, y = 64, radius = 12 },
     arm = { x = 75, y = 250, radius = 12 },
     livor = { x = 25, y = 185, radius = 12 },
     decomp = { x = 0, y = 205, radius = 16 },
 };
 
-TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200 };
+TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200, w_head = 800, w_torso = 800, w_arm_r = 800, w_arm_l = 800, w_leg_r = 800, w_leg_l = 800 };
 TCA_ExamUI.HOLD_TOLERANCE = 10;
 TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
 TCA_ExamUI.PULL_DONE = 0.9;
@@ -176,11 +183,12 @@ function TCA_ExamUI:initialise()
     self.done = {};
     self.texts = {};
     self.observedAt = {};
+    self.woundLevels = {};
     self:loadObservations();
     self.press = nil;
     self.blanch = nil;
     self.warnTime = 0;
-    self.showGuide = false;
+    self.mode = "notes";
     self.finished = false;
     self.conclude = false;
     self.dragHandle = nil;
@@ -221,6 +229,11 @@ function TCA_ExamUI:createChildren()
     self.guideButton:initialise();
     self.guideButton:instantiate();
     self:addChild(self.guideButton);
+
+    self.woundsButton = ISButton:new(self.notesX + self.notesW - guideW * 2 - 12, self.notesY + 6, guideW, 20, getText("IGUI_TCA_ExamWounds"), self, TCA_ExamUI.onWoundsClick);
+    self.woundsButton:initialise();
+    self.woundsButton:instantiate();
+    self:addChild(self.woundsButton);
 
     if TCA_Client.isDebug() then
         self.editButton = ISButton:new(10, y + 2, 130, 20, getText("IGUI_TCA_ExamDebugEdit"), self, TCA_ExamUI.onEditClick);
@@ -267,7 +280,7 @@ function TCA_ExamUI:editMouseDown(x, y)
     if not self.editMode or not self:isInView(x, y) then
         return false;
     end
-    for _, id in ipairs(TCA_ExamUI.ORDER) do
+    for _, id in ipairs(self:getZoneIds()) do
         local zx, zy = self:getZoneScreen(id);
         if dist(x, y, zx, zy) <= TCA_ExamUI.EDIT_RADIUS then
             self.editZone = id;
@@ -300,7 +313,7 @@ function TCA_ExamUI:drawEditLabels()
     if not self.editMode then
         return;
     end
-    for _, id in ipairs(TCA_ExamUI.ORDER) do
+    for _, id in ipairs(self:getZoneIds()) do
         local zone = TCA_ExamUI.ZONES[id];
         local zx, zy = self:getZoneScreen(id);
         self:drawText(id .. " " .. tostring(zone.x) .. ", " .. tostring(zone.y), zx + 8, zy - 6, 1, 0.85, 0.3, 1, UIFont.Small);
@@ -382,14 +395,40 @@ function TCA_ExamUI:onMouseWheel(del)
     return true;
 end
 
-function TCA_ExamUI:onGuideClick()
+function TCA_ExamUI:setMode(mode)
     self.scroll = 0;
-    self.showGuide = not self.showGuide;
-    if self.showGuide then
+    self.press = nil;
+    self.mode = mode;
+    self.guideButton:setTitle(getText("IGUI_TCA_ExamGuide"));
+    self.woundsButton:setTitle(getText("IGUI_TCA_ExamWounds"));
+    if mode == "guide" then
         self.guideButton:setTitle(getText("IGUI_TCA_ExamNotes"));
-    else
-        self.guideButton:setTitle(getText("IGUI_TCA_ExamGuide"));
+    elseif mode == "wounds" then
+        self.woundsButton:setTitle(getText("IGUI_TCA_ExamNotes"));
     end
+end
+
+function TCA_ExamUI:onGuideClick()
+    if self.mode == "guide" then
+        self:setMode("notes");
+    else
+        self:setMode("guide");
+    end
+end
+
+function TCA_ExamUI:onWoundsClick()
+    if self.mode == "wounds" then
+        self:setMode("notes");
+    else
+        self:setMode("wounds");
+    end
+end
+
+function TCA_ExamUI:getZoneIds()
+    if self.mode == "wounds" then
+        return TCA.Wounds.REGION_ORDER;
+    end
+    return TCA_ExamUI.ORDER;
 end
 
 function TCA_ExamUI:refreshTools()
@@ -423,14 +462,14 @@ function TCA_ExamUI:getZoneAt(x, y)
     if not self:isInView(x, y) then
         return nil;
     end
-    for _, id in ipairs(TCA_ExamUI.ORDER) do
+    for _, id in ipairs(self:getZoneIds()) do
         local zone = TCA_ExamUI.ZONES[id];
         local zx, zy = self:getZoneScreen(id);
         if dist(x, y, zx, zy) <= zone.radius then
             return id;
         end
     end
-    if self:isOnFlank(x, y) then
+    if self.mode ~= "wounds" and self:isOnFlank(x, y) then
         return "livor";
     end
     return nil;
@@ -541,12 +580,24 @@ function TCA_ExamUI:loadObservations()
         return;
     end
     for _, zone in ipairs(TCA_ExamUI.ORDER) do
-        local obs = E.decodeObservation(zone, mine[zone]);
-        if obs then
-            self.texts[zone] = E.getObservationText(zone, obs);
-            self.observedAt[zone] = obs.time;
-            self.done[zone] = true;
-        end
+        self:loadObservation(mine, zone);
+    end
+    for _, zone in ipairs(TCA.Wounds.REGION_ORDER) do
+        self:loadObservation(mine, zone);
+    end
+end
+
+function TCA_ExamUI:loadObservation(mine, zone)
+    local E = TCA.Exam;
+    local obs = E.decodeObservation(zone, mine[zone]);
+    if not obs then
+        return;
+    end
+    self.texts[zone] = E.getObservationText(zone, obs, self.body);
+    self.observedAt[zone] = obs.time;
+    self.done[zone] = true;
+    if TCA.Wounds.isRegion(zone) then
+        self.woundLevels[zone] = obs.level;
     end
 end
 
@@ -562,6 +613,15 @@ function TCA_ExamUI:saveObservation(zone, reading)
     if isClient() then
         TCA_Client.sendExamObservation(self.character, self.body, zone, data);
     end
+end
+
+function TCA_ExamUI:hasFoundBite()
+    for zone, level in pairs(self.woundLevels) do
+        if TCA.Wounds.regionShowsBite(self.body, zone, level) then
+            return true;
+        end
+    end
+    return false;
 end
 
 function TCA_ExamUI:getObservationAge(zone)
@@ -602,6 +662,10 @@ function TCA_ExamUI:completeZone(zone, x, y)
     elseif zone == "insects" then
         reading = self.values.insects;
         self.texts.insects = E.getInsectsText(self.values.insects);
+    elseif TCA.Wounds.isRegion(zone) then
+        reading = 0;
+        self.woundLevels[zone] = self.level;
+        self.texts[zone] = TCA.Wounds.getRegionText(self.body, zone, self.level);
     end
     self.done[zone] = true;
     if reading ~= nil then
@@ -706,10 +770,14 @@ end
 
 function TCA_ExamUI:drawNotesContent(x, y, maxW)
     local startY = y;
-    if self.showGuide then
+    if self.mode == "guide" then
         return self:drawGuide(x, y, maxW);
     end
-    for _, id in ipairs(TCA_ExamUI.ORDER) do
+    if self.mode == "wounds" and self:hasFoundBite() then
+        y = self:drawWrapped(getText("IGUI_TCA_WoundBiteWarning"), x, y, maxW, RED);
+        y = y + 8;
+    end
+    for _, id in ipairs(self:getZoneIds()) do
         self:drawText(getText("IGUI_TCA_ExamZone_" .. id), x, y, 0.95, 0.85, 0.6, 1, UIFont.Small);
         y = y + self.smallH + 2;
         local text = self.texts[id];
@@ -740,8 +808,10 @@ function TCA_ExamUI:drawNotes()
     self:drawRectBorder(self.notesX, self.notesY, self.notesW, self.notesH, 1, BORDER.r, BORDER.g, BORDER.b);
     local x = self.notesX + 10;
     local title = getText("IGUI_TCA_ExamNotes");
-    if self.showGuide then
+    if self.mode == "guide" then
         title = getText("IGUI_TCA_ExamGuideTitle");
+    elseif self.mode == "wounds" then
+        title = getText("IGUI_TCA_ExamWoundsTitle");
     end
     self:drawText(title, x, self.notesY + 8, 1, 1, 1, 1, UIFont.Medium);
 
@@ -891,7 +961,7 @@ end
 
 function TCA_ExamUI:drawZones()
     local hover = self:getHoverZone();
-    for _, id in ipairs(TCA_ExamUI.ORDER) do
+    for _, id in ipairs(self:getZoneIds()) do
         local pressed = self.press and self.press.zone == id and self:isPull(id);
         if not pressed then
             local zx, zy = self:getZoneScreen(id);

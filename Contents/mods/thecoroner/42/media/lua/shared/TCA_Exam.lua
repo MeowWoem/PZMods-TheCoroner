@@ -51,7 +51,7 @@ E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
 E.KEY_OBS = "TCA_ExamObs";
-E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true };
+E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true, w_head = true, w_torso = true, w_arm_r = true, w_arm_l = true, w_leg_r = true, w_leg_l = true };
 E.OBS_MAX_LEN = 120;
 E.OBS_AGE_SHOW = 0.25;
 
@@ -456,6 +456,8 @@ function E.encodeObservation(zone, reading, level, time)
         return string.format("%.3f|%d|%.4f|%.4f", time, level, reading.visible, reading.blanch);
     elseif zone == "decomp" or zone == "eyes" or zone == "insects" then
         return string.format("%.3f|%d|%d", time, level, reading);
+    elseif TCA.Wounds and TCA.Wounds.isRegion(zone) then
+        return string.format("%.3f|%d|0", time, level);
     end
     return nil;
 end
@@ -495,7 +497,13 @@ function E.decodeObservation(zone, str)
     return obs;
 end
 
-function E.getObservationText(zone, obs)
+function E.getObservationText(zone, obs, body)
+    if TCA.Wounds and TCA.Wounds.isRegion(zone) then
+        if not body then
+            return nil;
+        end
+        return TCA.Wounds.getRegionText(body, zone, obs.level);
+    end
     if zone == "temp" then
         return E.getTempText(obs.reading);
     elseif zone == "jaw" or zone == "arm" then

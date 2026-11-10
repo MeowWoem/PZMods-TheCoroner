@@ -5,7 +5,7 @@ local K = TCA.Knowledge;
 
 K.TIERS = {
     { id = "TCA_Forensics1", book = "TCA.ForensicsBook1", level = 5, lines = { 1, 10, 3, 6, 9 } },
-    { id = "TCA_Forensics2", book = "TCA.ForensicsBook2", level = 7, lines = { 4, 5, 7, 11 } },
+    { id = "TCA_Forensics2", book = "TCA.ForensicsBook2", level = 7, lines = { 4, 5, 7, 11, 13 } },
     { id = "TCA_Forensics3", book = "TCA.ForensicsBook3", level = 9, lines = { 2, 8, 12 } },
 };
 
