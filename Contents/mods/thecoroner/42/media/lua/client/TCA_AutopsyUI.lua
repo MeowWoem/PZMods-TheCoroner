@@ -606,6 +606,9 @@ function TCA_AutopsyUI:tearSkin()
     end
     self.tears = self.tears + 1;
     self:releaseFlap();
+    if self.playSkinRip then
+        self:playSkinRip();
+    end
     HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_SkinTear"));
 end
 

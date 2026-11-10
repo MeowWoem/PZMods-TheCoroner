@@ -236,4 +236,46 @@ module TCA
             volume = 0.7,
         }
     }
+
+    sound TCA_SkinPeel
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/peel_off_01.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/peel_off_02.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/peel_off_03.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/peel_off_04.ogg,
+            volume = 1.0,
+        }
+        clip
+        {
+            file = media/sound/tca/peel_off_05.ogg,
+            volume = 1.0,
+        }
+    }
+
+    sound TCA_SkinRip
+    {
+        category = Item,
+        is3D = false,
+        clip
+        {
+            file = media/sound/tca/skin_rip_01.ogg,
+            volume = 0.8,
+        }
+    }
 }

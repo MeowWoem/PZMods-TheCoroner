@@ -11,6 +11,8 @@ TCA_AutopsyUI.SND_SCALPEL = "TCA_Scalpel";
 TCA_AutopsyUI.SND_SAW_PUSH = "TCA_SawPush";
 TCA_AutopsyUI.SND_SAW_PULL = "TCA_SawPull";
 TCA_AutopsyUI.SND_RIB_CRACK = "TCA_RibCrack";
+TCA_AutopsyUI.SND_SKIN_PEEL = "TCA_SkinPeel";
+TCA_AutopsyUI.SND_SKIN_RIP = "TCA_SkinRip";
 
 TCA_AutopsyUI.SND_SCALPEL_HOLD_MS = 150;
 TCA_AutopsyUI.SND_SCALPEL_MIN_MS = 450;
@@ -19,6 +21,10 @@ TCA_AutopsyUI.SND_SCALPEL_FADE_MS = 150;
 TCA_AutopsyUI.SND_IDLE_FADE_MS = 80;
 TCA_AutopsyUI.SND_SAW_STROKE_MIN = 6;
 TCA_AutopsyUI.SND_SAW_FADE_MS = 60;
+TCA_AutopsyUI.SND_PEEL_HOLD_MS = 150;
+TCA_AutopsyUI.SND_PEEL_SLOW_MS = 750;
+TCA_AutopsyUI.SND_PEEL_FAST_MS = 300;
+TCA_AutopsyUI.SND_PEEL_FADE_MS = 150;
 
 function TCA_AutopsyUI:initSound()
     local snd = {};
@@ -32,6 +38,10 @@ function TCA_AutopsyUI:initSound()
     snd.sawDir = 0;
     snd.sawAcc = 0;
     snd.sawFired = false;
+    snd.peelIds = {};
+    snd.peelLastPull = 0;
+    snd.peelNext = 0;
+    snd.peelLast = nil;
     self.snd = snd;
 end
 
@@ -257,6 +267,69 @@ function TCA_AutopsyUI:updateSaw()
     snd.sawId = TCA.Sound.play(self.character, name);
 end
 
+function TCA_AutopsyUI:stopPeel()
+    local snd = self.snd;
+    for _, id in ipairs(snd.peelIds) do
+        TCA.Sound.fadeOut(self.character, id, 1, TCA_AutopsyUI.SND_PEEL_FADE_MS);
+    end
+    snd.peelIds = {};
+    snd.peelNext = 0;
+end
+
+function TCA_AutopsyUI:getPeelInterval()
+    local t = 0;
+    if TCA_AutopsyUI.TEAR_SPEED and TCA_AutopsyUI.TEAR_SPEED > 0 then
+        t = math.max(0, math.min(1, (self.pullSpeed or 0) / TCA_AutopsyUI.TEAR_SPEED));
+    end
+    local slow = TCA_AutopsyUI.SND_PEEL_SLOW_MS;
+    local fast = TCA_AutopsyUI.SND_PEEL_FAST_MS;
+    return slow + (fast - slow) * t;
+end
+
+function TCA_AutopsyUI:updatePeel()
+    local snd = self.snd;
+    local now = getTimestampMs();
+    local metric = nil;
+    if self.stage == "open" then
+        metric = (self.openL or 0) + (self.openR or 0);
+    end
+    if metric ~= nil and snd.peelLast ~= nil and metric > snd.peelLast + 0.00001 and self.cutting and self.pullSide then
+        snd.peelLastPull = now;
+    end
+    snd.peelLast = metric;
+    local active = now - snd.peelLastPull < TCA_AutopsyUI.SND_PEEL_HOLD_MS;
+    if not active then
+        if #snd.peelIds > 0 then
+            self:stopPeel();
+        end
+        return;
+    end
+    if now < snd.peelNext then
+        return;
+    end
+    local id = TCA.Sound.play(self.character, TCA_AutopsyUI.SND_SKIN_PEEL);
+    if id then
+        local keep = {};
+        for _, old in ipairs(snd.peelIds) do
+            if TCA.Sound.isPlaying(self.character, old) then
+                table.insert(keep, old);
+            end
+        end
+        table.insert(keep, id);
+        snd.peelIds = keep;
+    end
+    local interval = self:getPeelInterval();
+    snd.peelNext = now + interval * (0.85 + ZombRand(31) / 100);
+end
+
+function TCA_AutopsyUI:playSkinRip()
+    if self.snd then
+        self:stopPeel();
+        self.snd.peelLastPull = 0;
+    end
+    TCA.Sound.play(self.character, TCA_AutopsyUI.SND_SKIN_RIP);
+end
+
 function TCA_AutopsyUI:playRibCrack()
     TCA.Sound.play(self.character, TCA_AutopsyUI.SND_RIB_CRACK);
 end
@@ -268,6 +341,7 @@ function TCA_AutopsyUI:updateSound()
     self:updateOscillating();
     self:updateScalpel();
     self:updateSaw();
+    self:updatePeel();
 end
 
 function TCA_AutopsyUI:stopSounds()
@@ -277,4 +351,5 @@ function TCA_AutopsyUI:stopSounds()
     self:stopOscillating(true);
     self:stopScalpel();
     self:stopSaw();
+    self:stopPeel();
 end
