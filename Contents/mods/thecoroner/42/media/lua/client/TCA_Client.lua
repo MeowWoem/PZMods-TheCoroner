@@ -88,7 +88,7 @@ function TCA_Client.debugSetStep(playerObj, tableObj, pos)
     end
 end
 
-TCA_Client.COMMIT_FIELDS = { "segIndex", "segProgress", "accuracy", "paths", "openL", "openR", "tears", "ribs", "accSamples", "organs", "organDamage", "plastron", "attach" };
+TCA_Client.COMMIT_FIELDS = { "segIndex", "segProgress", "accuracy", "paths", "openL", "openR", "tears", "ribs", "accSamples", "organs", "organDamage", "plastron", "attach", "cuts" };
 
 function TCA_Client.commitAutopsy(playerObj, tableObj, result)
     if isClient() then

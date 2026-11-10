@@ -250,6 +250,7 @@ function TCA_AutopsyResultAction:complete()
     xp = xp + self:applyRibs(body);
     xp = xp + self:applyPlastron(body);
     xp = xp + self:applyOrgans(body);
+    self:applyCuts(body);
     if xp <= 0 and not self.changed then
         return true;
     end
@@ -262,15 +263,23 @@ function TCA_AutopsyResultAction:complete()
     return true;
 end
 
+function TCA_AutopsyResultAction:applyCuts(body)
+    local cuts = math.floor(clamp(tonumber(self.cuts) or 0, 0, 100000));
+    if cuts > TCA.Autopsy.getCutCount(body) then
+        body:getModData()["TCA_A_cuts"] = cuts;
+        self.changed = true;
+    end
+end
+
 function TCA_AutopsyResultAction:getDuration()
     return 1;
 end
 
 function TCA_AutopsyResultAction.fromResult(character, tableObject, r)
-    return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach);
+    return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach, r.cuts);
 end
 
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach, cuts)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -287,6 +296,7 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.organDamage = organDamage;
     o.plastron = plastron;
     o.attach = attach;
+    o.cuts = cuts;
     o.maxTime = o:getDuration();
     o.stopOnWalk = false;
     o.stopOnRun = false;

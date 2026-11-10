@@ -163,5 +163,16 @@
     "IGUI_TCA_ExamGuideTier1": "Early signs",
     "IGUI_TCA_ExamGuideTier2": "Timeline of death",
     "IGUI_TCA_ExamGuideTier3": "Cold and special cases",
-    "IGUI_TCA_ExamGuideLocked": "Unknown chapter. Read “%1” or reach First Aid level %2."
+    "IGUI_TCA_ExamGuideLocked": "Unknown chapter. Read “%1” or reach First Aid level %2.",
+    "IGUI_TCA_ReportTitle": "Autopsy report",
+    "IGUI_TCA_ReportAccuracy": "Incision accuracy",
+    "IGUI_TCA_ReportTears": "Skin tears",
+    "IGUI_TCA_ReportOrgans": "Organ damage",
+    "IGUI_TCA_ReportCuts": "Hand cuts",
+    "IGUI_TCA_ReportScore": "Score: %1 / 100",
+    "IGUI_TCA_Grade1": "Exemplary work",
+    "IGUI_TCA_Grade2": "Good work",
+    "IGUI_TCA_Grade3": "Acceptable work",
+    "IGUI_TCA_Grade4": "Sloppy work",
+    "IGUI_TCA_Grade5": "Butchery"
 }

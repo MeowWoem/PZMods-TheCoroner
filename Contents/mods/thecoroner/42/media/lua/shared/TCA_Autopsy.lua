@@ -19,6 +19,14 @@ A.XP_OPEN = 5;
 A.XP_PER_RIB = 1.5;
 A.XP_PER_ORGAN = 2;
 A.XP_PLASTRON = 2;
+A.GRADE_ACC_WEIGHT = 40;
+A.GRADE_TEAR = 6;
+A.GRADE_TEAR_MAX = 24;
+A.GRADE_ORGAN = 4;
+A.GRADE_ORGAN_MAX = 40;
+A.GRADE_CUT = 5;
+A.GRADE_CUT_MAX = 20;
+A.GRADE_STEPS = { 90, 75, 60, 40 };
 
 A.INCISION_Y = {
     { ax = -37.5, ay = 96, bx = 0, by = 107.5 },
@@ -375,6 +383,29 @@ function A.showXpHalo(character, xp)
     HaloTextHelper.addGoodText(character, getText("IGUI_TCA_XpGain", tostring(rounded), PerkFactory.getPerkName(Perks.Doctor)));
 end
 
+function A.getCutCount(body)
+    return math.floor(tonumber(body:getModData()["TCA_A_cuts"]) or 0);
+end
+
+function A.computeScore(accuracy, tears, organDamage, cuts)
+    local acc = math.max(0, math.min(1, tonumber(accuracy) or 0));
+    local score = 100;
+    score = score - (1 - acc) * A.GRADE_ACC_WEIGHT;
+    score = score - math.min((tonumber(tears) or 0) * A.GRADE_TEAR, A.GRADE_TEAR_MAX);
+    score = score - math.min((tonumber(organDamage) or 0) * A.GRADE_ORGAN, A.GRADE_ORGAN_MAX);
+    score = score - math.min((tonumber(cuts) or 0) * A.GRADE_CUT, A.GRADE_CUT_MAX);
+    return math.floor(math.max(0, math.min(100, score)) + 0.5);
+end
+
+function A.getGradeIndex(score)
+    for i = 1, #A.GRADE_STEPS do
+        if score >= A.GRADE_STEPS[i] then
+            return i;
+        end
+    end
+    return #A.GRADE_STEPS + 1;
+end
+
 function A.notifyXp(character, xp)
     if isServer() then
         local args = {};
@@ -400,6 +431,7 @@ function A.resetBody(body)
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
     md["TCA_A_cdmg"] = nil;
+    md["TCA_A_cuts"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     body:transmitModData();
@@ -433,6 +465,7 @@ function A.applyDebugPosition(body, pos)
     md["TCA_A_organs"] = nil;
     md["TCA_A_odmg"] = nil;
     md["TCA_A_cdmg"] = nil;
+    md["TCA_A_cuts"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
     if pos >= 1 then

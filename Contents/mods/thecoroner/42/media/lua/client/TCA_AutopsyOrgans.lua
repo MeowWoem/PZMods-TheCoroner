@@ -326,6 +326,7 @@ function TCA_AutopsyUI:commitProgress()
     self.startRibCount = TCA.Autopsy.countRibs(self.ribs);
     self.startOrgansDone = self.organsDone;
     self.startOrganDamage = self.organDamage;
+    self.startCuts = self.cuts;
     self.startAttach = result.attach;
     self.startPlastron = self.plastronRemoved;
 end

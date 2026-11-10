@@ -163,5 +163,16 @@
     "IGUI_TCA_ExamGuideTier1": "Les signes précoces",
     "IGUI_TCA_ExamGuideTier2": "Chronologie de la mort",
     "IGUI_TCA_ExamGuideTier3": "Le froid et les cas particuliers",
-    "IGUI_TCA_ExamGuideLocked": "Chapitre inconnu. À lire dans « %1 », ou à partir de Premiers soins niveau %2."
+    "IGUI_TCA_ExamGuideLocked": "Chapitre inconnu. À lire dans « %1 », ou à partir de Premiers soins niveau %2.",
+    "IGUI_TCA_ReportTitle": "Rapport d'autopsie",
+    "IGUI_TCA_ReportAccuracy": "Précision de l'incision",
+    "IGUI_TCA_ReportTears": "Déchirures de la peau",
+    "IGUI_TCA_ReportOrgans": "Dégâts aux organes",
+    "IGUI_TCA_ReportCuts": "Coupures à la main",
+    "IGUI_TCA_ReportScore": "Note : %1 / 100",
+    "IGUI_TCA_Grade1": "Travail exemplaire",
+    "IGUI_TCA_Grade2": "Bon travail",
+    "IGUI_TCA_Grade3": "Travail correct",
+    "IGUI_TCA_Grade4": "Travail médiocre",
+    "IGUI_TCA_Grade5": "Boucherie"
 }

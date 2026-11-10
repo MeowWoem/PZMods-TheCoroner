@@ -8,6 +8,14 @@ TCA_AutopsyUI = ISPanel:derive("TCA_AutopsyUI");
 
 TCA_AutopsyUI.WIDTH = 440;
 TCA_AutopsyUI.HEIGHT = 680;
+TCA_AutopsyUI.REPORT_W = 300;
+TCA_AutopsyUI.GRADE_COLORS = {
+    { r = 0.3, g = 0.95, b = 0.4 },
+    { r = 0.65, g = 0.95, b = 0.35 },
+    { r = 0.95, g = 0.85, b = 0.3 },
+    { r = 1, g = 0.55, b = 0.25 },
+    { r = 1, g = 0.3, b = 0.3 },
+};
 
 TCA_AutopsyUI.VIEW_Y_INCISION = { x1 = -100, y1 = -10, x2 = 100, y2 = 250 };
 
@@ -215,6 +223,10 @@ function TCA_AutopsyUI:initialise()
     self.cutting = false;
     self.warn = false;
     self.cuts = 0;
+    if body then
+        self.cuts = A.getCutCount(body);
+    end
+    self.startCuts = self.cuts;
     self.devCount = state.accSamples;
     self.devSum = (1 - state.accuracy) * TCA_AutopsyUI.WARN_DIST * state.accSamples;
     self.flashTime = 0;
@@ -345,6 +357,8 @@ function TCA_AutopsyUI:debugGoTo(pos)
     self.organsDone = math.max(pos - 4, 0);
     self.organDamage = 0;
     self.organCurrentDamage = 0;
+    self.cuts = 0;
+    self.startCuts = 0;
     self.startOrgansDone = self.organsDone;
     self.startOrganDamage = 0;
     self.organFly = nil;
@@ -1400,9 +1414,51 @@ function TCA_AutopsyUI:render()
     if elapsed < 300 then
         self:drawRect(0, 0, self.width, self.height, 0.35 * (1 - elapsed / 300), 0.8, 0, 0);
     end
+    if self.stage == "done" and not self.organFly then
+        self:drawReport();
+    end
     self:drawMessages();
     self:drawMissingToolTooltip();
     self:drawOrganTooltip();
+end
+
+function TCA_AutopsyUI:getReportLines()
+    local acc = self:getAccuracy();
+    local lines = {};
+    table.insert(lines, { label = getText("IGUI_TCA_ReportAccuracy"), value = math.floor(acc * 100) .. " %" });
+    table.insert(lines, { label = getText("IGUI_TCA_ReportTears"), value = tostring(self.tears) });
+    table.insert(lines, { label = getText("IGUI_TCA_ReportOrgans"), value = tostring(self.organDamage) });
+    table.insert(lines, { label = getText("IGUI_TCA_ReportCuts"), value = tostring(self.cuts) });
+    return lines, TCA.Autopsy.computeScore(acc, self.tears, self.organDamage, self.cuts);
+end
+
+function TCA_AutopsyUI:drawReport()
+    local A = TCA.Autopsy;
+    local tm = getTextManager();
+    local smallH = tm:getFontHeight(UIFont.Small);
+    local mediumH = tm:getFontHeight(UIFont.Medium);
+    local lines, score = self:getReportLines();
+    local grade = A.getGradeIndex(score);
+    local c = TCA_AutopsyUI.GRADE_COLORS[grade];
+    local pad = 12;
+    local w = TCA_AutopsyUI.REPORT_W;
+    local h = pad * 2 + mediumH + 8 + #lines * (smallH + 2) + 10 + mediumH + 4 + smallH;
+    local x = self.viewX + (self.viewW - w) / 2;
+    local y = self.viewY + (self.viewH - h) / 2;
+    self:drawRect(x, y, w, h, 0.85, 0.05, 0.05, 0.06);
+    self:drawRectBorder(x, y, w, h, 1, c.r, c.g, c.b);
+    local ty = y + pad;
+    self:drawTextCentre(getText("IGUI_TCA_ReportTitle"), x + w / 2, ty, 1, 1, 1, 1, UIFont.Medium);
+    ty = ty + mediumH + 8;
+    for i = 1, #lines do
+        self:drawText(lines[i].label, x + pad, ty, 0.8, 0.8, 0.8, 1, UIFont.Small);
+        self:drawTextRight(lines[i].value, x + w - pad, ty, 1, 1, 1, 1, UIFont.Small);
+        ty = ty + smallH + 2;
+    end
+    ty = ty + 10;
+    self:drawTextCentre(getText("IGUI_TCA_ReportScore", score), x + w / 2, ty, c.r, c.g, c.b, 1, UIFont.Medium);
+    ty = ty + mediumH + 4;
+    self:drawTextCentre(getText("IGUI_TCA_Grade" .. grade), x + w / 2, ty, c.r, c.g, c.b, 1, UIFont.Small);
 end
 
 function TCA_AutopsyUI:collectResult()
@@ -1425,10 +1481,11 @@ function TCA_AutopsyUI:collectResult()
     result.organDamage = self.organDamage;
     result.plastron = self.plastronRemoved and not self.startPlastron;
     result.attach = self:getAttachString();
+    result.cuts = self.cuts;
     local organsChanged = result.plastron or self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage or result.attach ~= self.startAttach;
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
     local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
-    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged;
+    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged or self.cuts > self.startCuts;
     return result;
 end
 
