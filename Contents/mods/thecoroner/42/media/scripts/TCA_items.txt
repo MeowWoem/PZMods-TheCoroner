@@ -12,6 +12,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.05,
         Icon = TCA_Thermometer,
+        WorldStaticModel = TCA.Thermometer,
         Tooltip = Tooltip_TCA_Thermometer,
     }
 
@@ -22,6 +23,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.3,
         Icon = TCA_Organ_heart,
+        WorldStaticModel = TCA.Heart,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -32,6 +34,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.6,
         Icon = TCA_Organ_lung_l,
+        WorldStaticModel = TCA.LungL,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -42,6 +45,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.6,
         Icon = TCA_Organ_lung_r,
+        WorldStaticModel = TCA.LungR,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -52,6 +56,7 @@ module TCA
         ItemType = base:normal,
         Weight = 1.5,
         Icon = TCA_Organ_liver,
+        WorldStaticModel = TCA.Liver,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -62,6 +67,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.2,
         Icon = TCA_Organ_stomach,
+        WorldStaticModel = TCA.Stomach,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -72,6 +78,7 @@ module TCA
         ItemType = base:normal,
         Weight = 2.0,
         Icon = TCA_Organ_intestines,
+        WorldStaticModel = TCA.Intestines,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -82,6 +89,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.1,
         Icon = TCA_Organ_pancreas,
+        WorldStaticModel = TCA.Pancreas,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -92,6 +100,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.15,
         Icon = TCA_Organ_kidney_r,
+        WorldStaticModel = TCA.KidneyR,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -102,6 +111,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.15,
         Icon = TCA_Organ_kidney_l,
+        WorldStaticModel = TCA.KidneyL,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -112,6 +122,7 @@ module TCA
         ItemType = base:normal,
         Weight = 0.15,
         Icon = TCA_Organ_spleen,
+        WorldStaticModel = TCA.Spleen,
         Tooltip = Tooltip_TCA_Organ,
     }
 
@@ -122,7 +133,19 @@ module TCA
         ItemType = base:normal,
         Weight = 0.05,
         Icon = TCA_Organ_bladder,
+        WorldStaticModel = TCA.Bladder,
         Tooltip = Tooltip_TCA_Organ,
+    }
+
+    item ChestPlate
+    {
+        DisplayName = ChestPlate,
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.6,
+        Icon = TCA_ChestPlate,
+        WorldStaticModel = TCA.ChestPlate,
+        Tooltip = Tooltip_TCA_ChestPlate,
     }
 
     item BoneSawOscillating
@@ -132,6 +155,8 @@ module TCA
         ItemType = base:drainable,
         Weight = 1.2,
         Icon = TCA_BoneSawOscillating,
+        StaticModel = TCA.AutopsySaw,
+        WorldStaticModel = TCA.AutopsySaw,
         Tooltip = Tooltip_TCA_BoneSawOscillating,
         UseDelta = 0.02,
         KeepOnDeplete = true,
@@ -146,6 +171,8 @@ module TCA
         ItemType = base:normal,
         Weight = 0.6,
         Icon = TCA_BoneSaw,
+        StaticModel = TCA.SawBone,
+        WorldStaticModel = TCA.SawBone,
         Tooltip = Tooltip_TCA_BoneSaw,
     }
 }

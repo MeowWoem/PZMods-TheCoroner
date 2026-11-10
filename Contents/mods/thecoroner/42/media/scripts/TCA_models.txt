@@ -1,0 +1,108 @@
+module TCA {
+
+    model AutopsySaw
+    {
+        mesh = WorldItems/TCA_AutopsySaw,
+        texture = WorldItems/TCA_AutopsySaw,
+        scale = 0.4,
+    }
+
+    model Heart
+    {
+        mesh = WorldItems/TCA_Heart,
+        texture = WorldItems/TCA_Heart,
+        scale = 0.4,
+    }
+
+    model LungL
+    {
+        mesh = WorldItems/TCA_LungL,
+        texture = WorldItems/TCA_Lung,
+        scale = 0.4,
+    }
+
+    model LungR
+    {
+        mesh = WorldItems/TCA_LungR,
+        texture = WorldItems/TCA_Lung,
+        scale = 0.4,
+    }
+
+    model Liver
+    {
+        mesh = WorldItems/TCA_Liver,
+        texture = WorldItems/TCA_Liver,
+        scale = 0.4,
+    }
+
+    model Stomach
+    {
+        mesh = WorldItems/TCA_Stomach,
+        texture = WorldItems/TCA_Stomach,
+        scale = 0.4,
+    }
+
+    model KidneyL
+    {
+        mesh = WorldItems/TCA_KidneyL,
+        texture = WorldItems/TCA_Kidney,
+        scale = 0.4,
+    }
+
+    model KidneyR
+    {
+        mesh = WorldItems/TCA_KidneyR,
+        texture = WorldItems/TCA_Kidney,
+        scale = 0.4,
+    }
+
+    model Intestines
+    {
+        mesh = WorldItems/TCA_Intestines,
+        texture = WorldItems/TCA_Intestines,
+        scale = 0.4,
+    }
+
+    model Pancreas
+    {
+        mesh = WorldItems/TCA_Pancreas,
+        texture = WorldItems/TCA_Pancreas,
+        scale = 0.4,
+    }
+
+    model Spleen
+    {
+        mesh = WorldItems/TCA_Spleen,
+        texture = WorldItems/TCA_Spleen,
+        scale = 0.4,
+    }
+
+    model Bladder
+    {
+        mesh = WorldItems/TCA_Bladder,
+        texture = WorldItems/TCA_Bladder,
+        scale = 0.4,
+    }
+
+    model ChestPlate
+    {
+        mesh = WorldItems/TCA_ChestPlate,
+        texture = WorldItems/TCA_ChestPlate,
+        scale = 0.4,
+    }
+
+    model Thermometer
+    {
+        mesh = WorldItems/TCA_Thermometer,
+        texture = WorldItems/TCA_Thermometer,
+        scale = 0.4,
+    }
+
+    model SawBone
+    {
+        mesh = WorldItems/TCA_SawBone,
+        texture = WorldItems/TCA_SawBone,
+        scale = 0.4,
+    }
+
+}
