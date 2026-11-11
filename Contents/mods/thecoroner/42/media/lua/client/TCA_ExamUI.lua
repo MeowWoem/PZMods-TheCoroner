@@ -268,6 +268,7 @@ function TCA_ExamUI:createChildren()
     self.woundsButton:initialise();
     self.woundsButton:instantiate();
     self:addChild(self.woundsButton);
+    self.woundsButtonX = self.woundsButton:getX();
 
     if TCA_Client.isDebug() then
         self.editButton = ISButton:new(10, y + 2, 130, 20, getText("IGUI_TCA_ExamDebugEdit"), self, TCA_ExamUI.onEditClick);
@@ -489,6 +490,12 @@ function TCA_ExamUI:setMode(mode)
     self.mode = mode;
     self.guideButton:setTitle(getText("IGUI_TCA_ExamGuide"));
     self.woundsButton:setTitle(getText("IGUI_TCA_ExamWounds"));
+    self.guideButton:setVisible(mode ~= "wounds");
+    if mode == "wounds" then
+        self.woundsButton:setX(self.guideButton:getX());
+    else
+        self.woundsButton:setX(self.woundsButtonX);
+    end
     if mode == "guide" then
         self.guideButton:setTitle(getText("IGUI_TCA_ExamNotes"));
     elseif mode == "wounds" then
@@ -1109,7 +1116,7 @@ function TCA_ExamUI:drawPress()
 end
 
 function TCA_ExamUI:getTooltipZone()
-    if self.press or self.editMode or self.dragHandle or self.scrollDrag or self.mode == "guide" then
+    if self.press or self.editMode or self.dragHandle or self.scrollDrag then
         return nil;
     end
     local zone = self:getZoneAt(self:getMouseX(), self:getMouseY());
