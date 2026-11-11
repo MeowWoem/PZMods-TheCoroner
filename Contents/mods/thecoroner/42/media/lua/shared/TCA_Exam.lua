@@ -51,6 +51,8 @@ E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
 E.KEY_OBS = "TCA_ExamObs";
+E.KEY_CHAR_ID = "TCA_CharId";
+E.OBSERVER_MAX_LEN = 96;
 E.OBS_ZONES = { temp = true, eyes = true, jaw = true, arm = true, livor = true, decomp = true, insects = true, w_Hand_L = true, w_Hand_R = true, w_ForeArm_L = true, w_ForeArm_R = true, w_UpperArm_L = true, w_UpperArm_R = true, w_Torso_Upper = true, w_Torso_Lower = true, w_Head = true, w_Neck = true, w_Groin = true, w_UpperLeg_L = true, w_UpperLeg_R = true, w_LowerLeg_L = true, w_LowerLeg_R = true, w_Foot_L = true, w_Foot_R = true };
 E.OBS_MAX_LEN = 120;
 E.OBS_AGE_SHOW = 0.25;
@@ -410,8 +412,24 @@ function E.score(body, minHours, maxHours)
     return true, E.XP_MAX * factor, lo, hi;
 end
 
-function E.getResult(body)
-    local stored = body:getModData()[E.KEY_RESULT];
+function E.getKeyedEntry(body, field, key)
+    local all = body:getModData()[field];
+    if type(all) ~= "table" or not key then
+        return nil;
+    end
+    return all[key];
+end
+
+function E.setKeyedEntry(body, field, key, value)
+    local md = body:getModData();
+    if type(md[field]) ~= "table" then
+        md[field] = {};
+    end
+    md[field][key] = value;
+end
+
+function E.getResult(body, key)
+    local stored = E.getKeyedEntry(body, E.KEY_RESULT, key);
     if type(stored) ~= "string" then
         return nil;
     end
@@ -426,12 +444,12 @@ function E.getResult(body)
     return result;
 end
 
-function E.storeResult(body, minHours, maxHours, ok)
+function E.storeResult(body, key, minHours, maxHours, ok)
     local flag = 0;
     if ok then
         flag = 1;
     end
-    body:getModData()[E.KEY_RESULT] = string.format("%.3f,%.3f,%d", minHours, maxHours, flag);
+    E.setKeyedEntry(body, E.KEY_RESULT, key, string.format("%.3f,%.3f,%d", minHours, maxHours, flag));
 end
 
 function E.resetResult(body)
@@ -440,12 +458,39 @@ function E.resetResult(body)
     body:getModData()["TCA_CauseResult"] = nil;
 end
 
-function E.getObserverKey(character)
+function E.getCharacterId(character)
+    local md = character:getModData();
+    local id = md[E.KEY_CHAR_ID];
+    if type(id) == "string" and id ~= "" then
+        return id;
+    end
+    if isServer() then
+        return nil;
+    end
+    id = string.format("%d-%d", getTimestampMs(), ZombRand(1000000));
+    md[E.KEY_CHAR_ID] = id;
+    if isClient() then
+        character:transmitModData();
+    end
+    return id;
+end
+
+function E.getAccountName(character)
     local name = character:getUsername();
     if not name or name == "" then
         name = character:getFullName();
     end
     return tostring(name);
+end
+
+function E.getObserverKey(character, claimed)
+    local name = E.getAccountName(character);
+    local prefix = name .. "#";
+    local id = E.getCharacterId(character);
+    if not id and type(claimed) == "string" and #claimed <= E.OBSERVER_MAX_LEN and string.sub(claimed, 1, #prefix) == prefix then
+        return claimed;
+    end
+    return prefix .. tostring(id or "0");
 end
 
 function E.encodeObservation(zone, reading, level, time)

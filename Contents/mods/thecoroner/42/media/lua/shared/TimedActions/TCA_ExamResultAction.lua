@@ -18,11 +18,12 @@ function TCA_ExamResultAction:complete()
     if not body then
         return true;
     end
-    if E.getResult(body) then
+    local key = E.getObserverKey(self.character, self.observer);
+    if E.getResult(body, key) then
         return true;
     end
     local ok, xp, lo, hi = E.score(body, self.minHours, self.maxHours);
-    E.storeResult(body, lo, hi, ok);
+    E.storeResult(body, key, lo, hi, ok);
     body:transmitModData();
     if xp > 0 then
         addXp(self.character, Perks.Doctor, xp);
@@ -35,9 +36,10 @@ function TCA_ExamResultAction:getDuration()
     return 1;
 end
 
-function TCA_ExamResultAction:new(character, bx, by, bz, minHours, maxHours)
+function TCA_ExamResultAction:new(character, bx, by, bz, minHours, maxHours, observer)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
+    o.observer = observer;
     o.bx = bx;
     o.by = by;
     o.bz = bz;

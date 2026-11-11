@@ -115,6 +115,47 @@ function TCA_Client.commitAutopsy(playerObj, tableObj, result)
     TCA_AutopsyResultAction.fromResult(playerObj, tableObj, result):complete();
 end
 
+TCA_Client.lockReplies = {};
+
+function TCA_Client.getSquareArgs(tableObj)
+    local sq = tableObj:getSquare();
+    local args = {};
+    args.x = sq:getX();
+    args.y = sq:getY();
+    args.z = sq:getZ();
+    return args;
+end
+
+function TCA_Client.getLockKey(x, y, z)
+    return string.format("%d,%d,%d", math.floor(x), math.floor(y), math.floor(z));
+end
+
+function TCA_Client.requestAutopsyLock(playerObj, tableObj)
+    local args = TCA_Client.getSquareArgs(tableObj);
+    TCA_Client.lockReplies[TCA_Client.getLockKey(args.x, args.y, args.z)] = nil;
+    sendClientCommand(playerObj, "TCA", "autopsyLock", args);
+end
+
+function TCA_Client.releaseAutopsyLock(playerObj, tableObj)
+    if not tableObj:getSquare() then
+        return;
+    end
+    sendClientCommand(playerObj, "TCA", "autopsyUnlock", TCA_Client.getSquareArgs(tableObj));
+end
+
+function TCA_Client.takeLockReply(tableObj)
+    local sq = tableObj:getSquare();
+    if not sq then
+        return false;
+    end
+    local key = TCA_Client.getLockKey(sq:getX(), sq:getY(), sq:getZ());
+    local reply = TCA_Client.lockReplies[key];
+    if reply ~= nil then
+        TCA_Client.lockReplies[key] = nil;
+    end
+    return reply;
+end
+
 function TCA_Client.onDebugDeathTime(playerObj, body)
     if not body then
         return;
@@ -155,13 +196,14 @@ function TCA_Client.onDebugExamReset(playerObj, body)
     TCA.Exam.resetResult(body);
 end
 
-function TCA_Client.sendExamObservation(playerObj, body, zone, data)
+function TCA_Client.sendExamObservation(playerObj, body, zone, data, observer)
     local args = {};
     args.x = body:getX();
     args.y = body:getY();
     args.z = body:getZ();
     args.zone = zone;
     args.data = data;
+    args.observer = observer;
     sendClientCommand(playerObj, "TCA", "examObserve", args);
 end
 
@@ -274,7 +316,7 @@ function TCA_Client.onDebugWounds(playerObj, body)
     playerObj:setHaloNote(table.concat(lines, " / "), 255, 255, 200, 600);
 end
 
-function TCA_Client.concludeCause(playerObj, body, cause)
+function TCA_Client.concludeCause(playerObj, body, cause, observer)
     if not body then
         return;
     end
@@ -284,10 +326,11 @@ function TCA_Client.concludeCause(playerObj, body, cause)
         args.y = body:getY();
         args.z = body:getZ();
         args.cause = cause;
+        args.observer = observer;
         sendClientCommand(playerObj, "TCA", "examCause", args);
         return;
     end
-    TCA.Wounds.applyCause(playerObj, body, cause);
+    TCA.Wounds.applyCause(playerObj, body, cause, observer);
 end
 
 function TCA_Client.onExam(playerObj, body)
@@ -445,6 +488,8 @@ function TCA_Client.onServerCommand(module, command, args)
         TCA.Wounds.showCauseResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     elseif command == "examResult" and args then
         TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
+    elseif command == "autopsyLock" and args and args.x and args.y and args.z then
+        TCA_Client.lockReplies[TCA_Client.getLockKey(args.x, args.y, args.z)] = args.ok == true;
     end
 end
 

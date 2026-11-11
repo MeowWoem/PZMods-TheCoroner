@@ -213,7 +213,8 @@ function TCA_ExamUI:initialise()
     self.scrollDrag = nil;
     self.editMode = false;
     self.editZone = nil;
-    self.result = E.getResult(self.body);
+    self.observerKey = E.getObserverKey(self.character);
+    self.result = E.getResult(self.body, self.observerKey);
     self.minPos = 0.3;
     self.maxPos = 0.5;
     if self.result then
@@ -438,7 +439,7 @@ end
 
 function TCA_ExamUI:canConcludeCause()
     local W = TCA.Wounds;
-    return self.mode == "wounds" and self.causeGiven == nil and W.getCauseResult(self.body) == nil and W.getTrueCause(self.body) ~= nil;
+    return self.mode == "wounds" and self.causeGiven == nil and W.getCauseResult(self.body, self.observerKey) == nil and W.getTrueCause(self.body) ~= nil;
 end
 
 function TCA_ExamUI:updateCauseControls()
@@ -456,7 +457,7 @@ function TCA_ExamUI:onCauseClick()
         return;
     end
     self.causeGiven = cause;
-    TCA_Client.concludeCause(self.character, self.body, cause);
+    TCA_Client.concludeCause(self.character, self.body, cause, self.observerKey);
     self:updateCauseControls();
 end
 
@@ -468,7 +469,7 @@ function TCA_ExamUI:drawCauseStrip()
     local x = self.notesX + 10;
     local y = self.notesY + self.notesH - TCA_ExamUI.CAUSE_H + 8;
     local maxW = self.notesW - 20;
-    local result = W.getCauseResult(self.body);
+    local result = W.getCauseResult(self.body, self.observerKey);
     if result then
         local verdict = getText("IGUI_TCA_ExamGivenWrong");
         local c = RED;
@@ -671,7 +672,7 @@ end
 
 function TCA_ExamUI:loadObservations()
     local E = TCA.Exam;
-    local mine = E.getObservations(self.body, E.getObserverKey(self.character));
+    local mine = E.getObservations(self.body, self.observerKey);
     if not mine then
         return;
     end
@@ -705,9 +706,9 @@ function TCA_ExamUI:saveObservation(zone, reading)
         return;
     end
     self.observedAt[zone] = now;
-    E.storeObservation(self.body, E.getObserverKey(self.character), zone, data);
+    E.storeObservation(self.body, self.observerKey, zone, data);
     if isClient() then
-        TCA_Client.sendExamObservation(self.character, self.body, zone, data);
+        TCA_Client.sendExamObservation(self.character, self.body, zone, data, self.observerKey);
     end
 end
 
@@ -1200,6 +1201,7 @@ function TCA_ExamUI:collectResult()
     result.conclude = self.conclude and self.result == nil;
     result.minHours = TCA.Exam.posToHours(self.minPos);
     result.maxHours = TCA.Exam.posToHours(self.maxPos);
+    result.observer = self.observerKey;
     return result;
 end
 

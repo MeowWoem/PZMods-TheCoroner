@@ -272,5 +272,7 @@
     "IGUI_TCA_CauseUnknown": "The cause of death cannot be established on this body.",
     "IGUI_TCA_CauseRight": "Correct cause of death",
     "IGUI_TCA_CauseWrong": "Wrong cause of death",
-    "IGUI_TCA_ExamAlreadyConcluded": "A time-of-death estimate has already been given for this body. It can't be given again."
+    "IGUI_TCA_ExamAlreadyConcluded": "You have already given your time-of-death estimate for this body. It can't be given again.",
+    "IGUI_TCA_AutopsyBusy": "Someone else is already performing an autopsy on this body.",
+    "IGUI_TCA_AutopsyNoReply": "The server did not answer. Try again."
 }

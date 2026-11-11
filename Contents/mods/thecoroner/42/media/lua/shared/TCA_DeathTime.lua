@@ -128,10 +128,67 @@ function D.ensureInternal(body)
     D.record(body, body:getDeathTime(), false);
 end
 
+D.SYNC_DELAYS_MS = { 1000, 5000 };
+D.syncQueue = {};
+
+function D.queueBodySync(character)
+    if not isServer() then
+        return;
+    end
+    local sq = character:getCurrentSquare();
+    if not sq then
+        return;
+    end
+    local entry = {};
+    entry.x = sq:getX();
+    entry.y = sq:getY();
+    entry.z = sq:getZ();
+    entry.start = getTimestampMs();
+    entry.step = 1;
+    table.insert(D.syncQueue, entry);
+end
+
+function D.transmitBodiesAround(entry)
+    local cell = getCell();
+    for dx = -1, 1 do
+        for dy = -1, 1 do
+            local sq = cell:getGridSquare(entry.x + dx, entry.y + dy, entry.z);
+            local bodies = sq and sq:getDeadBodys();
+            if bodies then
+                for i = 0, bodies:size() - 1 do
+                    local body = bodies:get(i);
+                    if body and not body:isAnimal() and D.has(body) then
+                        body:transmitModData();
+                    end
+                end
+            end
+        end
+    end
+end
+
+function D.onServerTick()
+    if #D.syncQueue == 0 then
+        return;
+    end
+    local now = getTimestampMs();
+    local remaining = {};
+    for _, entry in ipairs(D.syncQueue) do
+        if now - entry.start >= D.SYNC_DELAYS_MS[entry.step] then
+            D.transmitBodiesAround(entry);
+            entry.step = entry.step + 1;
+        end
+        if entry.step <= #D.SYNC_DELAYS_MS then
+            table.insert(remaining, entry);
+        end
+    end
+    D.syncQueue = remaining;
+end
+
 function D.onCharacterDeath(character)
     if isClient() or not character or instanceof(character, "IsoAnimal") then
         return;
     end
+    D.queueBodySync(character);
     if D.has(character) then
         return;
     end
@@ -211,4 +268,5 @@ ISTransferAction.transferItem = D.transferItem;
 ISGrabCorpseItem.complete = D.grabComplete;
 
 Events.OnCharacterDeath.Add(D.onCharacterDeath);
+Events.OnTick.Add(D.onServerTick);
 Events.LoadGridsquare.Add(D.onLoadGridsquare);

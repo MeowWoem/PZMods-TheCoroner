@@ -47,7 +47,7 @@ function TCA_ExamAction:closeUI(insertNow)
     if not result.conclude then
         return;
     end
-    local action = TCA_ExamResultAction:new(self.character, self.bx, self.by, self.bz, result.minHours, result.maxHours);
+    local action = TCA_ExamResultAction:new(self.character, self.bx, self.by, self.bz, result.minHours, result.maxHours, result.observer);
     if insertNow and ISTimedActionQueue.addAfter(self, action) then
         return;
     end

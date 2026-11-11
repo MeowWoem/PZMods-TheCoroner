@@ -790,8 +790,8 @@ function W.getTrueCause(body)
     return stored;
 end
 
-function W.getCauseResult(body)
-    local stored = body:getModData()[W.KEY_CAUSE_RESULT];
+function W.getCauseResult(body, key)
+    local stored = TCA.Exam.getKeyedEntry(body, W.KEY_CAUSE_RESULT, key);
     if type(stored) ~= "string" then
         return nil;
     end
@@ -819,8 +819,12 @@ function W.showCauseResult(character, ok, xp)
     HaloTextHelper.addBadText(character, getText("IGUI_TCA_CauseWrong"));
 end
 
-function W.applyCause(character, body, cause)
-    if not character or not body or not W.isCause(cause) or W.getCauseResult(body) then
+function W.applyCause(character, body, cause, claimed)
+    if not character or not body or not W.isCause(cause) then
+        return;
+    end
+    local key = TCA.Exam.getObserverKey(character, claimed);
+    if W.getCauseResult(body, key) then
         return;
     end
     local truth = W.getTrueCause(body);
@@ -832,7 +836,7 @@ function W.applyCause(character, body, cause)
     if ok then
         flag = "1";
     end
-    body:getModData()[W.KEY_CAUSE_RESULT] = cause .. "," .. flag;
+    TCA.Exam.setKeyedEntry(body, W.KEY_CAUSE_RESULT, key, cause .. "," .. flag);
     if isServer() then
         body:transmitModData();
     end
