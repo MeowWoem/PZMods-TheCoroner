@@ -32,6 +32,123 @@ end
 ISInventoryPage.addContainerButton = TCA_MorgueClient.addContainerButton;
 corpseStorageCheck.getContainerName = TCA_MorgueClient.getContainerName;
 
+function TCA_MorgueClient.isCorpseTarget(playerObj, container, grab)
+    if not container or container:isLockedToCharacter(playerObj) then
+        return false;
+    end
+    if grab then
+        return container:containsHumanCorpse();
+    end
+    return container:canHumanCorpseFit(playerObj);
+end
+
+function TCA_MorgueClient.collectDrawers(worldobjects, clickedSquare)
+    local drawers = {};
+    local seen = {};
+    local candidates = {};
+    for _, obj in ipairs(worldobjects) do
+        table.insert(candidates, obj);
+    end
+    if clickedSquare then
+        local onSquare = TCA.Morgue.findOnSquare(clickedSquare);
+        if onSquare then
+            table.insert(candidates, onSquare);
+        end
+    end
+    for _, obj in ipairs(candidates) do
+        if TCA.Morgue.isDrawer(obj) and not seen[obj] then
+            seen[obj] = true;
+            table.insert(drawers, obj);
+        end
+    end
+    return drawers;
+end
+
+function TCA_MorgueClient.mergeDrawerContainers(playerObj, worldobjects, clickedSquare, list, grab)
+    local drawers = TCA_MorgueClient.collectDrawers(worldobjects, clickedSquare);
+    if #drawers == 0 then
+        return list;
+    end
+    local result = {};
+    for _, container in ipairs(list) do
+        if not TCA.Morgue.getDrawerObject(container) then
+            table.insert(result, container);
+        end
+    end
+    for _, obj in ipairs(drawers) do
+        for i = obj:getContainerCount() - 1, 0, -1 do
+            local container = obj:getContainerByIndex(i);
+            if TCA_MorgueClient.isCorpseTarget(playerObj, container, grab) then
+                LuaTableUtil:insertUnique(result, container);
+            end
+        end
+    end
+    return result;
+end
+
+function TCA_MorgueClient.getClickedSquare(worldobjects)
+    for _, obj in ipairs(worldobjects) do
+        return obj:getSquare();
+    end
+    return nil;
+end
+
+function TCA_MorgueClient.addCorpseContainerOptions(playerNum, contextMenu, containers, singleKey, groupKey, callback)
+    if #containers == 1 then
+        local target = containers[1];
+        local option = contextMenu:addOptionOnTop(getText(singleKey) .. corpseStorageCheck.getContainerName(target), playerNum, callback, target);
+        option.notAvailable = corpseStorageCheck.canPlayerAccessContainer(playerNum, target) == false;
+        option.toolTip = corpseStorageCheck.getContainerToolTip(playerNum, target);
+        return;
+    end
+    local group = contextMenu:addOptionOnTop(getText(groupKey));
+    local subMenu = contextMenu:getNew(contextMenu);
+    contextMenu:addSubMenu(group, subMenu);
+    for i = 1, #containers do
+        local target = containers[i];
+        local option = subMenu:addOption(corpseStorageCheck.getContainerName(target), playerNum, callback, target);
+        option.notAvailable = corpseStorageCheck.canPlayerAccessContainer(playerNum, target) == false;
+        option.toolTip = corpseStorageCheck.getContainerToolTip(playerNum, target);
+    end
+end
+
+function TCA_MorgueClient.doContextDropCorpsesIntoContainers(playerNum, contextMenu, worldobjects)
+    local playerObj = getSpecificPlayer(playerNum);
+    if not playerObj or not worldobjects or not playerObj:isDraggingCorpse() then
+        return;
+    end
+    local clickedSquare = TCA_MorgueClient.getClickedSquare(worldobjects);
+    local containers = {};
+    LuaTableUtil:insertAllUniqueElementsFromJavaList(containers, playerObj:getContextWorldSuitableContainersToDropCorpseInObjects(worldobjects));
+    LuaTableUtil:insertAllUniqueElementsFromJavaList(containers, playerObj:getSuitableContainersToDropCorpseInSquare(clickedSquare));
+    containers = TCA_MorgueClient.mergeDrawerContainers(playerObj, worldobjects, clickedSquare, containers, false);
+    if #containers == 0 then
+        return;
+    end
+    TCA_MorgueClient.addCorpseContainerOptions(playerNum, contextMenu, containers, "IGUI_Option_DropCorpseIntoContainerName", "IGUI_Option_DropCorpseInto", corpseStorageCheck.onDropCorpseInto);
+end
+
+function TCA_MorgueClient.doContextGrabCorpsesFromContainers(playerNum, contextMenu, worldobjects)
+    local playerObj = getSpecificPlayer(playerNum);
+    if not playerObj or not worldobjects or playerObj:getVehicle() or playerObj:isDraggingCorpse() then
+        return;
+    end
+    local clickedSquare = TCA_MorgueClient.getClickedSquare(worldobjects);
+    local containers = {};
+    LuaTableUtil:insertAllUniqueElementsFromJavaList(containers, playerObj:getContextWorldContainersWithHumanCorpse(worldobjects));
+    if clickedSquare then
+        LuaTableUtil:insertAllUniqueElementsFromJavaList(containers, playerObj:getSuitableContainersWithHumanCorpseInSquare(clickedSquare));
+    end
+    containers = TCA_MorgueClient.mergeDrawerContainers(playerObj, worldobjects, clickedSquare, containers, true);
+    if #containers == 0 then
+        return;
+    end
+    TCA_MorgueClient.addCorpseContainerOptions(playerNum, contextMenu, containers, "IGUI_Option_GrabCorpseFromContainerName", "IGUI_Option_GrabCorpseFrom", corpseStorageCheck.onGrabCorpseFrom);
+end
+
+corpseStorageCheck.doContextDropCorpsesIntoContainers = TCA_MorgueClient.doContextDropCorpsesIntoContainers;
+corpseStorageCheck.doContextGrabCorpsesFromContainers = TCA_MorgueClient.doContextGrabCorpsesFromContainers;
+
 function TCA_MorgueClient.togglePower(playerObj, obj, turnOn)
     if luautils.walkAdj(playerObj, obj:getSquare(), false) then
         ISTimedActionQueue.add(TCA_ToggleMorgueAction:new(playerObj, obj, turnOn));

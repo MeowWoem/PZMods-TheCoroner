@@ -14,6 +14,7 @@ R.KEY_PENDING_AGE = "TCA_PendingAge";
 R.KEY_PENDING_AT = "TCA_PendingAt";
 
 R.TICK_INTERVAL = 20;
+R.LOG_JUMP = 0.25;
 
 R.squares = R.squares or {};
 R.pending = R.pending or {};
@@ -41,6 +42,40 @@ function R.setVanillaAge(body, age)
     body:setDeathTime(TCA.DeathTime.now() - math.max(0, age));
 end
 
+function R.log(text)
+    if getDebug() then
+        print("TCA Rot: " .. text);
+    end
+end
+
+function R.describeBody(body)
+    local sq = body:getSquare();
+    if not sq then
+        return "?";
+    end
+    return sq:getX() .. "," .. sq:getY() .. "," .. sq:getZ();
+end
+
+function R.hasTableAround(sq)
+    if not sq then
+        return false;
+    end
+    if TCA.findTableOnSquare(sq) then
+        return true;
+    end
+    local cell = getCell();
+    for dx = -1, 1 do
+        for dy = -1, 1 do
+            if dx ~= 0 or dy ~= 0 then
+                if TCA.findTableOnSquare(cell:getGridSquare(sq:getX() + dx, sq:getY() + dy, sq:getZ())) then
+                    return true;
+                end
+            end
+        end
+    end
+    return false;
+end
+
 function R.isOnTable(body)
     if not body or not body:getModData()["TCA_OnTable"] then
         return false;
@@ -48,7 +83,7 @@ function R.isOnTable(body)
     if TCA.isBodyOnFloor(body) then
         return false;
     end
-    return TCA.findTableOnSquare(body:getSquare()) ~= nil;
+    return R.hasTableAround(body:getSquare());
 end
 
 function R.guardBody(body)
@@ -57,8 +92,12 @@ function R.guardBody(body)
         return;
     end
     local cap = removal * R.TABLE_AGE_CAP;
-    if R.getVanillaAge(body) > cap then
+    local age = R.getVanillaAge(body);
+    if age > cap then
         R.setVanillaAge(body, cap);
+        if age - cap > R.LOG_JUMP then
+            R.log(string.format("table body %s capped %.2fh -> %.2fh (removal %.2fh)", R.describeBody(body), age, cap, removal));
+        end
     end
 end
 
@@ -117,6 +156,7 @@ function R.applyPending(body)
     end
     local age = pending + math.max(0, TCA.DeathTime.now() - at);
     R.setVanillaAge(body, math.min(age, removal * R.EXIT_AGE_CAP));
+    R.log(string.format("pending age applied to %s: %.2fh -> %.2fh (removal %.2fh)", R.describeBody(body), age, R.getVanillaAge(body), removal));
 end
 
 function R.applyPendingOnSquare(sq)
@@ -208,6 +248,7 @@ function R.onEveryOneMinute()
         local sq = cell:getGridSquare(entry.x, entry.y, entry.z);
         if not sq or not R.guardSquare(sq) then
             R.squares[key] = nil;
+            R.log("stopped guarding " .. key .. " (no body on a table found there)");
         end
     end
 end
@@ -222,6 +263,7 @@ function R.applyExitAge(body, coldStay)
     local slowed = math.min(math.max(coldStay or 0, 0), math.max(age, 0)) * (1 - TCA.Cold.DECAY_FACTOR);
     local effective = math.max(0, age - slowed);
     R.setVanillaAge(body, math.min(effective, removal * R.EXIT_AGE_CAP));
+    R.log(string.format("exit age: vanilla %.2fh, cold %.2fh -> %.2fh (removal %.2fh)", age, coldStay or 0, R.getVanillaAge(body), removal));
 end
 
 Events.LoadGridsquare.Add(R.onLoadGridsquare);

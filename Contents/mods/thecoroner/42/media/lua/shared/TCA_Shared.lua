@@ -505,6 +505,7 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
         TCA.Rot.applyPending(newBody);
         TCA.Rot.register(square);
         TCA.Rot.guardBody(newBody);
+        TCA.Rot.log("body placed on table at " .. TCA.Rot.describeBody(newBody) .. ", protected = " .. tostring(TCA.Rot.isOnTable(newBody)));
     end
 
     if isServer() then

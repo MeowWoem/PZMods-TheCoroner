@@ -178,6 +178,7 @@ function D.prepareCorpseItem(item, restartClock, viaGrab)
     end
     if restartClock then
         if TCA.Rot then
+            TCA.Rot.log("corpse leaves a container (grab = " .. tostring(viaGrab == true) .. ")");
             TCA.Rot.applyExitAge(body, coldStay);
             if viaGrab then
                 TCA.Rot.markPending(body);

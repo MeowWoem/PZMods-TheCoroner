@@ -73,9 +73,9 @@ end
 
 function TCA.Morgue.getDrawerKey(obj, container)
     if obj:getContainerIndex(container) > 0 then
-        return "IGUI_TCA_MorgueDrawerBottom";
+        return "IGUI_TCA_MorgueDrawerTop";
     end
-    return "IGUI_TCA_MorgueDrawerTop";
+    return "IGUI_TCA_MorgueDrawerBottom";
 end
 
 function TCA.Morgue.getDrawerName(obj, container)
