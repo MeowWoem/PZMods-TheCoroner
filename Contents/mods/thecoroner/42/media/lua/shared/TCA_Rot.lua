@@ -22,14 +22,12 @@ R.tickCount = 0;
 
 function R.getRemovalHours()
     local hours = nil;
-    if SandboxVars then
-        hours = tonumber(SandboxVars.HoursForCorpseRemoval);
+    local option = getSandboxOptions():getOptionByName("HoursForCorpseRemoval");
+    if option then
+        hours = tonumber(option:getValue());
     end
-    if hours == nil then
-        local option = getSandboxOptions():getOptionByName("HoursForCorpseRemoval");
-        if option then
-            hours = tonumber(option:getValue());
-        end
+    if hours == nil and SandboxVars then
+        hours = tonumber(SandboxVars.HoursForCorpseRemoval);
     end
     return hours or -1;
 end
