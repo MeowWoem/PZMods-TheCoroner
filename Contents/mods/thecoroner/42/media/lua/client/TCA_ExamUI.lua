@@ -63,6 +63,8 @@ TCA_ExamUI.EDIT_RADIUS = 10;
 TCA_ExamUI.BAR_GRAB = 14;
 TCA_ExamUI.HANDLE_GAP = 0.01;
 TCA_ExamUI.GUIDE_LINES = 9;
+TCA_ExamUI.TOOLTIP_W = 260;
+TCA_ExamUI.TOOLTIP_PAD = 6;
 
 local WHITE = { r = 1, g = 1, b = 1 };
 local GREEN = { r = 0.2, g = 0.9, b = 0.3 };
@@ -237,6 +239,9 @@ function TCA_ExamUI:createChildren()
     self.concludeButton:instantiate();
     self:addChild(self.concludeButton);
     self.concludeButton:setEnable(self.result == nil);
+    if self.result then
+        self.concludeButton:setTooltip(getText("IGUI_TCA_ExamAlreadyConcluded"));
+    end
 
     local guideW = 120;
     self.guideButton = ISButton:new(self.notesX + self.notesW - guideW - 6, self.notesY + 6, guideW, 20, getText("IGUI_TCA_ExamGuide"), self, TCA_ExamUI.onGuideClick);
@@ -272,6 +277,7 @@ function TCA_ExamUI:createChildren()
     end
 
     self:createBodyModel();
+    self:updateCauseControls();
 end
 
 function TCA_ExamUI:createBodyModel()
@@ -1102,6 +1108,67 @@ function TCA_ExamUI:drawPress()
     self:drawArc(press.x, press.y, 12, 3, press.progress, GREEN, 0.9);
 end
 
+function TCA_ExamUI:getTooltipZone()
+    if self.press or self.editMode or self.dragHandle or self.scrollDrag or self.mode == "guide" then
+        return nil;
+    end
+    local zone = self:getZoneAt(self:getMouseX(), self:getMouseY());
+    if not zone or not self.done[zone] or not self.texts[zone] then
+        return nil;
+    end
+    return zone;
+end
+
+function TCA_ExamUI:drawZoneTooltip()
+    local zone = self:getTooltipZone();
+    if not zone then
+        return;
+    end
+    local tm = getTextManager();
+    local pad = TCA_ExamUI.TOOLTIP_PAD;
+    local title = getText("IGUI_TCA_ExamZone_" .. zone);
+    local lines = TCA_ExamUI.wrapText(UIFont.Small, self.texts[zone], TCA_ExamUI.TOOLTIP_W);
+    local ageLines = {};
+    local age = self:getObservationAge(zone);
+    if age then
+        ageLines = TCA_ExamUI.wrapText(UIFont.Small, getText("IGUI_TCA_ExamObservedAgo", TCA.Exam.formatHours(age)), TCA_ExamUI.TOOLTIP_W);
+    end
+    local w = tm:MeasureStringX(UIFont.Small, title);
+    for _, line in ipairs(lines) do
+        w = math.max(w, tm:MeasureStringX(UIFont.Small, line));
+    end
+    for _, line in ipairs(ageLines) do
+        w = math.max(w, tm:MeasureStringX(UIFont.Small, line));
+    end
+    w = w + pad * 2;
+    local h = pad * 2 + self.smallH * (1 + #lines + #ageLines) + 2;
+    local mx = self:getMouseX();
+    local my = self:getMouseY();
+    local x = mx + 18;
+    local y = my + 18;
+    if x + w > self.width - 4 then
+        x = mx - w - 12;
+    end
+    if y + h > self.height - 4 then
+        y = self.height - 4 - h;
+    end
+    x = math.max(4, x);
+    y = math.max(4, y);
+    self:drawRect(x, y, w, h, 0.94, PANEL_BG.r, PANEL_BG.g, PANEL_BG.b);
+    self:drawRectBorder(x, y, w, h, 1, BORDER.r, BORDER.g, BORDER.b);
+    local ty = y + pad;
+    self:drawText(title, x + pad, ty, GUIDE_TITLE.r, GUIDE_TITLE.g, GUIDE_TITLE.b, 1, UIFont.Small);
+    ty = ty + self.smallH + 2;
+    for _, line in ipairs(lines) do
+        self:drawText(line, x + pad, ty, WHITE.r, WHITE.g, WHITE.b, 1, UIFont.Small);
+        ty = ty + self.smallH;
+    end
+    for _, line in ipairs(ageLines) do
+        self:drawText(line, x + pad, ty, GREY.r, GREY.g, GREY.b, 1, UIFont.Small);
+        ty = ty + self.smallH;
+    end
+end
+
 function TCA_ExamUI:render()
     ISPanel.render(self);
     self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
@@ -1111,6 +1178,14 @@ function TCA_ExamUI:render()
     self:drawEditLabels();
     self:clearStencilRect();
     self:drawRectBorder(self.viewX, self.viewY, self.viewW, self.viewH, 1, BORDER.r, BORDER.g, BORDER.b);
+    self:drawZoneTooltip();
+end
+
+function TCA_ExamUI:hideButtonTooltip(button)
+    if button and button.tooltipUI and button.tooltipUI:getIsVisible() then
+        button.tooltipUI:setVisible(false);
+        button.tooltipUI:removeFromUIManager();
+    end
 end
 
 function TCA_ExamUI:collectResult()
@@ -1122,6 +1197,7 @@ function TCA_ExamUI:collectResult()
 end
 
 function TCA_ExamUI:closeSilently()
+    self:hideButtonTooltip(self.concludeButton);
     self:setVisible(false);
     self:removeFromUIManager();
     if TCA_ExamUI.instance == self then

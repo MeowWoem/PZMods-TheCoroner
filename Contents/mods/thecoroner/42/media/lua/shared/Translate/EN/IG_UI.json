@@ -271,5 +271,6 @@
     "IGUI_TCA_CauseGivenPending": "Cause given: %1",
     "IGUI_TCA_CauseUnknown": "The cause of death cannot be established on this body.",
     "IGUI_TCA_CauseRight": "Correct cause of death",
-    "IGUI_TCA_CauseWrong": "Wrong cause of death"
+    "IGUI_TCA_CauseWrong": "Wrong cause of death",
+    "IGUI_TCA_ExamAlreadyConcluded": "A time-of-death estimate has already been given for this body. It can't be given again."
 }
