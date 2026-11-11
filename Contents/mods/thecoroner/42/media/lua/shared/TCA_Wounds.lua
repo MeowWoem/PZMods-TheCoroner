@@ -663,6 +663,7 @@ end
 function W.debugClear(body)
     local md = body:getModData();
     md[W.KEY_CAUSE_RESULT] = nil;
+    md[W.KEY_CAUSE_FORCED] = nil;
     md[W.KEY_WOUNDS] = {};
     md[W.KEY_HITS] = nil;
     md[W.KEY_BULLETS] = nil;
@@ -698,6 +699,7 @@ function W.debugRandomize(body)
         W.debugAddWound(body, kind, W.DEBUG_PARTS[ZombRand(#W.DEBUG_PARTS) + 1]);
     end
     body:getModData()[W.KEY_CAUSE] = W.WOUND_TO_CAUSE[first] or "natural";
+    body:getModData()[W.KEY_CAUSE_FORCED] = body:getModData()[W.KEY_CAUSE];
     local hits = ZombRand(4);
     for i = 1, hits do
         W.debugAddHit(body, W.DEBUG_HIT_KINDS[ZombRand(#W.DEBUG_HIT_KINDS) + 1], W.DEBUG_HIT_PARTS[ZombRand(#W.DEBUG_HIT_PARTS) + 1]);
@@ -715,6 +717,7 @@ function W.debugApply(body, op, kind, part)
         W.debugAddHit(body, kind, part);
     elseif op == "cause" and W.isCause(kind) then
         body:getModData()[W.KEY_CAUSE] = kind;
+        body:getModData()[W.KEY_CAUSE_FORCED] = kind;
         body:getModData()[W.KEY_CAUSE_RESULT] = nil;
     else
         return false;
@@ -723,7 +726,16 @@ function W.debugApply(body, op, kind, part)
 end
 
 W.KEY_CAUSE_RESULT = "TCA_CauseResult";
-W.CAUSES = { "infection", "blunt", "blade", "axe", "spear", "firearm", "fall", "vehicle", "fire", "natural" };
+W.KEY_CAUSE_FORCED = "TCA_CauseForced";
+W.LETHAL_WOUNDS = {
+    { kind = "bullet", cause = "firearm" },
+    { kind = "burn", cause = "fire" },
+    { kind = "deep", cause = "blade" },
+    { kind = "fracture", part = "Head", cause = "blunt" },
+    { kind = "fracture", cause = "fall" },
+    { kind = "bite", cause = "infection" },
+};
+W.CAUSES ={ "infection", "blunt", "blade", "axe", "spear", "firearm", "fall", "vehicle", "fire", "natural" };
 W.CAUSE_MAP = { unarmed = "blunt", stomp = "blunt", unknown = "natural", bite = "infection" };
 W.CAUSE_XP = 4;
 
@@ -731,8 +743,7 @@ function W.isCause(cause)
     return W.listContains(W.CAUSES, cause);
 end
 
-function W.getTrueCause(body)
-    local cause = body:getModData()[W.KEY_CAUSE];
+function W.normalizeCause(cause)
     if type(cause) ~= "string" then
         return nil;
     end
@@ -741,6 +752,42 @@ function W.getTrueCause(body)
         return nil;
     end
     return cause;
+end
+
+function W.hasWoundKind(wounds, kind, part)
+    for i = 1, #wounds do
+        if wounds[i].kind == kind and (part == nil or wounds[i].part == part) then
+            return true;
+        end
+    end
+    return false;
+end
+
+function W.inferCauseFromWounds(body)
+    local wounds = W.getWounds(body);
+    for i = 1, #W.LETHAL_WOUNDS do
+        local entry = W.LETHAL_WOUNDS[i];
+        if W.hasWoundKind(wounds, entry.kind, entry.part) then
+            return entry.cause;
+        end
+    end
+    return nil;
+end
+
+function W.getTrueCause(body)
+    local md = body:getModData();
+    local forced = W.normalizeCause(md[W.KEY_CAUSE_FORCED]);
+    if forced then
+        return forced;
+    end
+    if body:isZombie() then
+        return W.inferCauseFromWounds(body) or "natural";
+    end
+    local stored = W.normalizeCause(md[W.KEY_CAUSE]);
+    if (stored == nil or stored == "natural") and W.hasWoundKind(W.getWounds(body), "bite", nil) then
+        return "infection";
+    end
+    return stored;
 end
 
 function W.getCauseResult(body)
