@@ -7,6 +7,12 @@ local S = TCA.Sandbox;
 
 S.PAGE = "TheCoroner";
 
+S.XP_OPTIONS = {
+    autopsy = "AutopsyXpMultiplier",
+    timeOfDeath = "TimeOfDeathXpMultiplier",
+    cause = "CauseOfDeathXpMultiplier",
+};
+
 local function readOption(name)
     local options = getSandboxOptions();
     if options then
@@ -46,6 +52,14 @@ function S.getTremorMultiplier()
     return S.getNumber("TremorMultiplier", 1, 0, 3);
 end
 
-function S.applyXp(xp)
-    return (tonumber(xp) or 0) * S.getXpMultiplier();
+function S.getKindXpMultiplier(kind)
+    local name = S.XP_OPTIONS[kind];
+    if not name then
+        return 1;
+    end
+    return S.getNumber(name, 1, 0, 10);
+end
+
+function S.applyXp(xp, kind)
+    return (tonumber(xp) or 0) * S.getXpMultiplier() * S.getKindXpMultiplier(kind);
 end

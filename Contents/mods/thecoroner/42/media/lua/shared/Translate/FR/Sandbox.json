@@ -1,7 +1,13 @@
 {
     "Sandbox_TheCoroner": "The Coroner",
-    "Sandbox_TheCoroner_XpMultiplier": "Multiplicateur d'XP en Premiers soins",
-    "Sandbox_TheCoroner_XpMultiplier_tooltip": "Multiplie toute l'XP de Premiers soins donnée par le mod : étapes de l'autopsie, estimation de l'heure du décès et conclusion sur la cause du décès.<br>1 = valeur par défaut, 0 = aucune XP.",
+    "Sandbox_TheCoroner_XpMultiplier": "Multiplicateur d'XP en Premiers soins (global)",
+    "Sandbox_TheCoroner_XpMultiplier_tooltip": "Multiplie toute l'XP de Premiers soins donnée par le mod. Se combine avec les multiplicateurs par activité ci-dessous (global x activité).<br>1 = valeur par défaut, 0 = aucune XP.",
+    "Sandbox_TheCoroner_AutopsyXpMultiplier": "Multiplicateur d'XP de l'autopsie",
+    "Sandbox_TheCoroner_AutopsyXpMultiplier_tooltip": "XP du mini-jeu d'autopsie : incision, peau, côtes, plastron et organes.<br>Multiplié par le multiplicateur global. 1 = valeur par défaut, 0 = aucune XP.",
+    "Sandbox_TheCoroner_TimeOfDeathXpMultiplier": "Multiplicateur d'XP de l'heure du décès",
+    "Sandbox_TheCoroner_TimeOfDeathXpMultiplier_tooltip": "XP d'une estimation juste de l'heure du décès.<br>Multiplié par le multiplicateur global. 1 = valeur par défaut, 0 = aucune XP.",
+    "Sandbox_TheCoroner_CauseOfDeathXpMultiplier": "Multiplicateur d'XP de la cause du décès",
+    "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP d'une conclusion juste sur la cause du décès.<br>Multiplié par le multiplicateur global. 1 = valeur par défaut, 0 = aucune XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Multiplicateur du tremblement des mains",
     "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplie le tremblement des mains pendant le mini-jeu d'autopsie (incision, côtes, organes).<br>1 = valeur par défaut, 0,5 = deux fois moins, 0 = mains parfaitement stables."
 }

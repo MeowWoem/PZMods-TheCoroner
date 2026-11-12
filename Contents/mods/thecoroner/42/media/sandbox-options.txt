@@ -10,6 +10,36 @@ option TheCoroner.XpMultiplier
     translation = TheCoroner_XpMultiplier,
 }
 
+option TheCoroner.AutopsyXpMultiplier
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 10.0,
+    page = TheCoroner,
+    translation = TheCoroner_AutopsyXpMultiplier,
+}
+
+option TheCoroner.TimeOfDeathXpMultiplier
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 10.0,
+    page = TheCoroner,
+    translation = TheCoroner_TimeOfDeathXpMultiplier,
+}
+
+option TheCoroner.CauseOfDeathXpMultiplier
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 10.0,
+    page = TheCoroner,
+    translation = TheCoroner_CauseOfDeathXpMultiplier,
+}
+
 option TheCoroner.TremorMultiplier
 {
     type = double,

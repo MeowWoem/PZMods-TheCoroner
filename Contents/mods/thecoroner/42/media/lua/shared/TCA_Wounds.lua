@@ -843,7 +843,7 @@ function W.applyCause(character, body, cause, claimed)
     end
     local xp = 0;
     if ok then
-        xp = TCA.Sandbox.applyXp(W.CAUSE_XP);
+        xp = TCA.Sandbox.applyXp(W.CAUSE_XP, "cause");
     end
     if xp > 0 then
         addXp(character, Perks.Doctor, xp);

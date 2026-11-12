@@ -1,7 +1,13 @@
 {
     "Sandbox_TheCoroner": "The Coroner",
-    "Sandbox_TheCoroner_XpMultiplier": "First Aid XP multiplier",
-    "Sandbox_TheCoroner_XpMultiplier_tooltip": "Multiplies all First Aid XP given by the mod: autopsy steps, time of death estimates and cause of death conclusions.<br>1 = default, 0 = no XP.",
+    "Sandbox_TheCoroner_XpMultiplier": "First Aid XP multiplier (global)",
+    "Sandbox_TheCoroner_XpMultiplier_tooltip": "Multiplies all First Aid XP given by the mod. Combined with the per-activity multipliers below (global x activity).<br>1 = default, 0 = no XP at all.",
+    "Sandbox_TheCoroner_AutopsyXpMultiplier": "Autopsy XP multiplier",
+    "Sandbox_TheCoroner_AutopsyXpMultiplier_tooltip": "XP from the autopsy minigame: incision, skin, ribs, chest plate and organs.<br>Multiplied by the global multiplier. 1 = default, 0 = no XP.",
+    "Sandbox_TheCoroner_TimeOfDeathXpMultiplier": "Time of death XP multiplier",
+    "Sandbox_TheCoroner_TimeOfDeathXpMultiplier_tooltip": "XP from a correct time of death estimate.<br>Multiplied by the global multiplier. 1 = default, 0 = no XP.",
+    "Sandbox_TheCoroner_CauseOfDeathXpMultiplier": "Cause of death XP multiplier",
+    "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP from a correct cause of death conclusion.<br>Multiplied by the global multiplier. 1 = default, 0 = no XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Hand tremor multiplier",
     "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplies how much the hands shake during the autopsy minigame (incision, ribs, organs).<br>1 = default, 0.5 = half as much, 0 = perfectly steady hands."
 }
