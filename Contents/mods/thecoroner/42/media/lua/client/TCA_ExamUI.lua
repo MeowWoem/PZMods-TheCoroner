@@ -201,6 +201,7 @@ function TCA_ExamUI:initialise()
     self.texts = {};
     self.observedAt = {};
     self.woundLevels = {};
+    self.observerKey = E.getObserverKey(self.character);
     self:loadObservations();
     self.press = nil;
     self.blanch = nil;
@@ -214,7 +215,6 @@ function TCA_ExamUI:initialise()
     self.scrollDrag = nil;
     self.editMode = false;
     self.editZone = nil;
-    self.observerKey = E.getObserverKey(self.character);
     self.result = E.getResult(self.body, self.observerKey);
     self.minPos = 0.3;
     self.maxPos = 0.45;
