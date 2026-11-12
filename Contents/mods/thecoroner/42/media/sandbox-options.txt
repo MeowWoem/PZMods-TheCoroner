@@ -50,10 +50,48 @@ option TheCoroner.TremorMultiplier
     translation = TheCoroner_TremorMultiplier,
 }
 
+option TheCoroner.TimeOfDeathMaxRatio
+{
+    type = double,
+    default = 6.0,
+    min = 2.0,
+    max = 30.0,
+    page = TheCoroner,
+    translation = TheCoroner_TimeOfDeathMaxRatio,
+}
+
 option TheCoroner.OrgansEdible
 {
     type = boolean,
     default = true,
     page = TheCoroner,
     translation = TheCoroner_OrgansEdible,
+}
+
+option TheCoroner.OrgansInfectious
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_OrgansInfectious,
+}
+
+option TheCoroner.MorgueCorpseChance
+{
+    type = integer,
+    default = 10,
+    min = 0,
+    max = 100,
+    page = TheCoroner,
+    translation = TheCoroner_MorgueCorpseChance,
+}
+
+option TheCoroner.MorgueCorpseInfectedChance
+{
+    type = integer,
+    default = 50,
+    min = 0,
+    max = 100,
+    page = TheCoroner,
+    translation = TheCoroner_MorgueCorpseInfectedChance,
 }

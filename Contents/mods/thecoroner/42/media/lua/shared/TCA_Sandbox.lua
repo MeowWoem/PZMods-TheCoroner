@@ -70,6 +70,22 @@ function S.areOrgansEdible()
     return S.getBoolean("OrgansEdible", true);
 end
 
+function S.areOrgansInfectious()
+    return S.getBoolean("OrgansInfectious", true);
+end
+
+function S.getTimeOfDeathMaxRatio()
+    return S.getNumber("TimeOfDeathMaxRatio", 6, 2, 30);
+end
+
+function S.getMorgueCorpseChance()
+    return S.getNumber("MorgueCorpseChance", 10, 0, 100);
+end
+
+function S.getMorgueInfectedChance()
+    return S.getNumber("MorgueCorpseInfectedChance", 50, 0, 100);
+end
+
 function S.getXpMultiplier()
     return S.getNumber("XpMultiplier", 1, 0, 10);
 end

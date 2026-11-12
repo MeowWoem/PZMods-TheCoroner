@@ -1,3 +1,5 @@
+require "TCA_Sandbox";
+
 TCA_OrganFood = TCA_OrganFood or {};
 
 local F = TCA_OrganFood;
@@ -65,13 +67,16 @@ function F.applyExtraction(item, decay, infected)
     end
     decay = math.max(0, math.min(3, math.floor(tonumber(decay) or 0)));
     item:setAge(F.getAgeForDecay(item, decay));
-    local poison = F.getPoisonForState(decay, infected == true);
+    local poison = F.getPoisonForState(decay, infected == true and F.canInfect());
     if poison > 0 then
         item:setPoisonPower(poison);
     end
 end
 
 function F.canInfect()
+    if not TCA.Sandbox.areOrgansInfectious() then
+        return false;
+    end
     local lore = SandboxVars and SandboxVars.ZombieLore;
     if not lore then
         return true;

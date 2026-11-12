@@ -1,4 +1,5 @@
 require "TCA_Shared";
+require "TCA_Sandbox";
 require "TCA_DeathTime";
 require "TCA_Cold";
 require "TCA_Autopsy";
@@ -46,7 +47,6 @@ E.MIN_HOURS = 0.5;
 E.MAX_HOURS = 17520;
 
 E.XP_MAX = 8;
-E.MAX_RATIO = 6;
 E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
@@ -401,9 +401,21 @@ function E.getRangeRatio(lo, hi)
     return hi / math.max(lo, E.MIN_HOURS);
 end
 
+function E.getMaxRatio()
+    return TCA.Sandbox.getTimeOfDeathMaxRatio();
+end
+
+function E.formatMaxRatio()
+    local ratio = E.getMaxRatio();
+    if math.abs(ratio - math.floor(ratio + 0.5)) < 0.05 then
+        return tostring(math.floor(ratio + 0.5));
+    end
+    return string.format("%.1f", ratio);
+end
+
 function E.isRangeTooWide(minHours, maxHours)
     local lo, hi = E.sanitizeRange(minHours, maxHours);
-    return E.getRangeRatio(lo, hi) > E.MAX_RATIO + 0.001;
+    return E.getRangeRatio(lo, hi) > E.getMaxRatio() + 0.001;
 end
 
 function E.score(body, minHours, maxHours)
@@ -417,7 +429,7 @@ function E.score(body, minHours, maxHours)
         return false, 0, lo, hi;
     end
     local ratio = E.getRangeRatio(lo, hi);
-    local factor = clamp(1 - math.log(ratio) / math.log(E.MAX_RATIO), E.XP_MIN_FACTOR, 1);
+    local factor = clamp(1 - math.log(ratio) / math.log(E.getMaxRatio()), E.XP_MIN_FACTOR, 1);
     return true, E.XP_MAX * factor, lo, hi;
 end
 

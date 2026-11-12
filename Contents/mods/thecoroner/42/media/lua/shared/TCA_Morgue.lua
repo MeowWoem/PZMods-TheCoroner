@@ -1,4 +1,5 @@
 require "TCA_DeathTime";
+require "TCA_Sandbox";
 
 TCA = TCA or {};
 TCA.Morgue = TCA.Morgue or {};
@@ -13,8 +14,6 @@ TCA.Morgue.DRAWERS = 2;
 TCA.Morgue.CAPACITY = 30;
 TCA.Morgue.TYPE_ON = "fridge";
 TCA.Morgue.TYPE_OFF = "locker";
-TCA.Morgue.CORPSE_CHANCE = 10;
-TCA.Morgue.INFECTED_CHANCE = 50;
 TCA.Morgue.PRIORITY = 5;
 
 function TCA.Morgue.isDrawer(obj)
@@ -95,7 +94,7 @@ function TCA.Morgue.prepareCorpse(item)
         return;
     end
     body:getModData()["_bloodSplatAmount"] = 0;
-    body:getModData()["TCA_Infected"] = ZombRand(100) < TCA.Morgue.INFECTED_CHANCE;
+    body:getModData()["TCA_Infected"] = ZombRand(100) < TCA.Sandbox.getMorgueInfectedChance();
     local deathTime = TCA.DeathTime.inventMorgueDeath();
     TCA.DeathTime.record(body, deathTime, false);
     if TCA.Wounds then
@@ -114,7 +113,7 @@ function TCA.Morgue.prepareCorpse(item)
 end
 
 function TCA.Morgue.addRandomCorpse(container)
-    if ZombRand(100) >= TCA.Morgue.CORPSE_CHANCE then
+    if ZombRand(100) >= TCA.Sandbox.getMorgueCorpseChance() then
         return false;
     end
     local itemType = "Base.CorpseMale";

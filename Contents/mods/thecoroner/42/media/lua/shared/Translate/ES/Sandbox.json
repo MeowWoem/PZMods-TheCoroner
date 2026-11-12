@@ -10,6 +10,14 @@
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP de una conclusión correcta sobre la causa de la muerte.<br>Se multiplica por el multiplicador global. 1 = por defecto, 0 = sin XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Multiplicador del temblor de manos",
     "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplica cuánto tiemblan las manos durante el minijuego de autopsia (incisión, costillas, órganos).<br>1 = por defecto, 0,5 = la mitad, 0 = manos perfectamente firmes.",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio": "Hora de la muerte: anchura máxima del intervalo",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio_tooltip": "Anchura máxima de una estimación de la hora de la muerte: el límite superior puede ser como máximo este número de veces el inferior (p. ej. 6 = \"entre 10 h y 60 h\").<br>Más bajo = más difícil. Una estimación correcta más estrecha da más XP.",
     "Sandbox_TheCoroner_OrgansEdible": "Órganos comestibles",
-    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] En una partida ya en curso, reinicia el juego o el servidor después de cambiar esta opción. [!] <RGB:1,1,1><br><br>Activado: los órganos se pueden comer crudos o cocinados y añadir a guisos, sopas y salteados.<br>Desactivado: sin opción Comer ni recetas de cocina. Se pueden seguir cocinando, usar como cebo o engodo de pesca y en las recetas del mod."
+    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] En una partida ya en curso, reinicia el juego o el servidor después de cambiar esta opción. [!] <RGB:1,1,1><br><br>Activado: los órganos se pueden comer crudos o cocinados y añadir a guisos, sopas y salteados.<br>Desactivado: sin opción Comer ni recetas de cocina. Se pueden seguir cocinando, usar como cebo o engodo de pesca y en las recetas del mod.",
+    "Sandbox_TheCoroner_OrgansInfectious": "Los órganos infectados transmiten la infección",
+    "Sandbox_TheCoroner_OrgansInfectious_tooltip": "Activado: comer un órgano de un cuerpo infectado te infecta (salvo si la infección está desactivada en Zombie Lore).<br>Desactivado: los órganos infectados son tan seguros como los demás.<br>Los órganos ya extraídos conservan su estado actual.",
+    "Sandbox_TheCoroner_MorgueCorpseChance": "Cajones de morgue: probabilidad de cadáver (%)",
+    "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Probabilidad de que cada cajón de morgue contenga un cuerpo la primera vez que se carga.<br>0 = siempre vacío.",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Cajones de morgue: probabilidad de cadáver infectado (%)",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Probabilidad de que un cuerpo encontrado en un cajón de morgue esté infectado (mordedura presente, órganos peligrosos)."
 }

@@ -10,6 +10,14 @@
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP from a correct cause of death conclusion.<br>Multiplied by the global multiplier. 1 = default, 0 = no XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Hand tremor multiplier",
     "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplies how much the hands shake during the autopsy minigame (incision, ribs, organs).<br>1 = default, 0.5 = half as much, 0 = perfectly steady hands.",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio": "Time of death: maximum range width",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio_tooltip": "How wide a time of death estimate can be: the upper bound can be at most this many times the lower bound (e.g. 6 = \"between 10 h and 60 h\").<br>Lower = harder. Narrower correct estimates give more XP.",
     "Sandbox_TheCoroner_OrgansEdible": "Organs are edible",
-    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] On a save that is already running, restart the game or server after changing this option. [!] <RGB:1,1,1><br><br>On: organs can be eaten raw or cooked and added to stews, soups and stir fries.<br>Off: no Eat option and no cooking recipes. They can still be cooked, used as fishing bait or chum, and used in the mod's crafting recipes."
+    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] On a save that is already running, restart the game or server after changing this option. [!] <RGB:1,1,1><br><br>On: organs can be eaten raw or cooked and added to stews, soups and stir fries.<br>Off: no Eat option and no cooking recipes. They can still be cooked, used as fishing bait or chum, and used in the mod's crafting recipes.",
+    "Sandbox_TheCoroner_OrgansInfectious": "Infected organs transmit the infection",
+    "Sandbox_TheCoroner_OrgansInfectious_tooltip": "On: eating an organ from an infected body infects you (unless zombie infection is disabled in Zombie Lore).<br>Off: infected organs are as safe as the others.<br>Organs already taken out keep their current state.",
+    "Sandbox_TheCoroner_MorgueCorpseChance": "Morgue drawers: corpse chance (%)",
+    "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Chance for each morgue drawer to hold a body the first time it is loaded.<br>0 = always empty.",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Morgue drawers: infected corpse chance (%)",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance for a body found in a morgue drawer to be infected (bite present, dangerous organs)."
 }

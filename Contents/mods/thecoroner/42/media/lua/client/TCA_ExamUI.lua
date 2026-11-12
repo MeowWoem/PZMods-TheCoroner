@@ -5,6 +5,7 @@ require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Shared";
 require "TCA_Exam";
+require "TCA_OrganFood";
 require "TCA_Cold";
 require "TCA_BodyRenderer";
 
@@ -315,7 +316,7 @@ function TCA_ExamUI:updateConcludeButton()
     self.lastTooWide = tooWide;
     self.concludeButton:setEnable(not tooWide);
     if tooWide then
-        self.concludeButton:setTooltip(getText("IGUI_TCA_ExamTooWideTip"));
+        self.concludeButton:setTooltip(getText("IGUI_TCA_ExamTooWideTip", TCA.Exam.formatMaxRatio()));
     else
         self:hideButtonTooltip(self.concludeButton);
         self.concludeButton:setTooltip(nil);
@@ -894,7 +895,11 @@ function TCA_ExamUI:drawNotesContent(x, y, maxW)
         return self:drawGuide(x, y, maxW);
     end
     if self.mode == "wounds" and self:hasFoundBite() then
-        y = self:drawWrapped(getText("IGUI_TCA_WoundBiteWarning"), x, y, maxW, RED);
+        local warningKey = "IGUI_TCA_WoundBiteWarningSafe";
+        if TCA_OrganFood.canInfect() then
+            warningKey = "IGUI_TCA_WoundBiteWarning";
+        end
+        y = self:drawWrapped(getText(warningKey), x, y, maxW, RED);
         y = y + 8;
     end
     for _, id in ipairs(self:getZoneIds()) do

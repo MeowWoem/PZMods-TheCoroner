@@ -10,6 +10,14 @@
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP d'une conclusion juste sur la cause du décès.<br>Multiplié par le multiplicateur global. 1 = valeur par défaut, 0 = aucune XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Multiplicateur du tremblement des mains",
     "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplie le tremblement des mains pendant le mini-jeu d'autopsie (incision, côtes, organes).<br>1 = valeur par défaut, 0,5 = deux fois moins, 0 = mains parfaitement stables.",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio": "Heure du décès : largeur maximale de la fourchette",
+    "Sandbox_TheCoroner_TimeOfDeathMaxRatio_tooltip": "Largeur maximale d'une estimation de l'heure du décès : la borne haute peut valoir au plus ce nombre de fois la borne basse (ex. 6 = « entre 10 h et 60 h »).<br>Plus bas = plus difficile. Une estimation juste plus étroite rapporte plus d'XP.",
     "Sandbox_TheCoroner_OrgansEdible": "Organes comestibles",
-    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] Sur une partie déjà en cours, redémarrez le jeu ou le serveur après avoir changé cette option. [!] <RGB:1,1,1><br><br>Activé : les organes se mangent crus ou cuits et s'ajoutent aux ragoûts, soupes et sautés.<br>Désactivé : plus d'option Manger ni de recettes de cuisine. Ils restent cuisables, utilisables comme appât ou amorce de pêche et dans les recettes du mod."
+    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] Sur une partie déjà en cours, redémarrez le jeu ou le serveur après avoir changé cette option. [!] <RGB:1,1,1><br><br>Activé : les organes se mangent crus ou cuits et s'ajoutent aux ragoûts, soupes et sautés.<br>Désactivé : plus d'option Manger ni de recettes de cuisine. Ils restent cuisables, utilisables comme appât ou amorce de pêche et dans les recettes du mod.",
+    "Sandbox_TheCoroner_OrgansInfectious": "Les organes infectés transmettent l'infection",
+    "Sandbox_TheCoroner_OrgansInfectious_tooltip": "Activé : manger un organe d'un corps infecté vous infecte (sauf si l'infection est désactivée dans le Zombie Lore).<br>Désactivé : les organes infectés sont aussi sûrs que les autres.<br>Les organes déjà prélevés gardent leur état actuel.",
+    "Sandbox_TheCoroner_MorgueCorpseChance": "Tiroirs de morgue : chance d'un cadavre (%)",
+    "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Chance que chaque tiroir de morgue contienne un corps lors de son premier chargement.<br>0 = toujours vide.",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Tiroirs de morgue : chance d'un cadavre infecté (%)",
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance qu'un corps trouvé dans un tiroir de morgue soit infecté (morsure présente, organes dangereux)."
 }
