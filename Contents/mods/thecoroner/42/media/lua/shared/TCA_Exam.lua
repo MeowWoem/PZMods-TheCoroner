@@ -46,7 +46,7 @@ E.MIN_HOURS = 0.5;
 E.MAX_HOURS = 17520;
 
 E.XP_MAX = 8;
-E.WIDE_RATIO = 30;
+E.MAX_RATIO = 6;
 E.XP_MIN_FACTOR = 0.15;
 
 E.KEY_RESULT = "TCA_Exam";
@@ -397,6 +397,15 @@ function E.sanitizeRange(minHours, maxHours)
     return lo, hi;
 end
 
+function E.getRangeRatio(lo, hi)
+    return hi / math.max(lo, E.MIN_HOURS);
+end
+
+function E.isRangeTooWide(minHours, maxHours)
+    local lo, hi = E.sanitizeRange(minHours, maxHours);
+    return E.getRangeRatio(lo, hi) > E.MAX_RATIO + 0.001;
+end
+
 function E.score(body, minHours, maxHours)
     local lo, hi = E.sanitizeRange(minHours, maxHours);
     local truth = D.getHoursSinceDeath(body);
@@ -407,8 +416,8 @@ function E.score(body, minHours, maxHours)
     if not ok then
         return false, 0, lo, hi;
     end
-    local ratio = hi / math.max(lo, E.MIN_HOURS);
-    local factor = clamp(1 - math.log(ratio) / math.log(E.WIDE_RATIO), E.XP_MIN_FACTOR, 1);
+    local ratio = E.getRangeRatio(lo, hi);
+    local factor = clamp(1 - math.log(ratio) / math.log(E.MAX_RATIO), E.XP_MIN_FACTOR, 1);
     return true, E.XP_MAX * factor, lo, hi;
 end
 
@@ -597,8 +606,12 @@ function E.storeObservation(body, key, zone, data)
     return true;
 end
 
-function E.showResult(character, ok, xp)
+function E.showResult(character, ok, xp, tooWide)
     if not character then
+        return;
+    end
+    if tooWide then
+        HaloTextHelper.addBadText(character, getText("IGUI_TCA_ExamTooWide"));
         return;
     end
     if ok then
@@ -611,13 +624,14 @@ function E.showResult(character, ok, xp)
     HaloTextHelper.addBadText(character, getText("IGUI_TCA_ExamWrong"));
 end
 
-function E.notifyResult(character, ok, xp)
+function E.notifyResult(character, ok, xp, tooWide)
     if isServer() then
         local args = {};
         args.ok = ok;
         args.xp = xp;
+        args.tooWide = tooWide;
         sendServerCommand(character, "TCA", "examResult", args);
         return;
     end
-    E.showResult(character, ok, xp);
+    E.showResult(character, ok, xp, tooWide);
 end

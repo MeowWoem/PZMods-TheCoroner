@@ -22,6 +22,10 @@ function TCA_ExamResultAction:complete()
     if E.getResult(body, key) then
         return true;
     end
+    if E.isRangeTooWide(self.minHours, self.maxHours) then
+        E.notifyResult(self.character, false, 0, true);
+        return true;
+    end
     local ok, xp, lo, hi = E.score(body, self.minHours, self.maxHours);
     E.storeResult(body, key, lo, hi, ok);
     body:transmitModData();

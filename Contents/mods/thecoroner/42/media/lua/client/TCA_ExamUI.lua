@@ -216,7 +216,7 @@ function TCA_ExamUI:initialise()
     self.observerKey = E.getObserverKey(self.character);
     self.result = E.getResult(self.body, self.observerKey);
     self.minPos = 0.3;
-    self.maxPos = 0.5;
+    self.maxPos = 0.45;
     if self.result then
         self.minPos = E.hoursToPos(self.result.minHours);
         self.maxPos = E.hoursToPos(self.result.maxHours);
@@ -299,8 +299,31 @@ function TCA_ExamUI:onCloseClick()
     self.finished = true;
 end
 
+function TCA_ExamUI:isRangeTooWide()
+    local E = TCA.Exam;
+    return E.isRangeTooWide(E.posToHours(self.minPos), E.posToHours(self.maxPos));
+end
+
+function TCA_ExamUI:updateConcludeButton()
+    if self.result or not self.concludeButton then
+        return;
+    end
+    local tooWide = self:isRangeTooWide();
+    if tooWide == self.lastTooWide then
+        return;
+    end
+    self.lastTooWide = tooWide;
+    self.concludeButton:setEnable(not tooWide);
+    if tooWide then
+        self.concludeButton:setTooltip(getText("IGUI_TCA_ExamTooWideTip"));
+    else
+        self:hideButtonTooltip(self.concludeButton);
+        self.concludeButton:setTooltip(nil);
+    end
+end
+
 function TCA_ExamUI:onConcludeClick()
-    if self.result then
+    if self.result or self:isRangeTooWide() then
         return;
     end
     self.conclude = true;
@@ -950,6 +973,10 @@ function TCA_ExamUI:drawTimeline()
     local hi = E.posToHours(self.maxPos);
     local text = getText("IGUI_TCA_ExamRange", E.formatHours(lo), E.formatHours(hi));
     local c = WHITE;
+    if not self.result and self:isRangeTooWide() then
+        text = text .. " " .. getText("IGUI_TCA_ExamTooWideTag");
+        c = RED;
+    end
     if self.result then
         local verdict = getText("IGUI_TCA_ExamGivenWrong");
         c = RED;
@@ -994,6 +1021,7 @@ function TCA_ExamUI:prerender()
     self:updateDrag();
     self:updateScrollDrag();
     self:updateEdit();
+    self:updateConcludeButton();
 
     self:drawTextCentre(getText("IGUI_TCA_ExamTitle"), self.width / 2, self.titleY, 1, 1, 1, 1, UIFont.Medium);
     local instr, c = self:getInstructionText();
