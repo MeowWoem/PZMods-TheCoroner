@@ -6,3 +6,15 @@ Release
 Added:	
 - Spanish localization
 [ ------ ]
+
+[ v1.0.2 - 11.12.2026 ]
+Added:
+- Wounds Overhaul compatibility: when that mod is enabled, its "Practise on the body" option is moved into the Coroner submenu
+
+Fixed:
+- Time of death estimate: a very wide range (e.g. "<1h to 2.0 yr") was always counted as correct. The range is now capped (the upper bound can be at most 6x the lower bound). Ranges that are too wide are shown in red as "(too vague)" and can't be submitted, and they don't use up your one attempt on the body.
+
+Changed:
+- Time of death XP now scales with the new maximum width: the narrower the correct range, the more XP
+- The default range on the timeline is narrower when the window opens
+[ ------ ]
