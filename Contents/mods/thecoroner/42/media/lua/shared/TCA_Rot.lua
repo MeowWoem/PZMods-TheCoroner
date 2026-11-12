@@ -181,8 +181,15 @@ function R.queueSquare(sq)
     R.pending[R.getSquareKey(sq)] = entry;
 end
 
+function R.hasPending()
+    for _ in pairs(R.pending) do
+        return true;
+    end
+    return false;
+end
+
 function R.onTick()
-    if not next(R.pending) then
+    if not R.hasPending() then
         R.tickCount = 0;
         return;
     end
