@@ -38,3 +38,12 @@ Changed:
 Fixed:
 - External examination: findings were no longer remembered after closing the window (everything showed "not examined" again). Findings already made are restored.
 [ ------ ]
+
+[ v1.0.5 - 11.12.2026 ]
+Added:
+- TooltipLib compatibility: when TooltipLib is enabled, the mod's tooltip lines (organs, chest plate, spent bullets) are registered as a TooltipLib provider instead of hooking the tooltip directly
+
+Fixed:
+- Error when hovering the fluid bar of the fluid transfer window (and other tooltips that don't show an inventory item)
+- Error spam every tick in TCA_Rot.lua on setups where no other mod defines the "next" function
+[ ------ ]
