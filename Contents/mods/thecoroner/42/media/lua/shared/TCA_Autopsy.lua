@@ -139,7 +139,7 @@ function A.decodePaths(str)
     local index = 1;
     for block in string.gmatch(str .. "|", "([^|]*)|") do
         if index > #A.INCISION_Y then
-            break;
+            break
         end
         for xs, ys in string.gmatch(block, "([%-%d%.]+),([%-%d%.]+)") do
             table.insert(paths[index], { x = tonumber(xs), y = tonumber(ys) });
@@ -184,7 +184,7 @@ function A.decodeAttach(str, count)
     local index = 1;
     for value in string.gmatch(tostring(str or ""), "[^,]+") do
         if index > count then
-            break;
+            break
         end
         local v = tonumber(value) or 0;
         if v < 0 then

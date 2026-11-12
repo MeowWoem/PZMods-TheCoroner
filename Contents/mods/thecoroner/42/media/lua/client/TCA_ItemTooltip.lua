@@ -1,4 +1,4 @@
-require "ISUI/ISToolTipInv"
+require "ISUI/ISToolTipInv";
 
 TCA = TCA or {};
 TCA.ItemTooltip = TCA.ItemTooltip or {};
