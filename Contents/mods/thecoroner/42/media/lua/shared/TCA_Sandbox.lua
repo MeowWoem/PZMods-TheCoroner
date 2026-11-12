@@ -13,6 +13,20 @@ S.XP_OPTIONS = {
     cause = "CauseOfDeathXpMultiplier",
 };
 
+local function readRawOption(name)
+    local options = getSandboxOptions();
+    if options then
+        local option = options:getOptionByName(S.PAGE .. "." .. name);
+        if option then
+            return option:getValue();
+        end
+    end
+    if SandboxVars and SandboxVars[S.PAGE] then
+        return SandboxVars[S.PAGE][name];
+    end
+    return nil;
+end
+
 local function readOption(name)
     local options = getSandboxOptions();
     if options then
@@ -42,6 +56,18 @@ function S.getNumber(name, fallback, minValue, maxValue)
         return maxValue;
     end
     return value;
+end
+
+function S.getBoolean(name, fallback)
+    local value = readRawOption(name);
+    if value == true or value == false then
+        return value;
+    end
+    return fallback;
+end
+
+function S.areOrgansEdible()
+    return S.getBoolean("OrgansEdible", true);
 end
 
 function S.getXpMultiplier()

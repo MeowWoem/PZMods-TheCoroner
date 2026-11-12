@@ -9,5 +9,7 @@
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier": "Cause of death XP multiplier",
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP from a correct cause of death conclusion.<br>Multiplied by the global multiplier. 1 = default, 0 = no XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Hand tremor multiplier",
-    "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplies how much the hands shake during the autopsy minigame (incision, ribs, organs).<br>1 = default, 0.5 = half as much, 0 = perfectly steady hands."
+    "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplies how much the hands shake during the autopsy minigame (incision, ribs, organs).<br>1 = default, 0.5 = half as much, 0 = perfectly steady hands.",
+    "Sandbox_TheCoroner_OrgansEdible": "Organs are edible",
+    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] On a save that is already running, restart the game or server after changing this option. [!] <RGB:1,1,1><br><br>On: organs can be eaten raw or cooked and added to stews, soups and stir fries.<br>Off: no Eat option and no cooking recipes. They can still be cooked, used as fishing bait or chum, and used in the mod's crafting recipes."
 }

@@ -49,3 +49,11 @@ option TheCoroner.TremorMultiplier
     page = TheCoroner,
     translation = TheCoroner_TremorMultiplier,
 }
+
+option TheCoroner.OrgansEdible
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_OrgansEdible,
+}

@@ -9,5 +9,7 @@
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier": "Multiplicador de XP de la causa de la muerte",
     "Sandbox_TheCoroner_CauseOfDeathXpMultiplier_tooltip": "XP de una conclusión correcta sobre la causa de la muerte.<br>Se multiplica por el multiplicador global. 1 = por defecto, 0 = sin XP.",
     "Sandbox_TheCoroner_TremorMultiplier": "Multiplicador del temblor de manos",
-    "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplica cuánto tiemblan las manos durante el minijuego de autopsia (incisión, costillas, órganos).<br>1 = por defecto, 0,5 = la mitad, 0 = manos perfectamente firmes."
+    "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplica cuánto tiemblan las manos durante el minijuego de autopsia (incisión, costillas, órganos).<br>1 = por defecto, 0,5 = la mitad, 0 = manos perfectamente firmes.",
+    "Sandbox_TheCoroner_OrgansEdible": "Órganos comestibles",
+    "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] En una partida ya en curso, reinicia el juego o el servidor después de cambiar esta opción. [!] <RGB:1,1,1><br><br>Activado: los órganos se pueden comer crudos o cocinados y añadir a guisos, sopas y salteados.<br>Desactivado: sin opción Comer ni recetas de cocina. Se pueden seguir cocinando, usar como cebo o engodo de pesca y en las recetas del mod."
 }
