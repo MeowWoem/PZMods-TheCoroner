@@ -1,0 +1,23 @@
+{
+    "ContextMenu_TCA_PlaceOnTable": "Colocar el cadáver sobre la mesa",
+    "ContextMenu_TCA_RemoveFromTable": "Retirar el cadáver de la mesa",
+    "ContextMenu_TCA_Autopsy": "Realizar una autopsia",
+    "ContextMenu_TCA_DebugReset": "[DEBUG] Reiniciar la autopsia",
+    "ContextMenu_TCA_DebugReference": "[DEBUG] Imagen de referencia 1:1",
+    "ContextMenu_TCA_MorguePowerOn": "Encender la refrigeración de los cajones",
+    "ContextMenu_TCA_MorguePowerOff": "Apagar la refrigeración de los cajones",
+    "ContextMenu_TCA_DebugDeathTime": "[DEBUG] Hora de la muerte",
+    "ContextMenu_TCA_Exam": "Estimar la hora de la muerte",
+    "ContextMenu_TCA_DebugExamReset": "[DEBUG] Reiniciar el examen",
+    "ContextMenu_TCA_SawInsertBattery": "Insertar pila",
+    "ContextMenu_TCA_SawRemoveBattery": "Quitar pila",
+    "ContextMenu_TCA_HarvestMaggots": "Recoger gusanos",
+    "ContextMenu_TCA_Menu": "Forense",
+    "ContextMenu_TCA_DebugWounds": "[DEBUG] Heridas",
+    "ContextMenu_TCA_DebugWoundsShow": "Mostrar informe",
+    "ContextMenu_TCA_DebugWoundsRandom": "Aleatorizar",
+    "ContextMenu_TCA_DebugWoundsClear": "Borrar",
+    "ContextMenu_TCA_DebugWoundsAddAnte": "Añadir una herida (antes de la muerte)",
+    "ContextMenu_TCA_DebugWoundsAddPost": "Añadir un golpe (después de la muerte)",
+    "ContextMenu_TCA_DebugWoundsCause": "Definir la causa de la muerte"
+}
