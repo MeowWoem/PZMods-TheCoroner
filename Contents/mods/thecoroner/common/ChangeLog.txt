@@ -18,3 +18,18 @@ Changed:
 - Time of death XP now scales with the new maximum width: the narrower the correct range, the more XP
 - The default range on the timeline is narrower when the window opens
 [ ------ ]
+
+[ v1.0.3 - 11.12.2026 ]
+Added:
+- Sandbox options (new "The Coroner" page):
+  - Global First Aid XP multiplier
+  - Separate XP multipliers for autopsy, time of death and cause of death (combined with the global one)
+  - Hand tremor multiplier (0 = perfectly steady hands)
+  - Time of death: maximum range width (default 6x)
+  - Organs are edible (on by default). When off, organs can't be eaten or added to stews, soups and stir fries, but can still be used for fishing and crafting
+  - Infected organs transmit the infection (on by default)
+  - Morgue drawers: corpse chance (default 10%) and infected corpse chance (default 50%)
+
+Changed:
+- When infected organs are set not to transmit the infection, the external examination no longer warns that the organs are deadly
+[ ------ ]
