@@ -33,3 +33,8 @@ Added:
 Changed:
 - When infected organs are set not to transmit the infection, the external examination no longer warns that the organs are deadly
 [ ------ ]
+
+[ v1.0.4 - 11.12.2026 ]
+Fixed:
+- External examination: findings were no longer remembered after closing the window (everything showed "not examined" again). Findings already made are restored.
+[ ------ ]
