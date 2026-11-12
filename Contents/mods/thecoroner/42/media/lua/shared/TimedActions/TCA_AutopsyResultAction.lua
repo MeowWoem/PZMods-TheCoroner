@@ -2,6 +2,7 @@ require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
 require "TCA_Wounds";
 require "TCA_Autopsy";
+require "TCA_Sandbox";
 
 TCA_AutopsyResultAction = ISBaseTimedAction:derive("TCA_AutopsyResultAction");
 
@@ -261,6 +262,7 @@ function TCA_AutopsyResultAction:complete()
     end
 
     body:transmitModData();
+    xp = TCA.Sandbox.applyXp(xp);
     if xp > 0 then
         addXp(self.character, Perks.Doctor, xp);
         A.notifyXp(self.character, xp);

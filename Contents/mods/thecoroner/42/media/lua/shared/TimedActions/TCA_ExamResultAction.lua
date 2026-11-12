@@ -1,6 +1,7 @@
 require "TimedActions/ISBaseTimedAction";
 require "TCA_Shared";
 require "TCA_Exam";
+require "TCA_Sandbox";
 
 TCA_ExamResultAction = ISBaseTimedAction:derive("TCA_ExamResultAction");
 
@@ -29,6 +30,7 @@ function TCA_ExamResultAction:complete()
     local ok, xp, lo, hi = E.score(body, self.minHours, self.maxHours);
     E.storeResult(body, key, lo, hi, ok);
     body:transmitModData();
+    xp = TCA.Sandbox.applyXp(xp);
     if xp > 0 then
         addXp(self.character, Perks.Doctor, xp);
     end

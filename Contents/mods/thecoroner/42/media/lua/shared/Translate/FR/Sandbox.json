@@ -1,0 +1,7 @@
+{
+    "Sandbox_TheCoroner": "The Coroner",
+    "Sandbox_TheCoroner_XpMultiplier": "Multiplicateur d'XP en Premiers soins",
+    "Sandbox_TheCoroner_XpMultiplier_tooltip": "Multiplie toute l'XP de Premiers soins donnée par le mod : étapes de l'autopsie, estimation de l'heure du décès et conclusion sur la cause du décès.<br>1 = valeur par défaut, 0 = aucune XP.",
+    "Sandbox_TheCoroner_TremorMultiplier": "Multiplicateur du tremblement des mains",
+    "Sandbox_TheCoroner_TremorMultiplier_tooltip": "Multiplie le tremblement des mains pendant le mini-jeu d'autopsie (incision, côtes, organes).<br>1 = valeur par défaut, 0,5 = deux fois moins, 0 = mains parfaitement stables."
+}

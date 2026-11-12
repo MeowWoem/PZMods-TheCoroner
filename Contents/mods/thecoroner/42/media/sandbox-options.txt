@@ -1,0 +1,21 @@
+VERSION = 1,
+
+option TheCoroner.XpMultiplier
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 10.0,
+    page = TheCoroner,
+    translation = TheCoroner_XpMultiplier,
+}
+
+option TheCoroner.TremorMultiplier
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 3.0,
+    page = TheCoroner,
+    translation = TheCoroner_TremorMultiplier,
+}

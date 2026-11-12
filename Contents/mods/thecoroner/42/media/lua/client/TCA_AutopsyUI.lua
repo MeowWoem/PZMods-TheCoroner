@@ -2,6 +2,7 @@ require "TCA_UIDrag";
 require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Autopsy";
+require "TCA_Sandbox";
 require "TCA_BodyRenderer";
 require "TCA_Shared";
 
@@ -454,7 +455,7 @@ function TCA_AutopsyUI:getTremorAmplitude()
     if amp < TCA_AutopsyUI.TREMOR_MIN then
         amp = TCA_AutopsyUI.TREMOR_MIN;
     end
-    return amp;
+    return amp * TCA.Sandbox.getTremorMultiplier();
 end
 
 function TCA_AutopsyUI:getTremorLabel(amp)
