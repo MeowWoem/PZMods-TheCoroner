@@ -2,6 +2,8 @@ require "TCA_Shared";
 require "TCA_Autopsy";
 require "TimedActions/ISTimedActionQueue";
 require "TimedActions/TCA_LetGoForTableAction";
+require "TimedActions/TCA_ThrowOntoTableAction";
+require "TimedActions/TCA_WalkAndThrowAction";
 require "TimedActions/TCA_PlaceOnTableAction";
 require "TimedActions/TCA_RemoveFromTableAction";
 require "TimedActions/TCA_AutopsyAction";
@@ -534,17 +536,31 @@ end
 function TCA_Client.onPlaceOnTable(playerObj, tableObj, body)
     if playerObj:isDraggingCorpse() then
         if luautils.walkAdj(playerObj, tableObj:getSquare(), false) then
-            ISTimedActionQueue.add(TCA_LetGoForTableAction:new(playerObj, tableObj));
+            ISTimedActionQueue.add(TCA_ThrowOntoTableAction:new(playerObj, tableObj));
         end
         return;
     end
-    if luautils.walkAdj(playerObj, tableObj:getSquare(), false) then
-        if body then
-            ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(playerObj, tableObj, body:getX(), body:getY(), body:getZ()));
-        else
-            ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(playerObj, tableObj));
-        end
+    if not body then
+        body = TCA.findBodyNearTable(tableObj, playerObj);
     end
+    if not body then
+        return;
+    end
+    if playerObj:isSitOnGround() then
+        playerObj:setVariable("forceGetUp", true);
+    end
+    ISTimedActionQueue.clear(playerObj);
+    ISTimedActionQueue.add(ISPathFindAction:pathToGrabCorpse(playerObj, body));
+    local primary = playerObj:getPrimaryHandItem();
+    local secondary = playerObj:getSecondaryHandItem();
+    if primary then
+        ISTimedActionQueue.add(ISUnequipAction:new(playerObj, primary, 50));
+    end
+    if secondary and secondary ~= primary then
+        ISTimedActionQueue.add(ISUnequipAction:new(playerObj, secondary, 50));
+    end
+    ISTimedActionQueue.add(ISGrabCorpseAction:new(playerObj, body));
+    ISTimedActionQueue.add(TCA_WalkAndThrowAction:new(playerObj, tableObj));
 end
 
 function TCA_Client.getPlaceBlockReason(tableObj, occupied)
