@@ -6,3 +6,4 @@ icon=icon.png
 author=Amenophis
 modversion=1.0.5
 versionMin=42.0
+tiledef=tca_morgue.patch 4127

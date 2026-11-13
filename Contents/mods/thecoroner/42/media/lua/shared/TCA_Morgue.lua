@@ -256,7 +256,20 @@ function TCA.Morgue.onNewDrawer(obj)
     end
 end
 
+function TCA.Morgue.makePassable(obj)
+    if not instanceof(obj, "IsoThumpable") then
+        return false;
+    end
+    if obj:isCanPassThrough() and not obj:isBlockAllTheSquare() then
+        return false;
+    end
+    obj:setCanPassThrough(true);
+    obj:setBlockAllTheSquare(false);
+    return true;
+end
+
 function TCA.Morgue.onLoadDrawer(obj)
+    TCA.Morgue.makePassable(obj);
     if isClient() then
         TCA.Morgue.ensureContainers(obj, false);
         return;
@@ -288,6 +301,9 @@ function TCA.Morgue.onBuilt(params)
     end
     if instanceof(obj, "IsoThumpable") then
         obj:setIsContainer(true);
+    end
+    if TCA.Morgue.makePassable(obj) and obj:getSquare() then
+        obj:getSquare():RecalcAllWithNeighbours(true);
     end
     TCA.Morgue.ensureContainers(obj, false);
     TCA.Morgue.applyType(obj, false);
