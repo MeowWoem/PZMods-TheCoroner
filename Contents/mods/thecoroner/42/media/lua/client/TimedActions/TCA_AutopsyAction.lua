@@ -17,6 +17,10 @@ function TCA_AutopsyAction:isValid()
     if TCA.Autopsy.getBlockingClothing(body) then
         return false;
     end
+    if TCA.isTooDark(self.character) then
+        TCA.warnTooDark(self);
+        return false;
+    end
     if self.ui then
         return true;
     end

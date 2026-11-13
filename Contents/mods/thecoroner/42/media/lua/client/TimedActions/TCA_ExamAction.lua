@@ -11,7 +11,14 @@ function TCA_ExamAction:getBody()
 end
 
 function TCA_ExamAction:isValid()
-    return self:getBody() ~= nil;
+    if self:getBody() == nil then
+        return false;
+    end
+    if TCA.isTooDark(self.character) then
+        TCA.warnTooDark(self);
+        return false;
+    end
+    return true;
 end
 
 function TCA_ExamAction:waitToStart()

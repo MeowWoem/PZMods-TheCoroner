@@ -281,5 +281,6 @@
     "IGUI_TCA_AutopsyNoReply": "Le serveur n'a pas répondu. Réessayez.",
     "IGUI_TCA_TremorBeta": "%1 (bêtabloquants)",
     "IGUI_TCA_BetaTooltip": "Stabilise les mains pendant une autopsie (%1 h)",
-    "IGUI_TCA_BetaActive": "Actif : encore %1 h"
+    "IGUI_TCA_BetaActive": "Actif : encore %1 h",
+    "IGUI_TCA_TooDark": "Trop sombre pour voir le corps"
 }

@@ -539,3 +539,18 @@ function TCA.removeBodyFromTable(body, character)
     local dir = body:getAnimForwardDirection(Vector2.new());
     return TCA.relocateBody(body, sq, x, y, z, dir:getX(), dir:getY(), false);
 end
+
+function TCA.isTooDark(character)
+    if not character or not instanceof(character, "IsoPlayer") then
+        return false;
+    end
+    return character:tooDarkToRead();
+end
+
+function TCA.warnTooDark(action)
+    if action.darkWarned then
+        return;
+    end
+    action.darkWarned = true;
+    HaloTextHelper.addBadText(action.character, getText("IGUI_TCA_TooDark"));
+end

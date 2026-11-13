@@ -364,7 +364,10 @@ function TCA_Client.addBodyOption(context, body, name, target, onSelect, param1,
 end
 
 function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
-    TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
+    local exam = TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
+    if TCA.isTooDark(playerObj) then
+        addTooltip(exam, getText("Tooltip_TCA_TooDark"));
+    end
     if TCA.Exam.getHarvestCount(body) > 0 then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_HarvestMaggots"), playerObj, TCA_Client.onHarvestMaggots, body);
     end
@@ -652,6 +655,8 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
             addTooltip(autopsy, getText("Tooltip_TCA_MustUndress", clothing:getDisplayName()));
         elseif not TCA.Autopsy.hasToolForStage(playerObj, stage) then
             addTooltip(autopsy, TCA_Client.getMissingToolText(stage));
+        elseif TCA.isTooDark(playerObj) then
+            addTooltip(autopsy, getText("Tooltip_TCA_TooDark"));
         end
         sub:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
         TCA_Client.addExamOptions(sub, playerObj, body, debugMode);

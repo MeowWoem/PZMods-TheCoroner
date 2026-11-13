@@ -24,5 +24,6 @@
     "Tooltip_TCA_Recipe_Specimen_Formalin": "El formol fija mejor los tejidos: admite un órgano que ya empieza a descomponerse.",
     "Tooltip_TCA_ForensicsBook": "Manual de medicina forense. Completa las notas del forense sobre el examen externo.",
     "Tooltip_TCA_SpentBullet": "Proyectil extraído de un cuerpo durante una autopsia. Demasiado deformado para reutilizarlo.",
-    "Tooltip_TCA_MorgueDrawersBuild": "Dos cajones refrigerados que pueden albergar un cadáver cada uno. La refrigeración necesita electricidad o un generador."
+    "Tooltip_TCA_MorgueDrawersBuild": "Dos cajones refrigerados que pueden albergar un cadáver cada uno. La refrigeración necesita electricidad o un generador.",
+    "Tooltip_TCA_TooDark": "Demasiado oscuro para trabajar en el cuerpo: necesitas una fuente de luz cerca o una linterna encendida."
 }
