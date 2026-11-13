@@ -1,4 +1,5 @@
 require "TimedActions/ISBaseTimedAction";
+require "TimedActions/ISEquipWeaponAction";
 require "TCA_Shared";
 
 TCA_RemoveFromTableAction = ISBaseTimedAction:derive("TCA_RemoveFromTableAction");
@@ -42,7 +43,7 @@ function TCA_RemoveFromTableAction:complete()
     if not body then
         return false;
     end
-    return TCA.removeBodyFromTable(body, self.character);
+    return TCA.grabBodyFromTable(body, self.character);
 end
 
 function TCA_RemoveFromTableAction:getDuration()

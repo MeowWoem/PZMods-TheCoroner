@@ -515,7 +515,7 @@ function TCA.placeBodyOnTable(body, tableObj, character)
     return TCA.relocateBody(body, p.square, p.x, p.y, p.z, p.dirX, p.dirY, true);
 end
 
-function TCA.removeBodyFromTable(body, character)
+function TCA.grabBodyFromTable(body, character)
     if not body or not character then
         return false;
     end
@@ -523,11 +523,35 @@ function TCA.removeBodyFromTable(body, character)
     if not sq then
         return false;
     end
-    local x = character:getX();
-    local y = character:getY();
-    local z = sq:getApparentZ(x - sq:getX(), y - sq:getY());
-    local dir = body:getAnimForwardDirection(Vector2.new());
-    return TCA.relocateBody(body, sq, x, y, z, dir:getX(), dir:getY(), false);
+    if not isClient() and TCA.DeathTime then
+        TCA.DeathTime.ensure(body);
+    end
+    local oldData = body:getModData();
+    oldData["TCA_OnTable"] = nil;
+    oldData["lastPlayerGrabbed"] = nil;
+    local item = body:getItem();
+    if not item then
+        return false;
+    end
+    local oldSquare = body:getSquare();
+    local newBody = sq:tryAddCorpseToWorld(item, character:getX() - sq:getX(), character:getY() - sq:getY(), false);
+    if not newBody then
+        return false;
+    end
+    local newData = newBody:getModData();
+    for k, v in pairs(oldData) do
+        newData[k] = v;
+    end
+    if oldSquare then
+        oldSquare:removeCorpse(body, false);
+    end
+    newBody:setFallOnFront(false);
+    forceDropHeavyItems(character);
+    character:pickUpCorpse(newBody, "PickUpCorpseItem");
+    if not character:isGrappling() then
+        newBody:setDoRender(true);
+    end
+    return true;
 end
 
 function TCA.isTooDark(character)
