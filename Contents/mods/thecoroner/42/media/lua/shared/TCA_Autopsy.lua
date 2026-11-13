@@ -375,6 +375,19 @@ function A.applyCut(character)
     syncBodyPart(bodyPart, A.SYNC_FLAGS);
 end
 
+function A.giveXp(character, xp)
+    if not character or not xp or xp <= 0 then
+        return 0;
+    end
+    local before = character:getXp():getXP(Perks.Doctor);
+    addXp(character, Perks.Doctor, xp);
+    local gained = character:getXp():getXP(Perks.Doctor) - before;
+    if gained < 0 then
+        return 0;
+    end
+    return gained;
+end
+
 function A.showXpHalo(character, xp)
     local rounded = math.floor(xp * 10 + 0.5) / 10;
     if rounded <= 0 then

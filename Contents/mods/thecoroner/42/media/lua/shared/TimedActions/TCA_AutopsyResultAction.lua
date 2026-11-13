@@ -264,7 +264,7 @@ function TCA_AutopsyResultAction:complete()
     body:transmitModData();
     xp = TCA.Sandbox.applyXp(xp, "autopsy");
     if xp > 0 then
-        addXp(self.character, Perks.Doctor, xp);
+        xp = A.giveXp(self.character, xp);
         A.notifyXp(self.character, xp);
     end
     return true;

@@ -1,5 +1,6 @@
 require "TCA_Shared";
 require "TCA_Sandbox";
+require "TCA_Autopsy";
 
 TCA = TCA or {};
 TCA.Wounds = TCA.Wounds or {};
@@ -846,7 +847,7 @@ function W.applyCause(character, body, cause, claimed)
         xp = TCA.Sandbox.applyXp(W.CAUSE_XP, "cause");
     end
     if xp > 0 then
-        addXp(character, Perks.Doctor, xp);
+        xp = TCA.Autopsy.giveXp(character, xp);
     end
     if isServer() then
         local args = {};

@@ -32,7 +32,7 @@ function TCA_ExamResultAction:complete()
     body:transmitModData();
     xp = TCA.Sandbox.applyXp(xp, "timeOfDeath");
     if xp > 0 then
-        addXp(self.character, Perks.Doctor, xp);
+        xp = TCA.Autopsy.giveXp(self.character, xp);
     end
     E.notifyResult(self.character, ok, xp);
     return true;
