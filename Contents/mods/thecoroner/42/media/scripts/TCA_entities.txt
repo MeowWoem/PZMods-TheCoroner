@@ -1,0 +1,61 @@
+module Base
+{
+    xuiSkin default
+    {
+        entity ES_TCA_MorgueDrawers
+        {
+            LuaWindowClass = ISEntityWindow,
+            DisplayName = EC_TCA_MorgueDrawers,
+            Icon = Build_CabinetMetal,
+        }
+    }
+
+    entity TCA_MorgueDrawers
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_TCA_MorgueDrawers,
+            uiEnabled = false,
+        }
+        component SpriteConfig
+        {
+            OnCreate = TCA.Morgue.onBuilt,
+            face S
+            {
+                layer
+                {
+                    row = location_community_medical_01_66,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = location_community_medical_01_67,
+                }
+            }
+        }
+        component CraftRecipe
+        {
+            timedAction = BuildMetalStructureMedium,
+            time = 150,
+            SkillRequired = MetalWelding:5;Electricity:3,
+            xpAward = MetalWelding:60;Electricity:20,
+            category = Furniture,
+            Tags = Welding;Furniture,
+            Tooltip = Tooltip_TCA_MorgueDrawersBuild,
+            inputs
+            {
+                item 6 [Base.BlowTorch] flags[DontRecordInput],
+                item 2 [Base.SheetMetal],
+                item 4 [Base.SmallSheetMetal],
+                item 4 [Base.MetalPipe],
+                item 4 [Base.Hinge],
+                item 10 [Base.ElectronicsScrap],
+                item 2 [Base.ElectricWire],
+                item 6 [Base.WeldingRods] flags[DontRecordInput],
+            }
+        }
+    }
+}

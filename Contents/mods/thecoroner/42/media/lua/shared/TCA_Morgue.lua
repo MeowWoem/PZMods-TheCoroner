@@ -276,6 +276,27 @@ function TCA.Morgue.onObjectAdded(obj)
     if TCA.Morgue.ensureContainers(obj, false) then
         TCA.Morgue.refreshLocal(obj);
     end
+    if TCA.Cold then
+        TCA.Cold.register(obj);
+    end
+end
+
+function TCA.Morgue.onBuilt(params)
+    local obj = params and params.thumpable;
+    if not obj or not TCA.Morgue.isDrawer(obj) then
+        return;
+    end
+    if instanceof(obj, "IsoThumpable") then
+        obj:setIsContainer(true);
+    end
+    TCA.Morgue.ensureContainers(obj, false);
+    TCA.Morgue.applyType(obj, false);
+    for i = 0, obj:getContainerCount() - 1 do
+        obj:getContainerByIndex(i):setExplored(true);
+    end
+    if TCA.Cold then
+        TCA.Cold.register(obj);
+    end
 end
 
 MapObjects.OnNewWithSprite(TCA.Morgue.SPRITES, TCA.Morgue.onNewDrawer, TCA.Morgue.PRIORITY);
