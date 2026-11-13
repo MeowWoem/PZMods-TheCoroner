@@ -19,5 +19,9 @@
     "Sandbox_TheCoroner_MorgueCorpseChance": "Tiroirs de morgue : chance d'un cadavre (%)",
     "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Chance que chaque tiroir de morgue contienne un corps lors de son premier chargement.<br>0 = toujours vide.",
     "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Tiroirs de morgue : chance d'un cadavre infecté (%)",
-    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance qu'un corps trouvé dans un tiroir de morgue soit infecté (morsure présente, organes dangereux)."
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance qu'un corps trouvé dans un tiroir de morgue soit infecté (morsure présente, organes dangereux).",
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction": "Bêtabloquants : réduction du tremblement (%)",
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction_tooltip": "Réduction du tremblement des mains pendant le mini-jeu d'autopsie après la prise de bêtabloquants (comprimés vanilla).<br>50 = deux fois moins de tremblement, 100 = mains parfaitement stables, 0 = aucun effet.",
+    "Sandbox_TheCoroner_BetaBlockerDuration": "Bêtabloquants : durée (heures de jeu)",
+    "Sandbox_TheCoroner_BetaBlockerDuration_tooltip": "Durée pendant laquelle une prise de bêtabloquants stabilise les mains. Une nouvelle prise relance la durée."
 }

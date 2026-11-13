@@ -1,4 +1,5 @@
 require "ISUI/ISToolTipInv";
+require "TCA_BetaBlocker";
 
 TCA = TCA or {};
 TCA.ItemTooltip = TCA.ItemTooltip or {};
@@ -111,6 +112,20 @@ function T.getBulletLines(item)
     return lines;
 end
 
+function T.formatHours(hours)
+    return string.format("%.1f", hours);
+end
+
+function T.getBetaLines(character)
+    local lines = {};
+    table.insert(lines, { text = getText("IGUI_TCA_BetaTooltip", T.formatHours(TCA.Sandbox.getBetaBlockerDuration())), color = T.TEXT });
+    local remaining = TCA.BetaBlocker.getRemainingHours(character);
+    if remaining > 0 then
+        table.insert(lines, { text = getText("IGUI_TCA_BetaActive", T.formatHours(remaining)), color = T.GOOD });
+    end
+    return lines;
+end
+
 function T.getCharacterFor(tooltip)
     local character = nil;
     if tooltip and tooltip.getCharacter then
@@ -128,6 +143,9 @@ function T.getItemLines(item, tooltip)
     end
     if item:getFullType() == T.BULLET_ITEM then
         return T.getBulletLines(item);
+    end
+    if TCA.BetaBlocker.isBetaItem(item) then
+        return T.getBetaLines(T.getCharacterFor(tooltip));
     end
     if not T.isBodyItem(item) then
         return nil;
@@ -167,7 +185,7 @@ function T.providerEnabled(item)
     if not T.isInventoryItem(item) then
         return false;
     end
-    return item:getFullType() == T.BULLET_ITEM or T.isBodyItem(item);
+    return item:getFullType() == T.BULLET_ITEM or TCA.BetaBlocker.isBetaItem(item) or T.isBodyItem(item);
 end
 
 function T.providerCallback(ctx)
@@ -188,7 +206,7 @@ function T.registerTooltipLib()
     local provider = {};
     provider.id = "thecoroner_ItemTooltip";
     provider.target = "item";
-    provider.description = "The Coroner: organs, chest plate and bullets";
+    provider.description = "The Coroner: organs, chest plate, bullets and beta blockers";
     provider.enabled = T.providerEnabled;
     provider.callback = T.providerCallback;
     TooltipLib.registerProvider(provider);

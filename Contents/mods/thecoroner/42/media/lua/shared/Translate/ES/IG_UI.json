@@ -278,5 +278,8 @@
     "IGUI_TCA_CauseWrong": "Causa de la muerte errónea",
     "IGUI_TCA_ExamAlreadyConcluded": "Ya has dado tu estimación de la hora de la muerte para este cuerpo. No se puede volver a dar.",
     "IGUI_TCA_AutopsyBusy": "Otra persona ya está realizando una autopsia en este cuerpo.",
-    "IGUI_TCA_AutopsyNoReply": "El servidor no ha respondido. Inténtalo de nuevo."
+    "IGUI_TCA_AutopsyNoReply": "El servidor no ha respondido. Inténtalo de nuevo.",
+    "IGUI_TCA_TremorBeta": "%1 (betabloqueantes)",
+    "IGUI_TCA_BetaTooltip": "Estabiliza las manos durante una autopsia (%1 h)",
+    "IGUI_TCA_BetaActive": "Activo: quedan %1 h"
 }

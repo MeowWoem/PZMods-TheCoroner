@@ -3,6 +3,7 @@ require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_Autopsy";
 require "TCA_Sandbox";
+require "TCA_BetaBlocker";
 require "TCA_BodyRenderer";
 require "TCA_Shared";
 
@@ -455,16 +456,21 @@ function TCA_AutopsyUI:getTremorAmplitude()
     if amp < TCA_AutopsyUI.TREMOR_MIN then
         amp = TCA_AutopsyUI.TREMOR_MIN;
     end
+    amp = amp * TCA.BetaBlocker.getTremorFactor(chr);
     return amp * TCA.Sandbox.getTremorMultiplier();
 end
 
 function TCA_AutopsyUI:getTremorLabel(amp)
+    local label = getText("IGUI_TCA_TremorHigh");
     if amp < 5 then
-        return getText("IGUI_TCA_TremorLow");
+        label = getText("IGUI_TCA_TremorLow");
     elseif amp < 10 then
-        return getText("IGUI_TCA_TremorMedium");
+        label = getText("IGUI_TCA_TremorMedium");
     end
-    return getText("IGUI_TCA_TremorHigh");
+    if TCA.BetaBlocker.isActive(self.character) then
+        label = getText("IGUI_TCA_TremorBeta", label);
+    end
+    return label;
 end
 
 function TCA_AutopsyUI:updateBlade()

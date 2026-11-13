@@ -278,5 +278,8 @@
     "IGUI_TCA_CauseWrong": "Wrong cause of death",
     "IGUI_TCA_ExamAlreadyConcluded": "You have already given your time-of-death estimate for this body. It can't be given again.",
     "IGUI_TCA_AutopsyBusy": "Someone else is already performing an autopsy on this body.",
-    "IGUI_TCA_AutopsyNoReply": "The server did not answer. Try again."
+    "IGUI_TCA_AutopsyNoReply": "The server did not answer. Try again.",
+    "IGUI_TCA_TremorBeta": "%1 (beta blockers)",
+    "IGUI_TCA_BetaTooltip": "Steadies the hands during an autopsy (%1 h)",
+    "IGUI_TCA_BetaActive": "Active: %1 h left"
 }

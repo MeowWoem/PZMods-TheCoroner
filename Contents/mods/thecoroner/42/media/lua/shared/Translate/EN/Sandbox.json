@@ -19,5 +19,9 @@
     "Sandbox_TheCoroner_MorgueCorpseChance": "Morgue drawers: corpse chance (%)",
     "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Chance for each morgue drawer to hold a body the first time it is loaded.<br>0 = always empty.",
     "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Morgue drawers: infected corpse chance (%)",
-    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance for a body found in a morgue drawer to be infected (bite present, dangerous organs)."
+    "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Chance for a body found in a morgue drawer to be infected (bite present, dangerous organs).",
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction": "Beta blockers: tremor reduction (%)",
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction_tooltip": "How much beta blockers (vanilla pills) reduce hand tremor during the autopsy minigame.<br>50 = half as much tremor, 100 = perfectly steady hands, 0 = no effect.",
+    "Sandbox_TheCoroner_BetaBlockerDuration": "Beta blockers: duration (in-game hours)",
+    "Sandbox_TheCoroner_BetaBlockerDuration_tooltip": "How long one dose of beta blockers steadies the hands. Taking another dose restarts the timer."
 }

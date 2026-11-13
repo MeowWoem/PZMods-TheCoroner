@@ -94,6 +94,14 @@ function S.getTremorMultiplier()
     return S.getNumber("TremorMultiplier", 1, 0, 3);
 end
 
+function S.getBetaBlockerReduction()
+    return S.getNumber("BetaBlockerTremorReduction", 50, 0, 100);
+end
+
+function S.getBetaBlockerDuration()
+    return S.getNumber("BetaBlockerDuration", 4, 0.5, 24);
+end
+
 function S.getKindXpMultiplier(kind)
     local name = S.XP_OPTIONS[kind];
     if not name then

@@ -50,6 +50,26 @@ option TheCoroner.TremorMultiplier
     translation = TheCoroner_TremorMultiplier,
 }
 
+option TheCoroner.BetaBlockerTremorReduction
+{
+    type = integer,
+    default = 50,
+    min = 0,
+    max = 100,
+    page = TheCoroner,
+    translation = TheCoroner_BetaBlockerTremorReduction,
+}
+
+option TheCoroner.BetaBlockerDuration
+{
+    type = double,
+    default = 4.0,
+    min = 0.5,
+    max = 24.0,
+    page = TheCoroner,
+    translation = TheCoroner_BetaBlockerDuration,
+}
+
 option TheCoroner.TimeOfDeathMaxRatio
 {
     type = double,
