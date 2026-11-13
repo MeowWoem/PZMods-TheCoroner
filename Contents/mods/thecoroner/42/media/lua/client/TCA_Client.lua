@@ -2,7 +2,6 @@ require "TCA_Shared";
 require "TCA_Autopsy";
 require "TimedActions/ISTimedActionQueue";
 require "TimedActions/TCA_ThrowOntoTableAction";
-require "TimedActions/TCA_WalkAndThrowAction";
 require "TimedActions/TCA_RemoveFromTableAction";
 require "TimedActions/TCA_AutopsyAction";
 require "TimedActions/TCA_AutopsyResultAction";
@@ -471,7 +470,35 @@ function TCA_Client.queueNextTick(action)
     table.insert(TCA_Client.deferred, action);
 end
 
+TCA_Client.throwAfterGrab = {};
+TCA_Client.GRAB_TIMEOUT_MS = 10000;
+
+function TCA_Client.queueThrowAfterGrab(playerObj, tableObj)
+    local entry = {};
+    entry.player = playerObj;
+    entry.tableObject = tableObj;
+    entry.time = getTimestampMs();
+    TCA_Client.throwAfterGrab[playerObj:getPlayerNum()] = entry;
+end
+
+function TCA_Client.checkThrowAfterGrab()
+    local now = getTimestampMs();
+    for playerNum, entry in pairs(TCA_Client.throwAfterGrab) do
+        local playerObj = entry.player;
+        if now - entry.time > TCA_Client.GRAB_TIMEOUT_MS or playerObj:isDead() then
+            TCA_Client.throwAfterGrab[playerNum] = nil;
+        elseif playerObj:isDraggingCorpse() and not ISTimedActionQueue.isPlayerDoingAction(playerObj) then
+            TCA_Client.throwAfterGrab[playerNum] = nil;
+            local sq = entry.tableObject:getSquare();
+            if sq and luautils.walkAdj(playerObj, sq, true) then
+                ISTimedActionQueue.add(TCA_ThrowOntoTableAction:new(playerObj, entry.tableObject));
+            end
+        end
+    end
+end
+
 function TCA_Client.onTick()
+    TCA_Client.checkThrowAfterGrab();
     if #TCA_Client.deferred == 0 then
         return;
     end
@@ -527,7 +554,7 @@ function TCA_Client.onPlaceOnTable(playerObj, tableObj, body)
         ISTimedActionQueue.add(ISUnequipAction:new(playerObj, secondary, 50));
     end
     ISTimedActionQueue.add(ISGrabCorpseAction:new(playerObj, body));
-    ISTimedActionQueue.add(TCA_WalkAndThrowAction:new(playerObj, tableObj));
+    TCA_Client.queueThrowAfterGrab(playerObj, tableObj);
 end
 
 function TCA_Client.getPlaceBlockReason(tableObj, occupied)
