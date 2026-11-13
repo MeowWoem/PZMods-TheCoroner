@@ -387,16 +387,6 @@ function TCA.compareBodyDistance(a, b)
     return a.dist < b.dist;
 end
 
-function TCA.isBodyNearTable(tableObj, body)
-    local bodies = TCA.findBodiesNearTable(tableObj);
-    for i = 1, #bodies do
-        if bodies[i] == body then
-            return true;
-        end
-    end
-    return false;
-end
-
 function TCA.findBodyNearTable(tableObj, character)
     local playerID = nil;
     if character then

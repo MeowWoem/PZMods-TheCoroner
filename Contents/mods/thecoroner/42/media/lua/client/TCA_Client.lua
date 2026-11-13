@@ -1,10 +1,8 @@
 require "TCA_Shared";
 require "TCA_Autopsy";
 require "TimedActions/ISTimedActionQueue";
-require "TimedActions/TCA_LetGoForTableAction";
 require "TimedActions/TCA_ThrowOntoTableAction";
 require "TimedActions/TCA_WalkAndThrowAction";
-require "TimedActions/TCA_PlaceOnTableAction";
 require "TimedActions/TCA_RemoveFromTableAction";
 require "TimedActions/TCA_AutopsyAction";
 require "TimedActions/TCA_AutopsyResultAction";
@@ -25,37 +23,6 @@ local function addTooltip(option, text)
     local tooltip = ISWorldObjectContextMenu.addToolTip();
     tooltip.description = text;
     option.toolTip = tooltip;
-end
-
-TCA_Client.pending = {};
-TCA_Client.PENDING_TIMEOUT_MS = 5000;
-
-function TCA_Client.waitForDroppedBody(playerObj, tableObj)
-    local entry = {};
-    entry.player = playerObj;
-    entry.tableObject = tableObj;
-    entry.time = getTimestampMs();
-    TCA_Client.pending[playerObj:getPlayerNum()] = entry;
-end
-
-function TCA_Client.onDeadBodySpawn(body)
-    if not body or body:isAnimal() then
-        return;
-    end
-    local now = getTimestampMs();
-    for playerNum, entry in pairs(TCA_Client.pending) do
-        if now - entry.time > TCA_Client.PENDING_TIMEOUT_MS then
-            TCA_Client.pending[playerNum] = nil;
-        else
-            local dx = body:getX() - entry.player:getX();
-            local dy = body:getY() - entry.player:getY();
-            if dx * dx + dy * dy <= 9 then
-                TCA_Client.pending[playerNum] = nil;
-                ISTimedActionQueue.add(TCA_PlaceOnTableAction:new(entry.player, entry.tableObject));
-                return;
-            end
-        end
-    end
 end
 
 function TCA_Client.requestCut(playerObj)
@@ -694,6 +661,5 @@ end
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillWorldObjectContextMenu);
 Events.OnFillWorldObjectContextMenu.Add(TCA_Client.onFillFloorBodyMenu);
 Events.OnFillInventoryObjectContextMenu.Add(TCA_Client.onFillInventoryMenu);
-Events.OnDeadBodySpawn.Add(TCA_Client.onDeadBodySpawn);
 Events.OnTick.Add(TCA_Client.onTick);
 Events.OnServerCommand.Add(TCA_Client.onServerCommand);
