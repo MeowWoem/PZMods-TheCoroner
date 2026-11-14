@@ -47,3 +47,20 @@ Fixed:
 - Error when hovering the fluid bar of the fluid transfer window (and other tooltips that don't show an inventory item)
 - Error spam every tick in TCA_Rot.lua on setups where no other mod defines the "next" function
 [ ------ ]
+
+[ v1.0.6 - 11.14.2026 ]
+Added:
+- Morgue drawers can now be picked up, moved and rotated like other furniture (empty both drawers first), or disassembled for scrap
+- Morgue drawers can be built from the build menu (Metalworking 5, Electrical 3)
+- Beta blockers (vanilla pills) steady your hands during the autopsy minigame. Two new sandbox options: tremor reduction (default 50%) and duration (default 4 in-game hours). Their tooltip shows the effect and the time left
+- The thermometer now works on the living: take your own temperature from the inventory, or another player's from the world context menu (they get a confirmation prompt, like the vanilla medical check)
+- Digital thermometer: rare loot, can also be crafted (Electrical 2) from a small electronic device, electronics scrap, an electric wire and duct tape or glue. Faster than the mercury thermometer, runs on a regular battery (about 50 readings)
+- Placing a corpse on the autopsy table now plays the vanilla "put corpse into container" animation, with the body following the motion. From a corpse on the floor, your character grabs it, walks to the table and places it automatically
+- Taking a corpse off the table now plays the vanilla "take corpse out of container" animation, and you keep dragging the body
+
+Changed:
+- The autopsy and the external examination can no longer be done in the dark (same rule as reading: a nearby light or a lit flashlight is enough). If the light goes out, the action stops and your progress is saved
+
+Fixed:
+- The XP shown after an autopsy step, a time of death or a cause of death estimate now matches the XP actually gained (skill books, profession, traits and the game's XP multiplier were already applied, but not displayed)
+[ ------ ]
