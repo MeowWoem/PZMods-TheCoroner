@@ -19,5 +19,7 @@
     "ContextMenu_TCA_DebugWoundsClear": "Borrar",
     "ContextMenu_TCA_DebugWoundsAddAnte": "Añadir una herida (antes de la muerte)",
     "ContextMenu_TCA_DebugWoundsAddPost": "Añadir un golpe (después de la muerte)",
-    "ContextMenu_TCA_DebugWoundsCause": "Definir la causa de la muerte"
+    "ContextMenu_TCA_DebugWoundsCause": "Definir la causa de la muerte",
+    "ContextMenu_TCA_TakeOwnTemp": "Tomarse la temperatura",
+    "ContextMenu_TCA_TakeTempOf": "Tomar la temperatura de %1"
 }

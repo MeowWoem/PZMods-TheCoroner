@@ -7,7 +7,7 @@
     "Tooltip_TCA_NeedForceps": "Requiere unas pinzas.",
     "Tooltip_TCA_NeedRibTool": "Requiere una sierra para hueso, un cortapernos o una sierra.",
     "Tooltip_TCA_MorgueNoPower": "Sin corriente: los cajones no enfriarán hasta que tengan electricidad.",
-    "Tooltip_TCA_Thermometer": "Sirve para tomar la temperatura de un cuerpo durante un examen forense.",
+    "Tooltip_TCA_Thermometer": "Sirve para tomar la temperatura de los vivos (uno mismo u otro jugador) y la de un cuerpo durante un examen forense.",
     "Tooltip_TCA_Organ": "Órgano extraído durante una autopsia.",
     "Tooltip_TCA_BoneSawOscillating": "Sierra a pilas. Corta las costillas muy rápido y con limpieza.",
     "Tooltip_TCA_BoneSaw": "Sierra diseñada para hueso: recorridos más cortos, hoja mejor guiada.",
@@ -25,5 +25,6 @@
     "Tooltip_TCA_ForensicsBook": "Manual de medicina forense. Completa las notas del forense sobre el examen externo.",
     "Tooltip_TCA_SpentBullet": "Proyectil extraído de un cuerpo durante una autopsia. Demasiado deformado para reutilizarlo.",
     "Tooltip_TCA_MorgueDrawersBuild": "Dos cajones refrigerados que pueden albergar un cadáver cada uno. La refrigeración necesita electricidad o un generador.",
-    "Tooltip_TCA_TooDark": "Demasiado oscuro para trabajar en el cuerpo: necesitas una fuente de luz cerca o una linterna encendida."
+    "Tooltip_TCA_TooDark": "Demasiado oscuro para trabajar en el cuerpo: necesitas una fuente de luz cerca o una linterna encendida.",
+    "Tooltip_TCA_NeedThermometer": "Requiere un termómetro."
 }

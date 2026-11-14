@@ -7,7 +7,7 @@
     "Tooltip_TCA_NeedForceps": "Requires forceps or tweezers.",
     "Tooltip_TCA_NeedRibTool": "Requires a bone saw, bolt cutters or a saw.",
     "Tooltip_TCA_MorgueNoPower": "No power: the drawers will not cool down until they are powered.",
-    "Tooltip_TCA_Thermometer": "Used to take a body's temperature during a forensic examination.",
+    "Tooltip_TCA_Thermometer": "Used to take the temperature of the living (yourself or another player) and of a body during a forensic examination.",
     "Tooltip_TCA_Organ": "Organ removed during an autopsy.",
     "Tooltip_TCA_BoneSawOscillating": "Battery-powered saw. Cuts ribs very fast and cleanly.",
     "Tooltip_TCA_BoneSaw": "Saw made for bone: shorter strokes, better guided blade.",
@@ -25,5 +25,6 @@
     "Tooltip_TCA_ForensicsBook": "Forensic medicine textbook. Completes the coroner’s notes of the external examination.",
     "Tooltip_TCA_SpentBullet": "Projectile recovered from a body during an autopsy. Too deformed to be reused.",
     "Tooltip_TCA_MorgueDrawersBuild": "Two refrigerated drawers that can each hold a corpse. Refrigeration needs electricity or a generator.",
-    "Tooltip_TCA_TooDark": "Too dark to work on the body: you need a light source nearby or a lit flashlight."
+    "Tooltip_TCA_TooDark": "Too dark to work on the body: you need a light source nearby or a lit flashlight.",
+    "Tooltip_TCA_NeedThermometer": "Requires a thermometer."
 }

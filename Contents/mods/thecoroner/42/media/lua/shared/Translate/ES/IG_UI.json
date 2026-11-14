@@ -282,5 +282,16 @@
     "IGUI_TCA_TremorBeta": "%1 (betabloqueantes)",
     "IGUI_TCA_BetaTooltip": "Estabiliza las manos durante una autopsia (%1 h)",
     "IGUI_TCA_BetaActive": "Activo: quedan %1 h",
-    "IGUI_TCA_TooDark": "Demasiado oscuro para ver el cuerpo"
+    "IGUI_TCA_TooDark": "Demasiado oscuro para ver el cuerpo",
+    "IGUI_TCA_TempRequest": "%1 quiere tomarte la temperatura. ¿Aceptar?",
+    "IGUI_TCA_TempRefused": "%1 se ha negado",
+    "IGUI_TCA_TempSelf": "Temperatura: %1 (%2)",
+    "IGUI_TCA_TempOther": "%1: %2 (%3)",
+    "IGUI_TCA_TempBy": "%1 te ha tomado la temperatura: %2 (%3)",
+    "IGUI_TCA_TempStatus0": "hipotermia",
+    "IGUI_TCA_TempStatus1": "baja",
+    "IGUI_TCA_TempStatus2": "normal",
+    "IGUI_TCA_TempStatus3": "febrícula",
+    "IGUI_TCA_TempStatus4": "fiebre",
+    "IGUI_TCA_TempStatus5": "fiebre alta"
 }
