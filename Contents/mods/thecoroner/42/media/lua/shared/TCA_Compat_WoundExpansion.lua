@@ -107,6 +107,7 @@ X.OLD_INJURIES = {
 X.OLD_INJURY_MAX = 2;
 
 X.SEPSIS_ORIGINS = { "poorStitch", "reopened", "puncture", "avulsion" };
+X.SKIN_PREFIX = "WoundExpansion.WE_Skin_";
 
 function X.isActive()
     if not TCA.Wounds.isModActivated(X.MOD_ID) then
@@ -199,6 +200,11 @@ function X.deathCause(character)
         end
     end
     return nil;
+end
+
+function X.keepWornItem(item)
+    local fullType = item:getFullType();
+    return type(fullType) == "string" and string.sub(fullType, 1, #X.SKIN_PREFIX) == X.SKIN_PREFIX;
 end
 
 function X.pick(list)
@@ -356,4 +362,5 @@ TCA.Wounds.registerProvider({
     snapshot = X.snapshot,
     deathCause = X.deathCause,
     invent = X.invent,
+    keepWornItem = X.keepWornItem,
 });

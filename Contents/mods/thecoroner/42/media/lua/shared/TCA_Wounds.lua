@@ -200,6 +200,16 @@ function W.providersDeathCause(character)
     return nil;
 end
 
+function W.shouldKeepWornItem(item)
+    local active = W.getActiveProviders();
+    for i = 1, #active do
+        if type(active[i].keepWornItem) == "function" and active[i].keepWornItem(item) then
+            return true;
+        end
+    end
+    return false;
+end
+
 function W.providersInvent(list, cause)
     local active = W.getActiveProviders();
     for i = 1, #active do

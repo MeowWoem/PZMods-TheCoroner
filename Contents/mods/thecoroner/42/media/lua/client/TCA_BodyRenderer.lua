@@ -154,6 +154,25 @@ end
 
 R.USE_MODEL = true;
 
+function R.copyKeptWornItems(body, desc)
+    if not TCA or not TCA.Wounds or not TCA.Wounds.shouldKeepWornItem or not body.getWornItems then
+        return;
+    end
+    local worn = body:getWornItems();
+    if not worn then
+        return;
+    end
+    for i = 0, worn:size() - 1 do
+        local item = worn:getItemByIndex(i);
+        if item and TCA.Wounds.shouldKeepWornItem(item) then
+            local location = worn:getLocation(item);
+            if location then
+                desc:setWornItem(location, item);
+            end
+        end
+    end
+end
+
 function R.buildDescFromBody(body)
     local desc = SurvivorFactory.CreateSurvivor();
     desc:setFemale(body:isFemale());
@@ -162,6 +181,7 @@ function R.buildDescFromBody(body)
     local hv = desc:getHumanVisual();
     hv:copyFrom(src);
     hv:setSkinTextureName(src:getSkinTexture());
+    R.copyKeptWornItems(body, desc);
     return desc;
 end
 

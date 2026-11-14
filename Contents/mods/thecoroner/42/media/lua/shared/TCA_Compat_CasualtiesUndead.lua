@@ -110,6 +110,8 @@ X.OLD_FINDINGS = {
     { kind = "eyeMissingR", weight = 8, part = "Head" },
 };
 X.OLD_FINDING_CHANCE = 30;
+X.WORN_MODULE = "CasualtiesUndead.";
+X.WORN_PATTERNS = { "LimbCut_", "Stump", "Prosthesis_" };
 
 function X.isActive()
     if not TCA.Wounds.isModActivated(X.MOD_ID) then
@@ -329,6 +331,19 @@ function X.organPathology(player)
     return result;
 end
 
+function X.keepWornItem(item)
+    local fullType = item:getFullType();
+    if type(fullType) ~= "string" or string.sub(fullType, 1, #X.WORN_MODULE) ~= X.WORN_MODULE then
+        return false;
+    end
+    for i = 1, #X.WORN_PATTERNS do
+        if string.find(fullType, X.WORN_PATTERNS[i], 1, true) then
+            return true;
+        end
+    end
+    return false;
+end
+
 function X.pick(list)
     return list[ZombRand(#list) + 1];
 end
@@ -438,6 +453,7 @@ TCA.Wounds.registerProvider({
     deathCause = X.deathCause,
     invent = X.invent,
     organPathology = X.organPathology,
+    keepWornItem = X.keepWornItem,
 });
 
 Events.OnGameBoot.Add(X.patchDrugs);
