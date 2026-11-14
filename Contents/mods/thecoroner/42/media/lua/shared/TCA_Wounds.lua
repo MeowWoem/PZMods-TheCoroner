@@ -35,8 +35,178 @@ W.NATURAL_CAUSES = {
     { cause = "fall", weight = 10 },
 };
 
+W.KEY_PATHOLOGY = "TCA_Pathology";
+W.PROVIDERS = W.PROVIDERS or {};
+
 function W.now()
     return getGameTime():getWorldAgeHours();
+end
+
+function W.isModActivated(modId)
+    local mods = getActivatedMods();
+    if not mods then
+        return false;
+    end
+    for i = 0, mods:size() - 1 do
+        local id = tostring(mods:get(i));
+        id = string.gsub(id, "^\\+", "");
+        if id == modId then
+            return true;
+        end
+    end
+    return false;
+end
+
+function W.registerProvider(def)
+    if type(def) ~= "table" or type(def.id) ~= "string" then
+        return;
+    end
+    for i = 1, #W.PROVIDERS do
+        if W.PROVIDERS[i].id == def.id then
+            W.PROVIDERS[i] = def;
+            return;
+        end
+    end
+    table.insert(W.PROVIDERS, def);
+end
+
+function W.isProviderActive(provider)
+    return type(provider.isActive) == "function" and provider.isActive() == true;
+end
+
+function W.getActiveProviders()
+    local list = {};
+    for i = 1, #W.PROVIDERS do
+        if W.isProviderActive(W.PROVIDERS[i]) then
+            table.insert(list, W.PROVIDERS[i]);
+        end
+    end
+    return list;
+end
+
+function W.getProviderValue(field, kind)
+    for i = 1, #W.PROVIDERS do
+        local map = W.PROVIDERS[i][field];
+        if type(map) == "table" and map[kind] ~= nil then
+            return map[kind];
+        end
+    end
+    return nil;
+end
+
+function W.appendUnique(target, values)
+    if type(values) ~= "table" then
+        return;
+    end
+    for i = 1, #values do
+        local found = false;
+        for j = 1, #target do
+            if target[j] == values[i] then
+                found = true;
+            end
+        end
+        if not found then
+            table.insert(target, values[i]);
+        end
+    end
+end
+
+function W.appendWeightedCauses(target, entries)
+    if type(entries) ~= "table" then
+        return;
+    end
+    for i = 1, #entries do
+        local found = false;
+        for j = 1, #target do
+            if target[j].cause == entries[i].cause then
+                found = true;
+            end
+        end
+        if not found then
+            table.insert(target, entries[i]);
+        end
+    end
+end
+
+function W.addKind(list, part, kind)
+    local encoded = W.encodeWound(part, kind);
+    for i = 1, #list do
+        if list[i] == encoded then
+            return;
+        end
+    end
+    local replaced = W.getProviderValue("replaces", kind);
+    if replaced then
+        local removed = W.encodeWound(part, replaced);
+        local i = 1;
+        while i <= #list do
+            if list[i] == removed then
+                table.remove(list, i);
+            else
+                i = i + 1;
+            end
+        end
+    end
+    table.insert(list, encoded);
+end
+
+function W.mergePathology(md, values)
+    if type(values) ~= "table" then
+        return;
+    end
+    if type(md[W.KEY_PATHOLOGY]) ~= "table" then
+        md[W.KEY_PATHOLOGY] = {};
+    end
+    local stored = md[W.KEY_PATHOLOGY];
+    for organ, level in pairs(values) do
+        local value = math.floor(tonumber(level) or 0);
+        if value > (tonumber(stored[organ]) or 0) then
+            stored[organ] = value;
+        end
+    end
+end
+
+function W.getOrganPathology(body, organId)
+    local stored = body:getModData()[W.KEY_PATHOLOGY];
+    if type(stored) ~= "table" then
+        return 0;
+    end
+    return math.floor(tonumber(stored[organId]) or 0);
+end
+
+function W.providersSnapshot(player, list)
+    local active = W.getActiveProviders();
+    for i = 1, #active do
+        local provider = active[i];
+        if type(provider.snapshot) == "function" then
+            provider.snapshot(player, list);
+        end
+        if type(provider.organPathology) == "function" then
+            W.mergePathology(player:getModData(), provider.organPathology(player));
+        end
+    end
+end
+
+function W.providersDeathCause(character)
+    local active = W.getActiveProviders();
+    for i = 1, #active do
+        if type(active[i].deathCause) == "function" then
+            local cause = active[i].deathCause(character);
+            if cause then
+                return cause;
+            end
+        end
+    end
+    return nil;
+end
+
+function W.providersInvent(list, cause)
+    local active = W.getActiveProviders();
+    for i = 1, #active do
+        if type(active[i].invent) == "function" then
+            active[i].invent(list, cause);
+        end
+    end
 end
 
 function W.pickWeighted(list)
@@ -235,9 +405,7 @@ function W.snapshotPlayer(player)
         local part = parts:get(i);
         W.addPartWounds(list, part, BodyPartType.ToString(part:getType()));
     end
-    if TCA.WoundExpansion then
-        TCA.WoundExpansion.snapshotPlayer(player, list);
-    end
+    W.providersSnapshot(player, list);
     player:getModData()[W.KEY_WOUNDS] = list;
 end
 
@@ -250,11 +418,16 @@ function W.inventBite(list)
 end
 
 function W.getNaturalCauses()
-    local X = TCA.WoundExpansion;
-    if X and X.isActive() then
-        return X.getNaturalCauses(W.NATURAL_CAUSES);
+    local active = W.getActiveProviders();
+    if #active == 0 then
+        return W.NATURAL_CAUSES;
     end
-    return W.NATURAL_CAUSES;
+    local list = {};
+    W.appendWeightedCauses(list, W.NATURAL_CAUSES);
+    for i = 1, #active do
+        W.appendWeightedCauses(list, active[i].naturalCauses);
+    end
+    return list;
 end
 
 function W.inventCause(list)
@@ -307,9 +480,7 @@ function W.ensureWounds(target)
             md[W.KEY_CAUSE] = cause;
         end
     end
-    if TCA.WoundExpansion then
-        TCA.WoundExpansion.inventExtras(list, cause);
-    end
+    W.providersInvent(list, cause);
     md[W.KEY_WOUNDS] = list;
 end
 
@@ -333,11 +504,9 @@ function W.getDeathCause(character)
         if bodyDamage and bodyDamage:IsInfected() then
             return "infection";
         end
-        if TCA.WoundExpansion then
-            local cause = TCA.WoundExpansion.getDeathCause(character);
-            if cause then
-                return cause;
-            end
+        local cause = W.providersDeathCause(character);
+        if cause then
+            return cause;
         end
     end
     return "unknown";
@@ -451,33 +620,15 @@ W.COUNT_LEVEL = 4;
 W.TIMING_LEVEL = 6;
 
 function W.getDetectChance(kind)
-    local X = TCA.WoundExpansion;
-    if W.DETECT[kind] then
-        return W.DETECT[kind];
-    end
-    if X and X.DETECT[kind] then
-        return X.DETECT[kind];
-    end
-    return W.DETECT_DEFAULT;
+    return W.DETECT[kind] or W.getProviderValue("detect", kind) or W.DETECT_DEFAULT;
 end
 
 function W.getConfusion(kind)
-    local X = TCA.WoundExpansion;
-    if W.CONFUSE[kind] then
-        return W.CONFUSE[kind];
-    end
-    if X then
-        return X.CONFUSE[kind];
-    end
-    return nil;
+    return W.CONFUSE[kind] or W.getProviderValue("confuse", kind);
 end
 
 function W.getMinLevel(kind)
-    local X = TCA.WoundExpansion;
-    if X and X.MIN_LEVEL[kind] then
-        return X.MIN_LEVEL[kind];
-    end
-    return 0;
+    return W.getProviderValue("minLevel", kind) or 0;
 end
 
 function W.isRegion(id)
@@ -717,23 +868,15 @@ function W.listContains(list, value)
 end
 
 function W.getDebugWoundKinds()
-    local X = TCA.WoundExpansion;
-    if not X or not X.isActive() then
+    local active = W.getActiveProviders();
+    if #active == 0 then
         return W.DEBUG_WOUND_KINDS;
     end
-    if W.debugKindsCache and W.debugKindsBase == W.DEBUG_WOUND_KINDS and W.debugKindsExtra == X.KINDS then
-        return W.debugKindsCache;
-    end
     local list = {};
-    for i = 1, #W.DEBUG_WOUND_KINDS do
-        table.insert(list, W.DEBUG_WOUND_KINDS[i]);
+    W.appendUnique(list, W.DEBUG_WOUND_KINDS);
+    for i = 1, #active do
+        W.appendUnique(list, active[i].kinds);
     end
-    for i = 1, #X.KINDS do
-        table.insert(list, X.KINDS[i]);
-    end
-    W.debugKindsCache = list;
-    W.debugKindsBase = W.DEBUG_WOUND_KINDS;
-    W.debugKindsExtra = X.KINDS;
     return list;
 end
 
@@ -813,30 +956,36 @@ W.LETHAL_WOUNDS = {
     { kind = "bite", cause = "infection" },
 };
 W.CAUSES ={ "infection", "blunt", "blade", "axe", "spear", "firearm", "fall", "vehicle", "fire", "natural" };
-W.CAUSE_MAP = { unarmed = "blunt", stomp = "blunt", unknown = "natural", bite = "infection" };
+W.CAUSE_MAP = { unarmed = "blunt", stomp = "blunt", unknown = "natural", bite = "infection", internalBleeding = "hemorrhage" };
 W.CAUSE_XP = 4;
 
 function W.isCause(cause)
     if W.listContains(W.CAUSES, cause) then
         return true;
     end
-    local X = TCA.WoundExpansion;
-    return X ~= nil and W.listContains(X.CAUSES, cause);
+    for i = 1, #W.PROVIDERS do
+        if type(W.PROVIDERS[i].causes) == "table" and W.listContains(W.PROVIDERS[i].causes, cause) then
+            return true;
+        end
+    end
+    return false;
 end
 
 function W.getCauseChoices()
-    local X = TCA.WoundExpansion;
-    if not X or not X.isActive() then
+    local active = W.getActiveProviders();
+    if #active == 0 then
         return W.CAUSES;
+    end
+    local extra = {};
+    for i = 1, #active do
+        W.appendUnique(extra, active[i].causes);
     end
     local list = {};
     for i = 1, #W.CAUSES do
-        table.insert(list, W.CAUSES[i]);
-        if W.CAUSES[i] == "fire" then
-            for j = 1, #X.CAUSES do
-                table.insert(list, X.CAUSES[j]);
-            end
+        if W.CAUSES[i] == "natural" then
+            W.appendUnique(list, extra);
         end
+        table.insert(list, W.CAUSES[i]);
     end
     return list;
 end
@@ -862,6 +1011,9 @@ function W.hasWoundKind(wounds, kind, part)
 end
 
 function W.findLethal(wounds, lethal)
+    if type(lethal) ~= "table" then
+        return nil;
+    end
     for i = 1, #lethal do
         local entry = lethal[i];
         if W.hasWoundKind(wounds, entry.kind, entry.part) then
@@ -877,9 +1029,11 @@ function W.inferCauseFromWounds(body)
     if cause then
         return cause;
     end
-    local X = TCA.WoundExpansion;
-    if X then
-        return W.findLethal(wounds, X.LETHAL_WOUNDS);
+    for i = 1, #W.PROVIDERS do
+        cause = W.findLethal(wounds, W.PROVIDERS[i].lethal);
+        if cause then
+            return cause;
+        end
     end
     return nil;
 end

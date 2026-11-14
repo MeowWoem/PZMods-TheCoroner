@@ -185,10 +185,10 @@ function TCA_AutopsyResultAction:giveOrgan(body, organ, damage)
     if not organ then
         return;
     end
-    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, damage or 0);
+    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, damage or 0, TCA.Wounds.getOrganPathology(body, organ.id));
 end
 
-function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage)
+function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage, pathology)
     local item = instanceItem(fullType);
     if not item then
         return;
@@ -196,6 +196,9 @@ function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage)
     local imd = item:getModData();
     if damage then
         imd["TCA_Damage"] = damage;
+    end
+    if pathology and pathology > 0 then
+        imd["TCA_Pathology"] = pathology;
     end
     imd["TCA_Decay"] = TCA.Autopsy.getOrganDecay(body);
     imd["TCA_Infected"] = TCA.isInfected(body);

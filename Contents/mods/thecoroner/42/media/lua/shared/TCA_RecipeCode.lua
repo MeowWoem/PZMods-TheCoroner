@@ -16,7 +16,8 @@ function R.getDecay(item)
 end
 
 function R.getDamage(item)
-    return math.floor(tonumber(item:getModData()["TCA_Damage"]) or 0);
+    local md = item:getModData();
+    return math.floor(tonumber(md["TCA_Damage"]) or 0) + math.floor(tonumber(md["TCA_Pathology"]) or 0);
 end
 
 function R.isInfected(item)

@@ -62,13 +62,18 @@ function T.getLines(item, character)
         table.insert(lines, { text = getText("IGUI_TCA_OrganLook", getText("IGUI_TCA_OrganLook_" .. decay)), color = T.TEXT });
     end
     local damage = tonumber(md["TCA_Damage"]);
+    local pathology = math.floor(tonumber(md["TCA_Pathology"]) or 0);
+    local showPathology = pathology > 0 and level >= T.getLookLevel();
     if damage then
         damage = math.floor(damage);
         if damage > 0 then
             table.insert(lines, { text = getText("IGUI_TCA_OrganDamagedCount", damage), color = T.BAD });
-        else
+        elseif not showPathology then
             table.insert(lines, { text = getText("IGUI_TCA_OrganIntact"), color = T.GOOD });
         end
+    end
+    if showPathology then
+        table.insert(lines, { text = getText("IGUI_TCA_OrganPathology", pathology), color = T.BAD });
     end
     if md["TCA_Infected"] == true and level >= T.getDetailLevel() then
         table.insert(lines, { text = getText("IGUI_TCA_OrganInfected"), color = T.INFECTED });
