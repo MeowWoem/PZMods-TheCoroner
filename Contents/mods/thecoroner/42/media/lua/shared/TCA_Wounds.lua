@@ -641,6 +641,41 @@ function W.getMinLevel(kind)
     return W.getProviderValue("minLevel", kind) or 0;
 end
 
+W.LIMB_CHAINS = {
+    { id = "arm_L", kind = "arm", parts = { "Hand_L", "ForeArm_L", "UpperArm_L" } },
+    { id = "arm_R", kind = "arm", parts = { "Hand_R", "ForeArm_R", "UpperArm_R" } },
+    { id = "leg_L", kind = "leg", parts = { "Foot_L", "LowerLeg_L", "UpperLeg_L" } },
+    { id = "leg_R", kind = "leg", parts = { "Foot_R", "LowerLeg_R", "UpperLeg_R" } },
+};
+
+function W.getAnatomy(body)
+    local anatomy = {};
+    anatomy.missing = {};
+    anatomy.levels = {};
+    anatomy.eyeL = false;
+    anatomy.eyeR = false;
+    local wounds = W.getWounds(body);
+    for i = 1, #wounds do
+        local wound = wounds[i];
+        if wound.kind == "limbMissing" then
+            anatomy.missing[wound.part] = true;
+        elseif wound.kind == "eyeMissingL" then
+            anatomy.eyeL = true;
+        elseif wound.kind == "eyeMissingR" then
+            anatomy.eyeR = true;
+        end
+    end
+    for i = 1, #W.LIMB_CHAINS do
+        local chain = W.LIMB_CHAINS[i];
+        local level = 0;
+        while level < #chain.parts and anatomy.missing[chain.parts[level + 1]] do
+            level = level + 1;
+        end
+        anatomy.levels[chain.id] = level;
+    end
+    return anatomy;
+end
+
 function W.isRegion(id)
     return W.REGION_PARTS[id] ~= nil;
 end

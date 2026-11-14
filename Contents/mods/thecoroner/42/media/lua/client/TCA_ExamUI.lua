@@ -203,7 +203,9 @@ function TCA_ExamUI:initialise()
     self.observedAt = {};
     self.woundLevels = {};
     self.observerKey = E.getObserverKey(self.character);
+    self:computeAnatomy();
     self:loadObservations();
+    self:applyAnatomyTexts();
     self.press = nil;
     self.blanch = nil;
     self.warnTime = 0;
@@ -546,11 +548,97 @@ function TCA_ExamUI:onWoundsClick()
     end
 end
 
-function TCA_ExamUI:getZoneIds()
-    if self.mode == "wounds" then
-        return TCA.Wounds.REGION_ORDER;
+function TCA_ExamUI:computeAnatomy()
+    local W = TCA.Wounds;
+    self.zonePos = {};
+    self.hiddenZones = {};
+    self.noMarker = {};
+    self.zoneLabels = {};
+    self.zoneHints = {};
+    self.anatomy = W.getAnatomy(self.body);
+    for i = 1, #W.LIMB_CHAINS do
+        local chain = W.LIMB_CHAINS[i];
+        local level = self.anatomy.levels[chain.id];
+        for j = 1, level - 1 do
+            self.hiddenZones["w_" .. chain.parts[j]] = true;
+        end
     end
-    return TCA_ExamUI.ORDER;
+    self:placeRigorZone();
+    self:placeEyesZone();
+end
+
+function TCA_ExamUI:placeRigorZone()
+    local W = TCA.Wounds;
+    for i = 1, #W.LIMB_CHAINS do
+        local chain = W.LIMB_CHAINS[i];
+        local level = self.anatomy.levels[chain.id];
+        if level < #chain.parts then
+            local target = TCA_ExamUI.ZONES["w_" .. chain.parts[level + 1]];
+            if i > 1 or level > 0 then
+                self.zonePos.arm = { x = target.x, y = target.y };
+            end
+            if chain.kind == "leg" then
+                self.zoneLabels.arm = "IGUI_TCA_ExamZone_leg";
+                self.zoneHints.arm = "IGUI_TCA_ExamHint_leg";
+            elseif level > 0 then
+                self.zoneHints.arm = "IGUI_TCA_ExamHint_armStump";
+            end
+            return;
+        end
+    end
+    self.noMarker.arm = "IGUI_TCA_ExamRigorNoLimb";
+end
+
+function TCA_ExamUI:placeEyesZone()
+    local zone = TCA_ExamUI.ZONES.eyes;
+    if self.anatomy.eyeL and self.anatomy.eyeR then
+        self.noMarker.eyes = "IGUI_TCA_ExamEyesNone";
+    elseif self.anatomy.eyeL then
+        self.zonePos.eyes = { x = -zone.x, y = zone.y };
+    end
+end
+
+function TCA_ExamUI:applyAnatomyTexts()
+    for id, key in pairs(self.noMarker) do
+        if not self.texts[id] then
+            self.texts[id] = getText(key);
+        end
+    end
+end
+
+function TCA_ExamUI:getZoneLabel(id)
+    return getText((self.zoneLabels and self.zoneLabels[id]) or ("IGUI_TCA_ExamZone_" .. id));
+end
+
+function TCA_ExamUI:getZoneHint(id)
+    return getText((self.zoneHints and self.zoneHints[id]) or ("IGUI_TCA_ExamHint_" .. id));
+end
+
+function TCA_ExamUI:getZoneIds()
+    local list = TCA_ExamUI.ORDER;
+    if self.mode == "wounds" then
+        list = TCA.Wounds.REGION_ORDER;
+    end
+    if not self.hiddenZones then
+        return list;
+    end
+    local ids = {};
+    for _, id in ipairs(list) do
+        if not self.hiddenZones[id] then
+            table.insert(ids, id);
+        end
+    end
+    return ids;
+end
+
+function TCA_ExamUI:getMarkerIds()
+    local ids = {};
+    for _, id in ipairs(self:getZoneIds()) do
+        if not (self.noMarker and self.noMarker[id]) then
+            table.insert(ids, id);
+        end
+    end
+    return ids;
 end
 
 function TCA_ExamUI:getHoldMs(zone)
@@ -590,6 +678,9 @@ end
 
 function TCA_ExamUI:getZoneScreen(id)
     local zone = TCA_ExamUI.ZONES[id];
+    if self.zonePos and self.zonePos[id] and not self.editMode then
+        zone = self.zonePos[id];
+    end
     return self:toScreen(zone.x, zone.y);
 end
 
@@ -597,7 +688,7 @@ function TCA_ExamUI:getZoneAt(x, y)
     if not self:isInView(x, y) then
         return nil;
     end
-    for _, id in ipairs(self:getZoneIds()) do
+    for _, id in ipairs(self:getMarkerIds()) do
         local zone = TCA_ExamUI.ZONES[id];
         local zx, zy = self:getZoneScreen(id);
         if dist(x, y, zx, zy) <= zone.radius then
@@ -864,7 +955,7 @@ function TCA_ExamUI:getInstructionText()
         return getText("IGUI_TCA_ExamNeedThermo"), RED;
     end
     if zone then
-        return getText("IGUI_TCA_ExamZone_" .. zone) .. " : " .. getText("IGUI_TCA_ExamHint_" .. zone), WHITE;
+        return self:getZoneLabel(zone) .. " : " .. self:getZoneHint(zone), WHITE;
     end
     if getTimestampMs() - self.warnTime < TCA_ExamUI.WARN_MS then
         return getText("IGUI_TCA_ExamNeedThermo"), RED;
@@ -921,7 +1012,7 @@ function TCA_ExamUI:drawNotesContent(x, y, maxW)
         y = y + 8;
     end
     for _, id in ipairs(self:getZoneIds()) do
-        self:drawText(getText("IGUI_TCA_ExamZone_" .. id), x, y, 0.95, 0.85, 0.6, 1, UIFont.Small);
+        self:drawText(self:getZoneLabel(id), x, y, 0.95, 0.85, 0.6, 1, UIFont.Small);
         y = y + self.smallH + 2;
         local text = self.texts[id];
         local c = WHITE;
@@ -1110,7 +1201,7 @@ end
 
 function TCA_ExamUI:drawZones()
     local hover = self:getHoverZone();
-    for _, id in ipairs(self:getZoneIds()) do
+    for _, id in ipairs(self:getMarkerIds()) do
         local pressed = self.press and self.press.zone == id and self:isPull(id);
         if not pressed then
             local zx, zy = self:getZoneScreen(id);
@@ -1185,7 +1276,7 @@ function TCA_ExamUI:drawZoneTooltip()
     end
     local tm = getTextManager();
     local pad = TCA_ExamUI.TOOLTIP_PAD;
-    local title = getText("IGUI_TCA_ExamZone_" .. zone);
+    local title = self:getZoneLabel(zone);
     local lines = TCA_ExamUI.wrapText(UIFont.Small, self.texts[zone], TCA_ExamUI.TOOLTIP_W);
     local ageLines = {};
     local age = self:getObservationAge(zone);
