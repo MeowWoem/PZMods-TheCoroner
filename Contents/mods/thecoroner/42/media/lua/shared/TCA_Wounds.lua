@@ -235,6 +235,9 @@ function W.snapshotPlayer(player)
         local part = parts:get(i);
         W.addPartWounds(list, part, BodyPartType.ToString(part:getType()));
     end
+    if TCA.WoundExpansion then
+        TCA.WoundExpansion.snapshotPlayer(player, list);
+    end
     player:getModData()[W.KEY_WOUNDS] = list;
 end
 
@@ -246,8 +249,16 @@ function W.inventBite(list)
     end
 end
 
+function W.getNaturalCauses()
+    local X = TCA.WoundExpansion;
+    if X and X.isActive() then
+        return X.getNaturalCauses(W.NATURAL_CAUSES);
+    end
+    return W.NATURAL_CAUSES;
+end
+
 function W.inventCause(list)
-    local cause = W.pickWeighted(W.NATURAL_CAUSES).cause;
+    local cause = W.pickWeighted(W.getNaturalCauses()).cause;
     if cause == "firearm" then
         local part = "Torso_Upper";
         if ZombRand(4) == 0 then
@@ -284,16 +295,20 @@ function W.ensureWounds(target)
     if infected == nil then
         infected = target:isZombie();
     end
+    local cause = "infection";
     if infected and not W.everyoneInfected() then
         W.inventBite(list);
         if md[W.KEY_CAUSE] == nil and not instanceof(target, "IsoZombie") then
             md[W.KEY_CAUSE] = "infection";
         end
     else
-        local cause = W.inventCause(list);
+        cause = W.inventCause(list);
         if md[W.KEY_CAUSE] == nil then
             md[W.KEY_CAUSE] = cause;
         end
+    end
+    if TCA.WoundExpansion then
+        TCA.WoundExpansion.inventExtras(list, cause);
     end
     md[W.KEY_WOUNDS] = list;
 end
@@ -317,6 +332,12 @@ function W.getDeathCause(character)
         local bodyDamage = character:getBodyDamage();
         if bodyDamage and bodyDamage:IsInfected() then
             return "infection";
+        end
+        if TCA.WoundExpansion then
+            local cause = TCA.WoundExpansion.getDeathCause(character);
+            if cause then
+                return cause;
+            end
         end
     end
     return "unknown";
@@ -429,6 +450,36 @@ W.IDENTIFY_LEVEL = 5;
 W.COUNT_LEVEL = 4;
 W.TIMING_LEVEL = 6;
 
+function W.getDetectChance(kind)
+    local X = TCA.WoundExpansion;
+    if W.DETECT[kind] then
+        return W.DETECT[kind];
+    end
+    if X and X.DETECT[kind] then
+        return X.DETECT[kind];
+    end
+    return W.DETECT_DEFAULT;
+end
+
+function W.getConfusion(kind)
+    local X = TCA.WoundExpansion;
+    if W.CONFUSE[kind] then
+        return W.CONFUSE[kind];
+    end
+    if X then
+        return X.CONFUSE[kind];
+    end
+    return nil;
+end
+
+function W.getMinLevel(kind)
+    local X = TCA.WoundExpansion;
+    if X and X.MIN_LEVEL[kind] then
+        return X.MIN_LEVEL[kind];
+    end
+    return 0;
+end
+
 function W.isRegion(id)
     return W.REGION_PARTS[id] ~= nil;
 end
@@ -476,14 +527,17 @@ function W.readRegion(body, regionId, level)
     local groups = W.getRegionGroups(body, regionId);
     for i = 1, #groups do
         local g = groups[i];
-        local key = regionId .. ":" .. g.kind .. ":" .. tostring(g.post);
-        local chance = math.min(1, (W.DETECT[g.kind] or W.DETECT_DEFAULT) + level * W.DETECT_PER_LEVEL);
-        if (E.noise(body, key .. ":d", level) + 1) / 2 < chance then
-            local reading = { kind = g.kind, post = g.post, count = g.count };
-            if level < W.IDENTIFY_LEVEL and W.CONFUSE[g.kind] and math.abs(E.noise(body, key .. ":m", level)) < E.getMisreadChance(level) then
-                reading.kind = W.CONFUSE[g.kind];
+        if level >= W.getMinLevel(g.kind) then
+            local key = regionId .. ":" .. g.kind .. ":" .. tostring(g.post);
+            local chance = math.min(1, W.getDetectChance(g.kind) + level * W.DETECT_PER_LEVEL);
+            if (E.noise(body, key .. ":d", level) + 1) / 2 < chance then
+                local reading = { kind = g.kind, post = g.post, count = g.count };
+                local confused = W.getConfusion(g.kind);
+                if level < W.IDENTIFY_LEVEL and confused and math.abs(E.noise(body, key .. ":m", level)) < E.getMisreadChance(level) then
+                    reading.kind = confused;
+                end
+                table.insert(readings, reading);
             end
-            table.insert(readings, reading);
         end
     end
     return readings;
@@ -662,6 +716,27 @@ function W.listContains(list, value)
     return false;
 end
 
+function W.getDebugWoundKinds()
+    local X = TCA.WoundExpansion;
+    if not X or not X.isActive() then
+        return W.DEBUG_WOUND_KINDS;
+    end
+    if W.debugKindsCache and W.debugKindsBase == W.DEBUG_WOUND_KINDS and W.debugKindsExtra == X.KINDS then
+        return W.debugKindsCache;
+    end
+    local list = {};
+    for i = 1, #W.DEBUG_WOUND_KINDS do
+        table.insert(list, W.DEBUG_WOUND_KINDS[i]);
+    end
+    for i = 1, #X.KINDS do
+        table.insert(list, X.KINDS[i]);
+    end
+    W.debugKindsCache = list;
+    W.debugKindsBase = W.DEBUG_WOUND_KINDS;
+    W.debugKindsExtra = X.KINDS;
+    return list;
+end
+
 function W.debugClear(body)
     local md = body:getModData();
     md[W.KEY_CAUSE_RESULT] = nil;
@@ -713,7 +788,7 @@ function W.debugApply(body, op, kind, part)
         W.debugClear(body);
     elseif op == "random" then
         W.debugRandomize(body);
-    elseif op == "wound" and W.listContains(W.DEBUG_WOUND_KINDS, kind) and W.listContains(W.DEBUG_PARTS, part) then
+    elseif op == "wound" and W.listContains(W.getDebugWoundKinds(), kind) and W.listContains(W.DEBUG_PARTS, part) then
         W.debugAddWound(body, kind, part);
     elseif op == "hit" and W.listContains(W.DEBUG_HIT_KINDS, kind) and W.listContains(W.DEBUG_HIT_PARTS, part) then
         W.debugAddHit(body, kind, part);
@@ -742,7 +817,28 @@ W.CAUSE_MAP = { unarmed = "blunt", stomp = "blunt", unknown = "natural", bite = 
 W.CAUSE_XP = 4;
 
 function W.isCause(cause)
-    return W.listContains(W.CAUSES, cause);
+    if W.listContains(W.CAUSES, cause) then
+        return true;
+    end
+    local X = TCA.WoundExpansion;
+    return X ~= nil and W.listContains(X.CAUSES, cause);
+end
+
+function W.getCauseChoices()
+    local X = TCA.WoundExpansion;
+    if not X or not X.isActive() then
+        return W.CAUSES;
+    end
+    local list = {};
+    for i = 1, #W.CAUSES do
+        table.insert(list, W.CAUSES[i]);
+        if W.CAUSES[i] == "fire" then
+            for j = 1, #X.CAUSES do
+                table.insert(list, X.CAUSES[j]);
+            end
+        end
+    end
+    return list;
 end
 
 function W.normalizeCause(cause)
@@ -765,13 +861,25 @@ function W.hasWoundKind(wounds, kind, part)
     return false;
 end
 
-function W.inferCauseFromWounds(body)
-    local wounds = W.getWounds(body);
-    for i = 1, #W.LETHAL_WOUNDS do
-        local entry = W.LETHAL_WOUNDS[i];
+function W.findLethal(wounds, lethal)
+    for i = 1, #lethal do
+        local entry = lethal[i];
         if W.hasWoundKind(wounds, entry.kind, entry.part) then
             return entry.cause;
         end
+    end
+    return nil;
+end
+
+function W.inferCauseFromWounds(body)
+    local wounds = W.getWounds(body);
+    local cause = W.findLethal(wounds, W.LETHAL_WOUNDS);
+    if cause then
+        return cause;
+    end
+    local X = TCA.WoundExpansion;
+    if X then
+        return W.findLethal(wounds, X.LETHAL_WOUNDS);
     end
     return nil;
 end

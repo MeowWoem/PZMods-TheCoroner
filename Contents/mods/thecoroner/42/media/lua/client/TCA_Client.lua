@@ -255,15 +255,16 @@ function TCA_Client.addDebugWoundsMenu(context, playerObj, body)
     local anteOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsAddAnte"));
     local anteMenu = ISContextMenu:getNew(menu);
     menu:addSubMenu(anteOption, anteMenu);
-    TCA_Client.addDebugKindMenu(anteMenu, playerObj, body, "wound", W.DEBUG_WOUND_KINDS, W.DEBUG_PARTS);
+    TCA_Client.addDebugKindMenu(anteMenu, playerObj, body, "wound", W.getDebugWoundKinds(), W.DEBUG_PARTS);
     local causeOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsCause"));
     local causeMenu = ISContextMenu:getNew(menu);
     menu:addSubMenu(causeOption, causeMenu);
-    for i = 1, #W.CAUSES do
+    local causes = W.getCauseChoices();
+    for i = 1, #causes do
         local choice = {};
         choice.op = "cause";
-        choice.kind = W.CAUSES[i];
-        TCA_Client.addBodyOption(causeMenu, body, getText("IGUI_TCA_Cause_" .. W.CAUSES[i]), playerObj, TCA_Client.onDebugWoundsAdd, body, choice);
+        choice.kind = causes[i];
+        TCA_Client.addBodyOption(causeMenu, body, getText("IGUI_TCA_Cause_" .. causes[i]), playerObj, TCA_Client.onDebugWoundsAdd, body, choice);
     end
     local postOption = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_DebugWoundsAddPost"));
     local postMenu = ISContextMenu:getNew(menu);

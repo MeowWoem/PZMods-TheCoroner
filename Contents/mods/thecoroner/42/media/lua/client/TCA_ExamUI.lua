@@ -257,7 +257,7 @@ function TCA_ExamUI:createChildren()
     self.causeCombo = ISComboBox:new(self.notesX + 10, causeY, self.notesW - causeBtnW - 30, 22, self, nil);
     self.causeCombo:initialise();
     self.causeCombo:instantiate();
-    for _, cause in ipairs(TCA.Wounds.CAUSES) do
+    for _, cause in ipairs(TCA.Wounds.getCauseChoices()) do
         self.causeCombo:addOptionWithData(getText("IGUI_TCA_Cause_" .. cause), cause);
     end
     self:addChild(self.causeCombo);
