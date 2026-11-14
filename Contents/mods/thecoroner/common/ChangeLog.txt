@@ -64,3 +64,16 @@ Changed:
 Fixed:
 - The XP shown after an autopsy step, a time of death or a cause of death estimate now matches the XP actually gained (skill books, profession, traits and the game's XP multiplier were already applied, but not displayed)
 [ ------ ]
+
+[ v1.0.7 - 11.14.2026 ]
+Added:
+- Wound Expansion compatibility: its wounds, conditions and scars (abrasions, punctures, frostbite, sprains, dislocations, concussions, internal bleeding, sepsis...) now show up in the external examination of a dead player. The less obvious ones need a higher First Aid level to be found
+- Casualties Undead compatibility: amputations, prostheses, missing eyes, broken ribs, infected wounds, internal conditions and overdoses are recorded on a dead player's body and can be found during the external examination. The Casualties Undead dissection option is hidden, the autopsy replaces it
+- The Only Cure compatibility: amputated arms, the state of the stump (open, cauterized or healed), prostheses and tourniquets show up in the external examination
+- New causes of death when one of these mods is enabled: blood loss, sepsis, exposure (cold or heat), overdose and organ failure. Zombies and morgue corpses can also show injuries and causes of death from these mods
+- Diseased organs (Casualties Undead): organs damaged before death keep their lesions when harvested. The tooltip shows them from First Aid 3, and diseased organs can't be used in recipes that need a healthy organ
+
+Changed:
+- Amputated limbs are now hidden on the 3D body of the examination and autopsy windows, and Wound Expansion skin marks are shown
+- The examination markers adapt to missing body parts: rigor is tested on the other arm or on a leg when an arm is missing (impossible if no limb is left), the eye test moves to the remaining eye, and on an amputated limb only the highest missing part keeps its wound marker
+[ ------ ]
