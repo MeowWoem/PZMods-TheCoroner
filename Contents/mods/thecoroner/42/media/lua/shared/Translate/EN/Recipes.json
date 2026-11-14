@@ -23,5 +23,6 @@
     "TCA_MakeSpecimen_Bladder_Formalin": "Preserve Bladder in Formalin",
     "TCA_Forensics1": "Coroner’s notes: early signs",
     "TCA_Forensics2": "Coroner’s notes: timeline of death",
-    "TCA_Forensics3": "Coroner’s notes: cold and special cases"
+    "TCA_Forensics3": "Coroner’s notes: cold and special cases",
+    "TCA_MakeDigitalThermometer": "Make Digital Thermometer"
 }

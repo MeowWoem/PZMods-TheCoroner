@@ -26,5 +26,6 @@
     "Tooltip_TCA_SpentBullet": "Proyectil extraído de un cuerpo durante una autopsia. Demasiado deformado para reutilizarlo.",
     "Tooltip_TCA_MorgueDrawersBuild": "Dos cajones refrigerados que pueden albergar un cadáver cada uno. La refrigeración necesita electricidad o un generador.",
     "Tooltip_TCA_TooDark": "Demasiado oscuro para trabajar en el cuerpo: necesitas una fuente de luz cerca o una linterna encendida.",
-    "Tooltip_TCA_NeedThermometer": "Requiere un termómetro."
+    "Tooltip_TCA_NeedThermometer": "Requiere un termómetro.",
+    "Tooltip_TCA_ThermometerDigital": "Más rápido que un termómetro de mercurio. Funciona con una pila (unas cincuenta mediciones), tanto en los vivos como en un cuerpo durante un examen forense."
 }

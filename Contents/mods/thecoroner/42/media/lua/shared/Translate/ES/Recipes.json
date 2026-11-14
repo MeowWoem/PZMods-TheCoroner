@@ -23,5 +23,6 @@
     "TCA_MakeSpecimen_Bladder_Formalin": "Conservar la vejiga en formol",
     "TCA_Forensics1": "Notas del forense: primeros signos",
     "TCA_Forensics2": "Notas del forense: cronología de la muerte",
-    "TCA_Forensics3": "Notas del forense: frío y casos especiales"
+    "TCA_Forensics3": "Notas del forense: frío y casos especiales",
+    "TCA_MakeDigitalThermometer": "Fabricar un termómetro digital"
 }

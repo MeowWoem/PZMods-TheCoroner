@@ -11,7 +11,8 @@ local E = TCA.Exam;
 local D = TCA.DeathTime;
 local C = TCA.Cold;
 
-E.THERMOMETER_TYPES = { "TCA.Thermometer" };
+E.DIGITAL_THERMOMETER = "TCA.ThermometerDigital";
+E.THERMOMETER_TYPES = { E.DIGITAL_THERMOMETER, "TCA.Thermometer" };
 
 E.BODY_TEMP = 37.0;
 E.FRIDGE_TEMP = 3.0;
@@ -76,15 +77,50 @@ local function ramp(h, a, b)
     return clamp((h - a) / (b - a), 0, 1);
 end
 
+function E.isUsableThermometer(item)
+    return not item:IsDrainable() or item:getCurrentUsesFloat() > 0;
+end
+
+function E.isThermometerItem(item)
+    if not item then
+        return false;
+    end
+    for _, itemType in ipairs(E.THERMOMETER_TYPES) do
+        if item:getFullType() == itemType then
+            return true;
+        end
+    end
+    return false;
+end
+
+function E.isDigitalThermometer(item)
+    return item ~= nil and item:getFullType() == E.DIGITAL_THERMOMETER;
+end
+
 function E.findThermometer(character)
     local inv = character:getInventory();
     for _, itemType in ipairs(E.THERMOMETER_TYPES) do
-        local item = inv:getFirstTypeRecurse(itemType);
+        local item = inv:getFirstTypeEvalRecurse(itemType, E.isUsableThermometer);
         if item then
             return item;
         end
     end
     return nil;
+end
+
+function E.useThermometer(character)
+    local item = E.findThermometer(character);
+    if E.isDigitalThermometer(item) then
+        TCA.Autopsy.useCharge(item, 1);
+    end
+end
+
+function E.requestThermometerUse(character)
+    if isClient() then
+        sendClientCommand(character, "TCA", "thermoUse", {});
+    else
+        E.useThermometer(character);
+    end
 end
 
 function E.getLevel(character)

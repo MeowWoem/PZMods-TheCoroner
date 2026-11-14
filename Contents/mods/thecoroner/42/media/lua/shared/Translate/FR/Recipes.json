@@ -23,5 +23,6 @@
     "TCA_MakeSpecimen_Bladder_Formalin": "Conserver une vessie dans le formol",
     "TCA_Forensics1": "Aide-mémoire : signes précoces",
     "TCA_Forensics2": "Aide-mémoire : chronologie de la mort",
-    "TCA_Forensics3": "Aide-mémoire : le froid et les cas particuliers"
+    "TCA_Forensics3": "Aide-mémoire : le froid et les cas particuliers",
+    "TCA_MakeDigitalThermometer": "Fabriquer un thermomètre électronique"
 }

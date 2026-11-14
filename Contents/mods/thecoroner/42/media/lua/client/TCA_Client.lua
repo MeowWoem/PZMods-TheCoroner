@@ -422,7 +422,7 @@ function TCA_Client.onFillInventoryMenu(player, context, items)
         return;
     end
     local saw = actual[1];
-    if saw:getFullType() ~= TCA.Autopsy.OSCILLATING_SAW then
+    if saw:getFullType() ~= TCA.Autopsy.OSCILLATING_SAW and saw:getFullType() ~= TCA.Exam.DIGITAL_THERMOMETER then
         return;
     end
     if saw:getCurrentUsesFloat() > 0 then

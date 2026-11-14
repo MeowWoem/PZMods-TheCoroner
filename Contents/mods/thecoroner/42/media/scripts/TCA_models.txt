@@ -98,6 +98,13 @@ module TCA {
         scale = 0.4,
     }
 
+    model ThermometerDigital
+    {
+        mesh = WorldItems/TCA_Thermometer,
+        texture = WorldItems/TCA_ThermometerDigital,
+        scale = 0.4,
+    }
+
     model SawBone
     {
         mesh = WorldItems/TCA_SawBone,

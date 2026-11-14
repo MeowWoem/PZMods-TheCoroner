@@ -15,7 +15,11 @@ function Th.getDuration(character)
     if character:isTimedActionInstant() then
         return 1;
     end
-    return 300 - character:getPerkLevel(Perks.Doctor) * 10;
+    local level = character:getPerkLevel(Perks.Doctor);
+    if TCA.Exam.isDigitalThermometer(Th.findThermometer(character)) then
+        return 90 - level * 3;
+    end
+    return 300 - level * 10;
 end
 
 function Th.readCelsius(target, level)
@@ -66,6 +70,7 @@ end
 
 function Th.measure(character, target)
     local celsius = Th.readCelsius(target, character:getPerkLevel(Perks.Doctor));
+    TCA.Exam.useThermometer(character);
     local isSelf = target == character;
     if not isServer() then
         if isSelf then

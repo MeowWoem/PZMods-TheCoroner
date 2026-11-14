@@ -1,5 +1,28 @@
 module TCA
 {
+    craftRecipe TCA_MakeDigitalThermometer
+    {
+        timedAction = MakingElectrical,
+        time = 100,
+        SkillRequired = Electricity:2,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:8,
+        OnCreate = TCA_RecipeCode.emptyBattery,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[MayDegradeLight],
+            item 1 tags[base:miscelectronic],
+            item 2 [Base.ElectronicsScrap],
+            item 1 [Base.ElectricWire],
+            item 1 [Base.DuctTape;Base.Glue],
+        }
+        outputs
+        {
+            item 1 TCA.ThermometerDigital,
+        }
+    }
+
     craftRecipe TCA_CutChestPlate
     {
         timedAction = SawLogs,

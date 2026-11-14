@@ -16,6 +16,22 @@ module TCA
         Tooltip = Tooltip_TCA_Thermometer,
     }
 
+    item ThermometerDigital
+    {
+        DisplayName = Digital thermometer,
+        DisplayCategory = FirstAid,
+        ItemType = base:drainable,
+        Weight = 0.05,
+        Icon = TCA_Thermometer,
+        WorldStaticModel = TCA.ThermometerDigital,
+        Tooltip = Tooltip_TCA_ThermometerDigital,
+        UseDelta = 0.02,
+        KeepOnDeplete = true,
+        DisappearOnUse = false,
+        cantBeConsolided = true,
+        Tags = base:hasmetal,
+    }
+
     item Organ_heart
     {
         DisplayName = Heart,

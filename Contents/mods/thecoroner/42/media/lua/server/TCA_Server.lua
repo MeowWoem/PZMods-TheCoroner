@@ -219,6 +219,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onExamObserveCommand(player, args);
     elseif command == "examCause" then
         TCA_Server.onExamCauseCommand(player, args);
+    elseif command == "thermoUse" then
+        TCA.Exam.useThermometer(player);
     elseif command == "debugWounds" then
         TCA_Server.onDebugWoundsCommand(player, args);
     end

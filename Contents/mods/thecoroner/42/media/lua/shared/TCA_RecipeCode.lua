@@ -73,3 +73,13 @@ function R.testSpecimenFormalin(item, character)
     end
     return R.getDecay(item) <= R.SPECIMEN_FORMALIN_MAX_DECAY;
 end
+
+function TCA_RecipeCode.emptyBattery(craftRecipeData, character)
+    local items = craftRecipeData:getAllCreatedItems();
+    for i = 0, items:size() - 1 do
+        local item = items:get(i);
+        if item:IsDrainable() then
+            item:setCurrentUsesFloat(0);
+        end
+    end
+end

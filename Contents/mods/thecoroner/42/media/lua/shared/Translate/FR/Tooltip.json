@@ -26,5 +26,6 @@
     "Tooltip_TCA_SpentBullet": "Projectile extrait d'un corps pendant une autopsie. Trop déformé pour être réutilisé.",
     "Tooltip_TCA_MorgueDrawersBuild": "Deux tiroirs réfrigérés pouvant chacun accueillir un cadavre. La réfrigération demande l'électricité ou un générateur.",
     "Tooltip_TCA_TooDark": "Trop sombre pour travailler sur le corps : il faut une source de lumière à proximité ou une lampe torche allumée.",
-    "Tooltip_TCA_NeedThermometer": "Nécessite un thermomètre."
+    "Tooltip_TCA_NeedThermometer": "Nécessite un thermomètre.",
+    "Tooltip_TCA_ThermometerDigital": "Plus rapide qu'un thermomètre à mercure. Fonctionne avec une pile (une cinquantaine de mesures), sur les vivants comme sur un corps pendant un examen médico-légal."
 }

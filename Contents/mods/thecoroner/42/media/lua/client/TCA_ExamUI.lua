@@ -45,6 +45,7 @@ TCA_ExamUI.ZONES = {
 
 TCA_ExamUI.HOLD_MS = { temp = 3000, livor = 1500, decomp = 800, eyes = 1000, insects = 1200 };
 TCA_ExamUI.WOUND_HOLD_MS = 800;
+TCA_ExamUI.DIGITAL_TEMP_HOLD_MS = 1000;
 TCA_ExamUI.CAUSE_H = 58;
 TCA_ExamUI.HOLD_TOLERANCE = 10;
 TCA_ExamUI.PULL = { jaw = 18, arm = 70 };
@@ -222,7 +223,7 @@ function TCA_ExamUI:initialise()
         self.minPos = E.hoursToPos(self.result.minHours);
         self.maxPos = E.hoursToPos(self.result.maxHours);
     end
-    self.hasThermometer = E.findThermometer(self.character) ~= nil;
+    self:updateThermometer();
     self.toolCheckTime = getTimestampMs();
 end
 
@@ -552,13 +553,26 @@ function TCA_ExamUI:getZoneIds()
     return TCA_ExamUI.ORDER;
 end
 
+function TCA_ExamUI:getHoldMs(zone)
+    if zone == "temp" and self.digitalThermometer then
+        return TCA_ExamUI.DIGITAL_TEMP_HOLD_MS;
+    end
+    return TCA_ExamUI.HOLD_MS[zone] or TCA_ExamUI.WOUND_HOLD_MS;
+end
+
+function TCA_ExamUI:updateThermometer()
+    local item = TCA.Exam.findThermometer(self.character);
+    self.hasThermometer = item ~= nil;
+    self.digitalThermometer = TCA.Exam.isDigitalThermometer(item);
+end
+
 function TCA_ExamUI:refreshTools()
     local now = getTimestampMs();
     if now - self.toolCheckTime < TCA_ExamUI.TOOL_CHECK_MS then
         return;
     end
     self.toolCheckTime = now;
-    self.hasThermometer = TCA.Exam.findThermometer(self.character) ~= nil;
+    self:updateThermometer();
 end
 
 function TCA_ExamUI:isOnFlank(x, y)
@@ -687,7 +701,7 @@ function TCA_ExamUI:updatePress()
         self.press = nil;
         return;
     end
-    press.progress = clamp((getTimestampMs() - press.time) / (TCA_ExamUI.HOLD_MS[press.zone] or TCA_ExamUI.WOUND_HOLD_MS), 0, 1);
+    press.progress = clamp((getTimestampMs() - press.time) / self:getHoldMs(press.zone), 0, 1);
     if press.progress >= 1 then
         self.press = nil;
         self:completeZone(press.zone, press.x, press.y);
@@ -763,6 +777,10 @@ function TCA_ExamUI:completeZone(zone, x, y)
     if zone == "temp" then
         reading = E.readTemperature(self.body, self.level);
         self.texts.temp = E.getTempText(reading);
+        if self.digitalThermometer then
+            E.requestThermometerUse(self.character);
+            self.toolCheckTime = 0;
+        end
     elseif zone == "jaw" or zone == "arm" then
         reading = self.values[zone];
         self.texts[zone] = getText(E.getRigorKey(self.values[zone], self.level));

@@ -6,9 +6,14 @@ TCA_ThermometerClient = TCA_ThermometerClient or {};
 
 local C = TCA_ThermometerClient;
 
-function C.addMissingTooltip(option)
+function C.addMissingTooltip(option, inventory)
     option.notAvailable = true;
-    local tooltip = ISWorldObjectContextMenu.addToolTip();
+    local tooltip;
+    if inventory then
+        tooltip = ISInventoryPaneContextMenu.addToolTip();
+    else
+        tooltip = ISWorldObjectContextMenu.addToolTip();
+    end
     tooltip.description = getText("Tooltip_TCA_NeedThermometer");
     option.toolTip = tooltip;
 end
@@ -65,16 +70,13 @@ function C.onFillInventoryMenu(player, context, items)
         return;
     end
     local item = actual[1];
-    local isThermometer = false;
-    for _, itemType in ipairs(TCA.Exam.THERMOMETER_TYPES) do
-        if item:getFullType() == itemType then
-            isThermometer = true;
-        end
-    end
-    if not isThermometer or not playerObj:getInventory():containsRecursive(item) then
+    if not TCA.Exam.isThermometerItem(item) or not playerObj:getInventory():containsRecursive(item) then
         return;
     end
-    context:addOption(getText("ContextMenu_TCA_TakeOwnTemp"), playerObj, C.startOnSelf);
+    local option = context:addOption(getText("ContextMenu_TCA_TakeOwnTemp"), playerObj, C.startOnSelf);
+    if not TCA.Thermometer.findThermometer(playerObj) then
+        C.addMissingTooltip(option, true);
+    end
 end
 
 function C.onAnswerRequest(target, button)

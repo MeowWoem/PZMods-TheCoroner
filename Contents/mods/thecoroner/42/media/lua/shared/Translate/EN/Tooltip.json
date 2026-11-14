@@ -26,5 +26,6 @@
     "Tooltip_TCA_SpentBullet": "Projectile recovered from a body during an autopsy. Too deformed to be reused.",
     "Tooltip_TCA_MorgueDrawersBuild": "Two refrigerated drawers that can each hold a corpse. Refrigeration needs electricity or a generator.",
     "Tooltip_TCA_TooDark": "Too dark to work on the body: you need a light source nearby or a lit flashlight.",
-    "Tooltip_TCA_NeedThermometer": "Requires a thermometer."
+    "Tooltip_TCA_NeedThermometer": "Requires a thermometer.",
+    "Tooltip_TCA_ThermometerDigital": "Faster than a mercury thermometer. Runs on a battery (about 50 readings), on the living as well as on a body during a forensic examination."
 }
