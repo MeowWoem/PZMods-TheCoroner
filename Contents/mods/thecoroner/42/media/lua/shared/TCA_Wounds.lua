@@ -825,6 +825,44 @@ function W.pickRemainingOrgan(candidates, remaining)
     return pool[ZombRand(#pool) + 1];
 end
 
+function W.removeSourceForPart(sources, part)
+    for i = 1, #sources do
+        if sources[i].part == part then
+            table.remove(sources, i);
+            return;
+        end
+    end
+end
+
+function W.deductRemovedBullets(body, sources)
+    for i = 1, #W.PROVIDERS do
+        local provider = W.PROVIDERS[i];
+        if type(provider.removedBullets) == "function" then
+            local removed = provider.removedBullets(body);
+            if type(removed) == "table" then
+                for j = 1, #removed do
+                    W.removeSourceForPart(sources, removed[j]);
+                end
+            end
+        end
+    end
+end
+
+function W.removeBulletFromPart(body, part)
+    local list = body:getModData()[W.KEY_BULLETS];
+    local organs = W.BULLET_ORGANS[part];
+    if type(list) ~= "table" or not organs then
+        return;
+    end
+    for i = 1, #list do
+        local organ = string.match(list[i], "^([^|]+)");
+        if W.listContains(organs, organ) then
+            table.remove(list, i);
+            return;
+        end
+    end
+end
+
 function W.ensureBullets(body, doneCount)
     local md = body:getModData();
     if type(md[W.KEY_BULLETS]) == "table" then
@@ -836,6 +874,7 @@ function W.ensureBullets(body, doneCount)
     end
     local list = {};
     local sources = W.collectBulletSources(body);
+    W.deductRemovedBullets(body, sources);
     for i = 1, #sources do
         if ZombRand(100) < W.BULLET_RETAIN then
             local organ = W.pickRemainingOrgan(W.BULLET_ORGANS[sources[i].part], remaining);

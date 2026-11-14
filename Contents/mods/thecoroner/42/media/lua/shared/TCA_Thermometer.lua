@@ -34,7 +34,7 @@ function Th.getStatusText(celsius)
     for i = 1, #Th.STATUS_LIMITS do
         if celsius < Th.STATUS_LIMITS[i] then
             index = i - 1;
-            break;
+            break
         end
     end
     return getText("IGUI_TCA_TempStatus" .. tostring(index));
