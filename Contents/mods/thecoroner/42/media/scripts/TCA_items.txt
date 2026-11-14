@@ -22,7 +22,7 @@ module TCA
         DisplayCategory = FirstAid,
         ItemType = base:drainable,
         Weight = 0.05,
-        Icon = TCA_Thermometer,
+        Icon = TCA_DigitalThermometer,
         WorldStaticModel = TCA.ThermometerDigital,
         Tooltip = Tooltip_TCA_ThermometerDigital,
         UseDelta = 0.02,
