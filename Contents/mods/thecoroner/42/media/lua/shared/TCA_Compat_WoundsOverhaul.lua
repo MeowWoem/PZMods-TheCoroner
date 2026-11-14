@@ -11,6 +11,8 @@ X.MOD_ID = "WoundsOverhaul";
 X.ROOT_KEY = "Wounds";
 X.KEY_EXTRACTED = "TCA_WOExtracted";
 X.COMMAND_MODULE = "TCA_WO";
+X.KEY_LODGED = "woundsBullets";
+X.PART_ORDER = { "Torso_Upper", "Torso_Lower", "Groin" };
 
 X.SEPSIS_SIGNS = 30;
 X.SEPSIS_LETHAL = 55;
@@ -241,6 +243,45 @@ function X.applyExtraction(body, part)
     end
 end
 
+function X.partsForOrgan(organId)
+    local W = TCA.Wounds;
+    local parts = {};
+    for i = 1, #X.PART_ORDER do
+        local organs = W.BULLET_ORGANS[X.PART_ORDER[i]];
+        if organs and W.listContains(organs, organId) then
+            table.insert(parts, X.PART_ORDER[i]);
+        end
+    end
+    return parts;
+end
+
+function X.removeLodged(body, part)
+    local lodged = body:getModData()[X.KEY_LODGED];
+    if type(lodged) ~= "table" then
+        return false;
+    end
+    for i = 1, #lodged do
+        if tostring(lodged[i]) == part then
+            table.remove(lodged, i);
+            return true;
+        end
+    end
+    return false;
+end
+
+function X.bulletTaken(body, organId)
+    local lodged = body:getModData()[X.KEY_LODGED];
+    if type(lodged) ~= "table" then
+        return;
+    end
+    local parts = X.partsForOrgan(organId);
+    for p = 1, #parts do
+        if X.removeLodged(body, parts[p]) then
+            return;
+        end
+    end
+end
+
 function X.onClientCommand(module, command, player, args)
     if module ~= X.COMMAND_MODULE or command ~= "extracted" or not args then
         return;
@@ -254,6 +295,7 @@ function X.onClientCommand(module, command, player, args)
     if dx * dx + dy * dy > 16 then
         return;
     end
+    X.removeLodged(body, args.part);
     X.applyExtraction(body, args.part);
 end
 
@@ -271,6 +313,7 @@ TCA.Wounds.registerProvider({
     deathCause = X.deathCause,
     organPathology = X.organPathology,
     removedBullets = X.removedBullets,
+    bulletTaken = X.bulletTaken,
 });
 
 if not X.commandRegistered then

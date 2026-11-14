@@ -848,6 +848,15 @@ function W.deductRemovedBullets(body, sources)
     end
 end
 
+function W.providersBulletTaken(body, organId)
+    for i = 1, #W.PROVIDERS do
+        local provider = W.PROVIDERS[i];
+        if type(provider.bulletTaken) == "function" then
+            provider.bulletTaken(body, organId);
+        end
+    end
+end
+
 function W.removeBulletFromPart(body, part)
     local list = body:getModData()[W.KEY_BULLETS];
     local organs = W.BULLET_ORGANS[part];
@@ -907,6 +916,7 @@ function W.takeBullets(body, organId, character)
                     sendAddItemToContainer(inv, item);
                 end
                 found = found + 1;
+                W.providersBulletTaken(body, organId);
             end
             table.remove(list, i);
         else
