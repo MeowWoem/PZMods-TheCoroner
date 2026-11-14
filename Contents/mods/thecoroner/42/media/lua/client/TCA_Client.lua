@@ -471,7 +471,8 @@ function TCA_Client.queueNextTick(action)
 end
 
 TCA_Client.throwAfterGrab = {};
-TCA_Client.GRAB_TIMEOUT_MS = 10000;
+TCA_Client.GRAB_TIMEOUT_MS = 15000;
+TCA_Client.DRAG_STATE = "PlayerDraggingCorpse";
 
 function TCA_Client.queueThrowAfterGrab(playerObj, tableObj)
     local entry = {};
@@ -481,13 +482,23 @@ function TCA_Client.queueThrowAfterGrab(playerObj, tableObj)
     TCA_Client.throwAfterGrab[playerObj:getPlayerNum()] = entry;
 end
 
+function TCA_Client.isReadyToThrow(playerObj)
+    if not playerObj:isDraggingCorpse() then
+        return false;
+    end
+    if playerObj:getCurrentStateName() ~= TCA_Client.DRAG_STATE then
+        return false;
+    end
+    return not ISTimedActionQueue.isPlayerDoingAction(playerObj);
+end
+
 function TCA_Client.checkThrowAfterGrab()
     local now = getTimestampMs();
     for playerNum, entry in pairs(TCA_Client.throwAfterGrab) do
         local playerObj = entry.player;
         if now - entry.time > TCA_Client.GRAB_TIMEOUT_MS or playerObj:isDead() then
             TCA_Client.throwAfterGrab[playerNum] = nil;
-        elseif playerObj:isDraggingCorpse() and not ISTimedActionQueue.isPlayerDoingAction(playerObj) then
+        elseif TCA_Client.isReadyToThrow(playerObj) then
             TCA_Client.throwAfterGrab[playerNum] = nil;
             local sq = entry.tableObject:getSquare();
             if sq and luautils.walkAdj(playerObj, sq, true) then
