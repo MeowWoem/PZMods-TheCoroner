@@ -255,6 +255,7 @@
     "IGUI_TCA_Wound_scarDeep": "Cicatrice ancienne",
     "IGUI_TCA_Wound_scarBite": "Cicatrice de morsure ancienne",
     "IGUI_TCA_Wound_scarBurn": "Cicatrice de brûlure",
+    "IGUI_TCA_Wound_amputation": "Amputation",
     "IGUI_TCA_Wound_amputationOpen": "Amputation, moignon ouvert",
     "IGUI_TCA_Wound_amputationSealed": "Amputation, moignon cautérisé",
     "IGUI_TCA_Wound_amputationHealed": "Amputation ancienne, moignon cicatrisé",

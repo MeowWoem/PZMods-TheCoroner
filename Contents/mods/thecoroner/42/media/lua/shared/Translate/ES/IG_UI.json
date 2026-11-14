@@ -255,6 +255,7 @@
     "IGUI_TCA_Wound_scarDeep": "Cicatriz antigua",
     "IGUI_TCA_Wound_scarBite": "Cicatriz de mordedura antigua",
     "IGUI_TCA_Wound_scarBurn": "Cicatriz de quemadura",
+    "IGUI_TCA_Wound_amputation": "Amputación",
     "IGUI_TCA_Wound_amputationOpen": "Amputación, muñón abierto",
     "IGUI_TCA_Wound_amputationSealed": "Amputación, muñón cauterizado",
     "IGUI_TCA_Wound_amputationHealed": "Amputación antigua, muñón cicatrizado",

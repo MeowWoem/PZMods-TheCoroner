@@ -255,6 +255,7 @@
     "IGUI_TCA_Wound_scarDeep": "Old scar",
     "IGUI_TCA_Wound_scarBite": "Old bite scar",
     "IGUI_TCA_Wound_scarBurn": "Burn scar",
+    "IGUI_TCA_Wound_amputation": "Amputation",
     "IGUI_TCA_Wound_amputationOpen": "Amputation, open stump",
     "IGUI_TCA_Wound_amputationSealed": "Amputation, cauterized stump",
     "IGUI_TCA_Wound_amputationHealed": "Old amputation, healed stump",
