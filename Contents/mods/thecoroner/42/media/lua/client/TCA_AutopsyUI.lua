@@ -6,12 +6,14 @@ require "TCA_Sandbox";
 require "TCA_BetaBlocker";
 require "TCA_BodyRenderer";
 require "TCA_Shared";
+require "TCA_UIScale";
 
 TCA_AutopsyUI = ISPanel:derive("TCA_AutopsyUI");
 
 TCA_AutopsyUI.WIDTH = 440;
 TCA_AutopsyUI.HEIGHT = 680;
 TCA_AutopsyUI.REPORT_W = 300;
+TCA_AutopsyUI.REF_SCALE = 2;
 TCA_AutopsyUI.GRADE_COLORS = {
     { r = 0.3, g = 0.95, b = 0.4 },
     { r = 0.65, g = 0.95, b = 0.35 },
@@ -159,15 +161,21 @@ function TCA_AutopsyUI:initialise()
     ISPanel.initialise(self);
     local A = TCA.Autopsy;
 
-    local titleH = getTextManager():getFontHeight(UIFont.Medium);
-    local smallH = getTextManager():getFontHeight(UIFont.Small);
-    self.titleY = 10;
-    self.instructionsY = self.titleY + titleH + 4;
-    self.viewX = 20;
-    self.viewY = self.instructionsY + smallH + 12;
-    self.viewW = self.width - 40;
-    self.viewH = self.height - self.viewY - 95;
+    TCA_UIScale.apply(self, self.uiScale or 1);
+    local k = self.k;
+    local titleH = self.mediumH;
+    local smallH = self.smallH;
+    self.titleY = 10 * k;
+    self.instructionsY = self.titleY + titleH + 4 * k;
+    self.viewX = 20 * k;
+    self.viewY = self.instructionsY + smallH + 12 * k;
+    self.viewW = self.width - 40 * k;
+    self.buttonH = math.max(25 * k, smallH + 6);
+    self.buttonY = self.height - self.buttonH - 12 * k;
+    self.infoY = self.buttonY - 4 * k - smallH * 3;
+    self.viewH = self.infoY - 6 * k - self.viewY;
     self:setView(TCA_AutopsyUI.VIEW_Y_INCISION);
+    self.g = self.scale / TCA_AutopsyUI.REF_SCALE;
 
     self.segments = A.INCISION_Y;
 
@@ -278,25 +286,17 @@ end
 
 function TCA_AutopsyUI:createChildren()
     ISPanel.createChildren(self);
-    local btnW = 140;
-    local btnH = 25;
-    local y = self.height - btnH - 12;
-    self.finishButton = ISButton:new((self.width - btnW) / 2, y, btnW, btnH, getText("IGUI_TCA_Stop"), self, TCA_AutopsyUI.onFinishClick);
-    self.finishButton:initialise();
-    self.finishButton:instantiate();
+    local k = self.k;
+    local btnW = 140 * k;
+    self.finishButton = TCA_UIScale.button(self, (self.width - btnW) / 2, self.buttonY, btnW, self.buttonH, getText("IGUI_TCA_Stop"), self, TCA_AutopsyUI.onFinishClick);
     self:addChild(self.finishButton);
 
     if TCA_Client.isDebug() then
-        local dbgW = 110;
-        local dbgH = 20;
-        local dbgY = self.height - dbgH - 14;
-        self.debugPrevButton = ISButton:new(10, dbgY, dbgW, dbgH, getText("IGUI_TCA_DebugPrev"), self, TCA_AutopsyUI.onDebugPrev);
-        self.debugPrevButton:initialise();
-        self.debugPrevButton:instantiate();
+        local dbgW = 110 * k;
+        local dbgY = self.buttonY + 2 * k;
+        self.debugPrevButton = TCA_UIScale.button(self, 10 * k, dbgY, dbgW, 20 * k, getText("IGUI_TCA_DebugPrev"), self, TCA_AutopsyUI.onDebugPrev);
         self:addChild(self.debugPrevButton);
-        self.debugNextButton = ISButton:new(self.width - dbgW - 10, dbgY, dbgW, dbgH, getText("IGUI_TCA_DebugNext"), self, TCA_AutopsyUI.onDebugNext);
-        self.debugNextButton:initialise();
-        self.debugNextButton:instantiate();
+        self.debugNextButton = TCA_UIScale.button(self, self.width - dbgW - 10 * k, dbgY, dbgW, 20 * k, getText("IGUI_TCA_DebugNext"), self, TCA_AutopsyUI.onDebugNext);
         self:addChild(self.debugNextButton);
     end
 
@@ -544,15 +544,15 @@ function TCA_AutopsyUI:updateBlade()
     self.mouseDX = 0;
     self.mouseDY = 0;
     if self.lastMouseX then
-        self.mouseDX = mx - self.lastMouseX;
-        self.mouseDY = my - self.lastMouseY;
+        self.mouseDX = (mx - self.lastMouseX) / self.g;
+        self.mouseDY = (my - self.lastMouseY) / self.g;
     end
     self.speed = math.sqrt(self.mouseDX * self.mouseDX + self.mouseDY * self.mouseDY) / dt;
     self.lastMouseX = mx;
     self.lastMouseY = my;
 
     local t = now / 1000;
-    local amp = self:getTremorAmplitude() * (1 + math.min(self.speed, 2) * 0.5);
+    local amp = self:getTremorAmplitude() * self.g * (1 + math.min(self.speed, 2) * 0.5);
     local p = self.phase;
     self.bladeX = mx + amp * (0.5 * math.sin(t * 1.3 + p[1]) + 0.3 * math.sin(t * 3.7 + p[2]) + 0.2 * math.sin(t * 9.1 + p[3]));
     self.bladeY = my + amp * (0.5 * math.sin(t * 1.7 + p[4]) + 0.3 * math.sin(t * 4.1 + p[5]) + 0.2 * math.sin(t * 8.3 + p[6]));
@@ -627,7 +627,7 @@ function TCA_AutopsyUI:updateCut()
 
     local ax, ay, bx, by = self:getSegmentScreen(self.segIndex);
     local tProj, d = project(self.bladeX, self.bladeY, ax, ay, bx, by);
-    local tol = self:getIncisionTolerance();
+    local tol = self:getIncisionTolerance() * self.g;
 
     if d > TCA_AutopsyUI.SLIP_DIST * tol then
         self:incisionSlip("IGUI_TCA_Slip");
@@ -641,7 +641,7 @@ function TCA_AutopsyUI:updateCut()
     if tProj > self.segProgress and tProj - self.segProgress <= TCA_AutopsyUI.MAX_STEP then
         self:markBlade();
         self.segProgress = tProj;
-        self.devSum = self.devSum + d;
+        self.devSum = self.devSum + d / self.g;
         self.devCount = self.devCount + 1;
         self:addPathPoint(self.bladeX, self.bladeY);
     end
@@ -681,8 +681,9 @@ function TCA_AutopsyUI:findOpenEdgeAt(x, y)
     if by < TCA_AutopsyUI.OPEN_Y1 or by > TCA_AutopsyUI.OPEN_Y2 then
         return nil;
     end
-    local leftOk = not self:isSideOpen("left") and math.abs(x - self:getEdgeScreenX("left")) <= TCA_AutopsyUI.GRAB_RADIUS;
-    local rightOk = not self:isSideOpen("right") and math.abs(x - self:getEdgeScreenX("right")) <= TCA_AutopsyUI.GRAB_RADIUS;
+    local grab = TCA_AutopsyUI.GRAB_RADIUS * self.g;
+    local leftOk = not self:isSideOpen("left") and math.abs(x - self:getEdgeScreenX("left")) <= grab;
+    local rightOk = not self:isSideOpen("right") and math.abs(x - self:getEdgeScreenX("right")) <= grab;
     if leftOk and rightOk then
         if math.abs(self:getEdgeScreenX("left") - self:getEdgeScreenX("right")) < 1 then
             return "pending";
@@ -732,17 +733,18 @@ function TCA_AutopsyUI:drawMessages()
     end
     self.messages = keep;
     local tm = getTextManager();
-    local lineH = tm:getFontHeight(UIFont.Small) + 6;
-    local y = self.viewY + 8;
+    local k = self.k;
+    local lineH = self.smallH + 6 * k;
+    local y = self.viewY + 8 * k;
     for i = #keep, 1, -1 do
         local msg = keep[i];
         local left = TCA_AutopsyUI.MSG_MS - (now - msg.time);
         local a = math.min(1, left / TCA_AutopsyUI.MSG_FADE_MS);
-        local w = tm:MeasureStringX(UIFont.Small, msg.text) + 16;
+        local w = tm:MeasureStringX(self.fontSmall, msg.text) + 16 * k;
         local x = (self.width - w) / 2;
-        self:drawRect(x, y, w, lineH - 2, 0.75 * a, 0.08, 0.02, 0.02);
-        self:drawRectBorder(x, y, w, lineH - 2, 0.9 * a, 0.7, 0.15, 0.15);
-        self:drawTextCentre(msg.text, self.width / 2, y + 2, 1, 0.35, 0.35, a, UIFont.Small);
+        self:drawRect(x, y, w, lineH - 2 * k, 0.75 * a, 0.08, 0.02, 0.02);
+        self:drawRectBorder(x, y, w, lineH - 2 * k, 0.9 * a, 0.7, 0.15, 0.15);
+        self:drawTextCentre(msg.text, self.width / 2, y + 2 * k, 1, 0.35, 0.35, a, self.fontSmall);
         y = y + lineH;
     end
 end
@@ -785,9 +787,10 @@ function TCA_AutopsyUI:updateOpen()
     end
     if self.pullSide == "pending" then
         local mx = self:getMouseX();
-        if mx < self.pullStartMouseX - TCA_AutopsyUI.SIDE_DECIDE then
+        local decide = TCA_AutopsyUI.SIDE_DECIDE * self.g;
+        if mx < self.pullStartMouseX - decide then
             self.pullSide = "left";
-        elseif mx > self.pullStartMouseX + TCA_AutopsyUI.SIDE_DECIDE then
+        elseif mx > self.pullStartMouseX + decide then
             self.pullSide = "right";
         else
             return;
@@ -814,7 +817,7 @@ function TCA_AutopsyUI:updateOpen()
     if side == "left" then
         outward = edgeX - self.bladeX;
     end
-    if outward < -TCA_AutopsyUI.GRIP_DIST then
+    if outward < -TCA_AutopsyUI.GRIP_DIST * self.g then
         self:loseGrip();
         return;
     end
@@ -847,7 +850,7 @@ end
 
 function TCA_AutopsyUI:findRibAt(x, y)
     local best = nil;
-    local bestDist = TCA_AutopsyUI.RIB_PICK_RADIUS;
+    local bestDist = TCA_AutopsyUI.RIB_PICK_RADIUS * self.g;
     for i = 1, #TCA.Autopsy.RIBS do
         if not self.ribs[i] then
             local sx, sy = self:getRibScreen(i);
@@ -886,11 +889,11 @@ function TCA_AutopsyUI:getSawTravel()
 end
 
 function TCA_AutopsyUI:getRibSlipDist()
-    return TCA_AutopsyUI.SLIP_DIST * self:getRibParam("slipMul", 1);
+    return TCA_AutopsyUI.SLIP_DIST * self:getRibParam("slipMul", 1) * self.g;
 end
 
 function TCA_AutopsyUI:getRibWarnDist()
-    return TCA_AutopsyUI.WARN_DIST * self:getRibParam("slipMul", 1);
+    return TCA_AutopsyUI.WARN_DIST * self:getRibParam("slipMul", 1) * self.g;
 end
 
 function TCA_AutopsyUI:isOscillating()
@@ -955,7 +958,7 @@ function TCA_AutopsyUI:updateRibs()
     else
         local side = math.abs(self.bladeX - sx);
         local along = math.abs(self.bladeY - sy);
-        local slipMul = self:getRibParam("slipMul", 1);
+        local slipMul = self:getRibParam("slipMul", 1) * self.g;
         if side > self:getRibSlipDist() or along > TCA_AutopsyUI.SAW_STROKE_SLIP * slipMul then
             self:ribSlip();
             return;
@@ -999,7 +1002,7 @@ function TCA_AutopsyUI:onMouseDown(x, y)
     end
     if self.stage == "incision" and self.incisionTool then
         local sx, sy = self:currentStartPoint();
-        if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS then
+        if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS * self.g then
             self.cutting = true;
             self.lastMouseX = x;
             self.lastMouseY = y;
@@ -1118,18 +1121,19 @@ function TCA_AutopsyUI:drawFold(side, progress)
     local top = self:getOpenTopY(bodyX);
     local bottom = TCA_AutopsyUI.OPEN_BOTTOM;
     local stepY = TCA_AutopsyUI.FOLD_STEP;
-    local w = TCA_AutopsyUI.FOLD_WIDTH;
+    local g = self.g;
+    local w = TCA_AutopsyUI.FOLD_WIDTH * g;
     local y = top;
     while y < bottom do
         local y2 = math.min(y + stepY, bottom);
         local xa, sya = self:toScreen(bodyX + self:getFoldWobble(y), y);
         local xb, syb = self:toScreen(bodyX + self:getFoldWobble(y2), y2);
         for k = 1, 3 do
-            local off = -dir * (w * 0.5 + k * 2);
-            self:thickLineScreen(xa + off, sya, xb + off, syb, 2, FOLD_SHADOW, 0.32 * fade / k);
+            local off = -dir * (w * 0.5 + k * 2 * g);
+            self:thickLineScreen(xa + off, sya, xb + off, syb, 2 * g, FOLD_SHADOW, 0.32 * fade / k);
         end
         self:thickLineScreen(xa + dir * w * 0.5, sya, xb + dir * w * 0.5, syb, w, FOLD_SKIN, 0.95 * fade);
-        self:thickLineScreen(xa + dir * (w - 0.5), sya, xb + dir * (w - 0.5), syb, 1, FOLD_SHADOW, 0.35 * fade);
+        self:thickLineScreen(xa + dir * (w - 0.5 * g), sya, xb + dir * (w - 0.5 * g), syb, g, FOLD_SHADOW, 0.35 * fade);
         y = y2;
     end
 end
@@ -1148,12 +1152,13 @@ function TCA_AutopsyUI:drawOpening()
     self:drawFold("left", self.openL);
     self:drawFold("right", self.openR);
     if not self.cutting and self.hasForceps and self:findOpenEdgeAt(self.bladeX, self.bladeY) then
-        self:fillCircleScreen(self.bladeX, self.bladeY, 7, GREEN, 0.35);
+        self:fillCircleScreen(self.bladeX, self.bladeY, 7 * self.g, GREEN, 0.35);
     end
 end
 
 function TCA_AutopsyUI:drawIncisions(alpha)
-    local dotSize = 3;
+    local g = self.g;
+    local dotSize = 3 * g;
     for i, seg in ipairs(self.segments) do
         local ax, ay, bx, by = self:getSegmentScreen(i);
 
@@ -1162,7 +1167,7 @@ function TCA_AutopsyUI:drawIncisions(alpha)
         local prevY = ay;
         for _, pt in ipairs(path) do
             local sx, sy = self:toScreen(pt.x, pt.y);
-            self:thickLineScreen(prevX, prevY, sx, sy, 3, CUT, alpha);
+            self:thickLineScreen(prevX, prevY, sx, sy, 3 * g, CUT, alpha);
             prevX = sx;
             prevY = sy;
         end
@@ -1175,7 +1180,7 @@ function TCA_AutopsyUI:drawIncisions(alpha)
         end
         if fromT >= 0 then
             local len = dist(ax, ay, bx, by);
-            local count = math.max(math.floor(len / 10), 1);
+            local count = math.max(math.floor(len / (10 * g)), 1);
             for k = 0, count do
                 local t = k / count;
                 if t >= fromT then
@@ -1194,7 +1199,7 @@ function TCA_AutopsyUI:drawIncisions(alpha)
         if self.cutting then
             c = WHITE;
         end
-        self:fillCircleScreen(sx, sy, 5 + pulse * 3, c, 0.6 * alpha);
+        self:fillCircleScreen(sx, sy, (5 + pulse * 3) * g, c, 0.6 * alpha);
     end
 end
 
@@ -1204,10 +1209,11 @@ function TCA_AutopsyUI:drawRibs()
     if not self.cutting and self.ribMode then
         hover = self:findRibAt(self.bladeX, self.bladeY);
     end
+    local g = self.g;
     for i = 1, #TCA.Autopsy.RIBS do
         local sx, sy = self:getRibScreen(i);
         if self.ribs[i] then
-            self:thickLineScreen(sx, sy - 4, sx, sy + 4, 3, GAP, 0.9);
+            self:thickLineScreen(sx, sy - 4 * g, sx, sy + 4 * g, 3 * g, GAP, 0.9);
         else
             local c = WHITE;
             local haloA = 0.15;
@@ -1215,31 +1221,33 @@ function TCA_AutopsyUI:drawRibs()
                 c = GREEN;
                 haloA = 0.35;
             end
-            self:fillCircleScreen(sx, sy, 5 + pulse * 2, c, haloA);
-            self:fillCircleScreen(sx, sy, 2, c, 0.85);
+            self:fillCircleScreen(sx, sy, (5 + pulse * 2) * g, c, haloA);
+            self:fillCircleScreen(sx, sy, 2 * g, c, 0.85);
             local work = self.ribWork[i];
             if work > 0 then
-                self:fillCircleScreen(sx, sy, 2 + 5 * work, RED, 0.7);
+                self:fillCircleScreen(sx, sy, (2 + 5 * work) * g, RED, 0.7);
             end
         end
     end
 end
 
 function TCA_AutopsyUI:drawScalpel(c)
-    self:thickLineScreen(self.bladeX, self.bladeY, self.bladeX + 10, self.bladeY - 10, 2, c, 1);
-    self:thickLineScreen(self.bladeX + 10, self.bladeY - 10, self.bladeX + 24, self.bladeY - 24, 4, HANDLE, 1);
+    local g = self.g;
+    self:thickLineScreen(self.bladeX, self.bladeY, self.bladeX + 10 * g, self.bladeY - 10 * g, 2 * g, c, 1);
+    self:thickLineScreen(self.bladeX + 10 * g, self.bladeY - 10 * g, self.bladeX + 24 * g, self.bladeY - 24 * g, 4 * g, HANDLE, 1);
 end
 
 function TCA_AutopsyUI:drawKnife(c, rank)
     local x = self.bladeX;
     local y = self.bladeY;
-    local len = 14 + (rank - 2) * 7;
-    local width = 2 + (rank - 2);
+    local g = self.g;
+    local len = (14 + (rank - 2) * 7) * g;
+    local width = (2 + (rank - 2)) * g;
     local hx = x + len * 0.71;
     local hy = y - len * 0.71;
     self:thickLineScreen(x, y, hx, hy, width, c, 1);
-    self:thickLineScreen(hx - 3, hy - 3, hx + 3, hy + 3, 2, STEEL, 1);
-    self:thickLineScreen(hx, hy, hx + 12, hy - 12, width + 3, HANDLE, 1);
+    self:thickLineScreen(hx - 3 * g, hy - 3 * g, hx + 3 * g, hy + 3 * g, 2 * g, STEEL, 1);
+    self:thickLineScreen(hx, hy, hx + 12 * g, hy - 12 * g, width + 3 * g, HANDLE, 1);
 end
 
 function TCA_AutopsyUI:drawCutter(c)
@@ -1249,23 +1257,25 @@ function TCA_AutopsyUI:drawCutter(c)
     if self.ribActive then
         work = self.ribWork[self.ribActive];
     end
-    local gap = 5 * (1 - work);
-    local pivotX = x + 7;
-    local pivotY = y + 9;
-    self:thickLineScreen(x - gap, y - 1, pivotX, pivotY, 3, c, 1);
-    self:thickLineScreen(x + gap, y + 1, pivotX, pivotY, 3, c, 1);
-    self:thickLineScreen(pivotX, pivotY, pivotX + 22 - gap, pivotY + 34, 4, CUTTER_HANDLE, 1);
-    self:thickLineScreen(pivotX, pivotY, pivotX + 30 + gap, pivotY + 26, 4, CUTTER_HANDLE, 1);
+    local g = self.g;
+    local gap = 5 * (1 - work) * g;
+    local pivotX = x + 7 * g;
+    local pivotY = y + 9 * g;
+    self:thickLineScreen(x - gap, y - g, pivotX, pivotY, 3 * g, c, 1);
+    self:thickLineScreen(x + gap, y + g, pivotX, pivotY, 3 * g, c, 1);
+    self:thickLineScreen(pivotX, pivotY, pivotX + 22 * g - gap, pivotY + 34 * g, 4 * g, CUTTER_HANDLE, 1);
+    self:thickLineScreen(pivotX, pivotY, pivotX + 30 * g + gap, pivotY + 26 * g, 4 * g, CUTTER_HANDLE, 1);
 end
 
 function TCA_AutopsyUI:drawSaw(c)
     local x = self.bladeX;
     local y = self.bladeY;
-    self:thickLineScreen(x, y - 16, x, y + 16, 4, c, 1);
+    local g = self.g;
+    self:thickLineScreen(x, y - 16 * g, x, y + 16 * g, 4 * g, c, 1);
     for k = -14, 14, 4 do
-        self:thickLineScreen(x - 2, y + k, x - 4, y + k + 2, 1, STEEL, 1);
+        self:thickLineScreen(x - 2 * g, y + k * g, x - 4 * g, y + (k + 2) * g, g, STEEL, 1);
     end
-    self:thickLineScreen(x + 1, y + 16, x + 1, y + 30, 8, HANDLE, 1);
+    self:thickLineScreen(x + g, y + 16 * g, x + g, y + 30 * g, 8 * g, HANDLE, 1);
 end
 
 function TCA_AutopsyUI:drawOscillatingSaw(c)
@@ -1275,22 +1285,25 @@ function TCA_AutopsyUI:drawOscillatingSaw(c)
     if self.cutting and self.ribActive then
         shake = math.sin(getTimestampMs() / 12) * 1.2;
     end
-    self:drawRect(x - 5 + shake, y - 1.5, 10, 3, 1, c.r, c.g, c.b);
-    self:thickLineScreen(x + 0.5, y + 1, x + 4, y + 10, 2, STEEL, 1);
-    self:thickLineScreen(x + 4, y + 10, x + 20, y + 38, 9, CUTTER_HANDLE, 1);
-    self:thickLineScreen(x + 14, y + 27, x + 17, y + 32, 2, GREEN, 1);
+    local g = self.g;
+    shake = shake * g;
+    self:drawRect(x - 5 * g + shake, y - 1.5 * g, 10 * g, 3 * g, 1, c.r, c.g, c.b);
+    self:thickLineScreen(x + 0.5 * g, y + g, x + 4 * g, y + 10 * g, 2 * g, STEEL, 1);
+    self:thickLineScreen(x + 4 * g, y + 10 * g, x + 20 * g, y + 38 * g, 9 * g, CUTTER_HANDLE, 1);
+    self:thickLineScreen(x + 14 * g, y + 27 * g, x + 17 * g, y + 32 * g, 2 * g, GREEN, 1);
 end
 
 function TCA_AutopsyUI:drawForceps(c)
     local x = self.bladeX;
     local y = self.bladeY;
-    local gap = 3;
+    local g = self.g;
+    local gap = 3 * g;
     if self.cutting then
-        gap = 0.5;
+        gap = 0.5 * g;
     end
-    self:thickLineScreen(x - gap, y, x + 14, y - 26, 2, c, 1);
-    self:thickLineScreen(x + gap, y + gap, x + 20, y - 22, 2, c, 1);
-    self:thickLineScreen(x + 14, y - 26, x + 20, y - 22, 3, STEEL, 1);
+    self:thickLineScreen(x - gap, y, x + 14 * g, y - 26 * g, 2 * g, c, 1);
+    self:thickLineScreen(x + gap, y + gap, x + 20 * g, y - 22 * g, 2 * g, c, 1);
+    self:thickLineScreen(x + 14 * g, y - 26 * g, x + 20 * g, y - 22 * g, 3 * g, STEEL, 1);
 end
 
 function TCA_AutopsyUI:drawTool()
@@ -1390,19 +1403,20 @@ end
 function TCA_AutopsyUI:drawInstructions()
     local warning = self:getMissingToolText();
     if not warning then
-        self:drawTextCentre(self:getInstructionText(), self.width / 2, self.instructionsY, 0.8, 0.8, 0.8, 1, UIFont.Small);
+        self:drawTextCentre(self:getInstructionText(), self.width / 2, self.instructionsY, 0.8, 0.8, 0.8, 1, self.fontSmall);
         return;
     end
     local tm = getTextManager();
-    local textW = tm:MeasureStringX(UIFont.Small, warning);
-    local textH = tm:getFontHeight(UIFont.Small);
+    local k = self.k;
+    local textW = tm:MeasureStringX(self.fontSmall, warning);
+    local textH = self.smallH;
     local pulse = 0.5 + 0.5 * math.sin(getTimestampMs() / 300);
-    local boxW = textW + 16;
+    local boxW = textW + 16 * k;
     local boxX = (self.width - boxW) / 2;
-    local boxY = self.instructionsY - 2;
-    self:drawRect(boxX, boxY, boxW, textH + 4, 0.6 + 0.25 * pulse, WARN_BG.r, WARN_BG.g, WARN_BG.b);
-    self:drawRectBorder(boxX, boxY, boxW, textH + 4, 0.8, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b);
-    self:drawTextCentre(warning, self.width / 2, self.instructionsY, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, UIFont.Small);
+    local boxY = self.instructionsY - 2 * k;
+    self:drawRect(boxX, boxY, boxW, textH + 4 * k, 0.6 + 0.25 * pulse, WARN_BG.r, WARN_BG.g, WARN_BG.b);
+    self:drawRectBorder(boxX, boxY, boxW, textH + 4 * k, 0.8, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b);
+    self:drawTextCentre(warning, self.width / 2, self.instructionsY, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:drawMissingToolTooltip()
@@ -1411,47 +1425,50 @@ function TCA_AutopsyUI:drawMissingToolTooltip()
         return;
     end
     local tm = getTextManager();
-    local textW = tm:MeasureStringX(UIFont.Small, warning);
-    local textH = tm:getFontHeight(UIFont.Small);
-    local boxW = textW + 12;
-    local boxH = textH + 8;
-    local x = self:getMouseX() + 16;
-    local y = self:getMouseY() + 18;
-    if x + boxW > self.width - 4 then
-        x = self.width - 4 - boxW;
+    local k = self.k;
+    local textW = tm:MeasureStringX(self.fontSmall, warning);
+    local textH = self.smallH;
+    local boxW = textW + 12 * k;
+    local boxH = textH + 8 * k;
+    local x = self:getMouseX() + 16 * k;
+    local y = self:getMouseY() + 18 * k;
+    if x + boxW > self.width - 4 * k then
+        x = self.width - 4 * k - boxW;
     end
-    if y + boxH > self.height - 4 then
-        y = self:getMouseY() - boxH - 6;
+    if y + boxH > self.height - 4 * k then
+        y = self:getMouseY() - boxH - 6 * k;
     end
     self:drawRect(x, y, boxW, boxH, 0.9, 0.05, 0.05, 0.06);
     self:drawRectBorder(x, y, boxW, boxH, 1, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b);
-    self:drawText(warning, x + 6, y + 4, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, UIFont.Small);
+    self:drawText(warning, x + 6 * k, y + 4 * k, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:drawInfo()
-    local infoY = self.height - 80;
-    local smallH = getTextManager():getFontHeight(UIFont.Small);
+    local infoY = self.infoY;
+    local smallH = self.smallH;
+    local left = 20 * self.k;
+    local right = self.width - 20 * self.k;
     if self.stage == "open" then
         local opened = math.floor((self.openL + self.openR) / 2 * 100);
-        self:drawText(getText("IGUI_TCA_SkinOpened", opened .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
-        self:drawText(getText("IGUI_TCA_Tears", self.tears), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+        self:drawText(getText("IGUI_TCA_SkinOpened", opened .. "%"), left, infoY, 1, 1, 1, 1, self.fontSmall);
+        self:drawText(getText("IGUI_TCA_Tears", self.tears), left, infoY + smallH, 1, 1, 1, 1, self.fontSmall);
     elseif self.stage == "organs" or self.stage == "done" then
         self:drawOrganInfo(infoY, smallH);
     elseif self.stage == "incision" then
         local progress = math.floor(self:getProgress() * 100);
         local accuracy = math.floor(self:getAccuracy() * 100);
-        self:drawText(getText("IGUI_TCA_Progress", progress .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
-        self:drawText(getText("IGUI_TCA_Accuracy", accuracy .. "%"), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+        self:drawText(getText("IGUI_TCA_Progress", progress .. "%"), left, infoY, 1, 1, 1, 1, self.fontSmall);
+        self:drawText(getText("IGUI_TCA_Accuracy", accuracy .. "%"), left, infoY + smallH, 1, 1, 1, 1, self.fontSmall);
         self:drawIncisionToolInfo(infoY + smallH * 2);
     else
         local done = TCA.Autopsy.countRibs(self.ribs);
-        self:drawText(getText("IGUI_TCA_Ribs", done, #TCA.Autopsy.RIBS), 20, infoY, 1, 1, 1, 1, UIFont.Small);
+        self:drawText(getText("IGUI_TCA_Ribs", done, #TCA.Autopsy.RIBS), left, infoY, 1, 1, 1, 1, self.fontSmall);
         if self.ribTool then
-            self:drawText(getText("IGUI_TCA_Tool", self.ribTool:getDisplayName()), 20, infoY + smallH, 0.8, 0.8, 0.8, 1, UIFont.Small);
+            self:drawText(getText("IGUI_TCA_Tool", self.ribTool:getDisplayName()), left, infoY + smallH, 0.8, 0.8, 0.8, 1, self.fontSmall);
         end
     end
-    self:drawTextRight(getText("IGUI_TCA_Cuts", self.cuts), self.width - 20, infoY, 1, 0.6, 0.6, 1, UIFont.Small);
-    self:drawTextRight(self:getTremorLabel(self:getTremorAmplitude()), self.width - 20, infoY + smallH, 0.8, 0.8, 1, 1, UIFont.Small);
+    self:drawTextRight(getText("IGUI_TCA_Cuts", self.cuts), right, infoY, 1, 0.6, 0.6, 1, self.fontSmall);
+    self:drawTextRight(self:getTremorLabel(self:getTremorAmplitude()), right, infoY + smallH, 0.8, 0.8, 1, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:drawIncisionToolInfo(y)
@@ -1469,10 +1486,10 @@ function TCA_AutopsyUI:drawIncisionToolInfo(y)
     local name = tool:getDisplayName();
     if #notes > 0 then
         name = name .. " (" .. table.concat(notes, ", ") .. ")";
-        self:drawText(getText("IGUI_TCA_Tool", name), 20, y, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, UIFont.Small);
+        self:drawText(getText("IGUI_TCA_Tool", name), 20 * self.k, y, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, self.fontSmall);
         return;
     end
-    self:drawText(getText("IGUI_TCA_Tool", name), 20, y, 0.8, 0.8, 0.8, 1, UIFont.Small);
+    self:drawText(getText("IGUI_TCA_Tool", name), 20 * self.k, y, 0.8, 0.8, 0.8, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:prerender()
@@ -1480,7 +1497,7 @@ function TCA_AutopsyUI:prerender()
     ISPanel.prerender(self);
     self:updateStage();
 
-    self:drawTextCentre(self:getTitleText(), self.width / 2, self.titleY, 1, 1, 1, 1, UIFont.Medium);
+    self:drawTextCentre(self:getTitleText(), self.width / 2, self.titleY, 1, 1, 1, 1, self.fontMedium);
     self:drawInstructions();
 
     self:setStencilRect(self.viewX, self.viewY, self.viewW, self.viewH);
@@ -1601,30 +1618,34 @@ end
 function TCA_AutopsyUI:drawReport()
     local A = TCA.Autopsy;
     local tm = getTextManager();
-    local smallH = tm:getFontHeight(UIFont.Small);
-    local mediumH = tm:getFontHeight(UIFont.Medium);
+    local k = self.k;
+    local smallH = self.smallH;
+    local mediumH = self.mediumH;
     local lines, score = self:getReportLines();
     local grade = A.getGradeIndex(score);
     local c = TCA_AutopsyUI.GRADE_COLORS[grade];
-    local pad = 12;
-    local w = TCA_AutopsyUI.REPORT_W;
-    local h = pad * 2 + mediumH + 8 + #lines * (smallH + 2) + 10 + mediumH + 4 + smallH;
+    local pad = 12 * k;
+    local w = TCA_AutopsyUI.REPORT_W * k;
+    for i = 1, #lines do
+        w = math.max(w, tm:MeasureStringX(self.fontSmall, lines[i].label) + tm:MeasureStringX(self.fontSmall, lines[i].value) + pad * 3);
+    end
+    local h = pad * 2 + mediumH + 8 * k + #lines * (smallH + 2 * k) + 10 * k + mediumH + 4 * k + smallH;
     local x = self.viewX + (self.viewW - w) / 2;
     local y = self.viewY + (self.viewH - h) / 2;
     self:drawRect(x, y, w, h, 0.85, 0.05, 0.05, 0.06);
     self:drawRectBorder(x, y, w, h, 1, c.r, c.g, c.b);
     local ty = y + pad;
-    self:drawTextCentre(getText("IGUI_TCA_ReportTitle"), x + w / 2, ty, 1, 1, 1, 1, UIFont.Medium);
-    ty = ty + mediumH + 8;
+    self:drawTextCentre(getText("IGUI_TCA_ReportTitle"), x + w / 2, ty, 1, 1, 1, 1, self.fontMedium);
+    ty = ty + mediumH + 8 * k;
     for i = 1, #lines do
-        self:drawText(lines[i].label, x + pad, ty, 0.8, 0.8, 0.8, 1, UIFont.Small);
-        self:drawTextRight(lines[i].value, x + w - pad, ty, 1, 1, 1, 1, UIFont.Small);
-        ty = ty + smallH + 2;
+        self:drawText(lines[i].label, x + pad, ty, 0.8, 0.8, 0.8, 1, self.fontSmall);
+        self:drawTextRight(lines[i].value, x + w - pad, ty, 1, 1, 1, 1, self.fontSmall);
+        ty = ty + smallH + 2 * k;
     end
-    ty = ty + 10;
-    self:drawTextCentre(getText("IGUI_TCA_ReportScore", score), x + w / 2, ty, c.r, c.g, c.b, 1, UIFont.Medium);
-    ty = ty + mediumH + 4;
-    self:drawTextCentre(getText("IGUI_TCA_Grade" .. grade), x + w / 2, ty, c.r, c.g, c.b, 1, UIFont.Small);
+    ty = ty + 10 * k;
+    self:drawTextCentre(getText("IGUI_TCA_ReportScore", score), x + w / 2, ty, c.r, c.g, c.b, 1, self.fontMedium);
+    ty = ty + mediumH + 4 * k;
+    self:drawTextCentre(getText("IGUI_TCA_Grade" .. grade), x + w / 2, ty, c.r, c.g, c.b, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:collectResult()
@@ -1671,11 +1692,13 @@ function TCA_AutopsyUI.open(character, tableObject)
     if TCA_AutopsyUI.instance then
         TCA_AutopsyUI.instance:closeSilently();
     end
-    local w = TCA_AutopsyUI.WIDTH;
-    local h = TCA_AutopsyUI.HEIGHT;
+    local k = TCA_UIScale.get(TCA_AutopsyUI.WIDTH, TCA_AutopsyUI.HEIGHT);
+    local w = math.floor(TCA_AutopsyUI.WIDTH * k);
+    local h = math.floor(TCA_AutopsyUI.HEIGHT * k);
     local x = (getCore():getScreenWidth() - w) / 2;
     local y = (getCore():getScreenHeight() - h) / 2;
     local ui = TCA_AutopsyUI:new(x, y, w, h, character, tableObject);
+    ui.uiScale = k;
     ui:initialise();
     ui:instantiate();
     TCA_UIDrag.restore(ui, "autopsy");

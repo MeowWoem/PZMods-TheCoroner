@@ -166,7 +166,7 @@ function TCA_AutopsyUI:findAttachAt(x, y)
         return nil;
     end
     local best = nil;
-    local bestDist = TCA_AutopsyUI.START_RADIUS;
+    local bestDist = TCA_AutopsyUI.START_RADIUS * self.g;
     for i = 1, #organ.attaches do
         if not self.attachCut[i] then
             local sx, sy = self:getAttachStartScreen(i);
@@ -260,17 +260,17 @@ function TCA_AutopsyUI:updateAttachCut()
     end
     local ax, ay, bx, by = self:getAttachSegmentScreen(index);
     local t, d = oproject(self.bladeX, self.bladeY, ax, ay, bx, by);
-    if d > TCA_AutopsyUI.SLIP_DIST then
+    if d > TCA_AutopsyUI.SLIP_DIST * self.g then
         self:attachSlip("IGUI_TCA_OrganNick");
         return;
     end
-    if d > TCA_AutopsyUI.WARN_DIST then
+    if d > TCA_AutopsyUI.WARN_DIST * self.g then
         self.warn = true;
         return;
     end
     local work = self.attachWork[index];
     local len = odist(ax, ay, bx, by);
-    if t > work and (t - work) * len <= TCA_AutopsyUI.ATTACH_MAX_STEP then
+    if t > work and (t - work) * len <= TCA_AutopsyUI.ATTACH_MAX_STEP * self.g then
         self.attachWork[index] = t;
     end
     if self.attachWork[index] >= TCA_AutopsyUI.SEGMENT_DONE then
@@ -293,7 +293,7 @@ function TCA_AutopsyUI:updateOrganDrag()
         drag.rough = true;
         self:damageOrgan("IGUI_TCA_OrganRough");
     end
-    if odist(0, 0, drag.dx, drag.dy) >= TCA_AutopsyUI.EXTRACT_DIST then
+    if odist(0, 0, drag.dx, drag.dy) >= TCA_AutopsyUI.EXTRACT_DIST * self.g then
         self:extractOrgan();
     end
 end
@@ -406,7 +406,7 @@ function TCA_AutopsyUI:drawOrganFly()
     local fly = self.organFly;
     local t = oclamp01((getTimestampMs() - fly.time) / TCA_AutopsyUI.ORGAN_FLY_MS);
     local len = math.max(odist(0, 0, fly.dx, fly.dy), 1);
-    local extra = 60 * t;
+    local extra = 60 * t * self.g;
     local offX = fly.dx + fly.dx / len * extra;
     local offY = fly.dy + fly.dy / len * extra;
     self:drawPieceTexture(fly.piece, fly.tex, offX, offY, 1 - t);
@@ -436,17 +436,17 @@ function TCA_AutopsyUI:drawAttaches()
         local cx = ax + (bx - ax) * work;
         local cy = ay + (by - ay) * work;
         if work > 0 then
-            self:thickLineScreen(ax, ay, cx, cy, 3, O_GAP, 0.9);
+            self:thickLineScreen(ax, ay, cx, cy, 3 * self.g, O_GAP, 0.9);
         end
         if not self.attachCut[i] then
             local len = odist(ax, ay, bx, by);
-            local count = math.max(math.floor(len / TCA_AutopsyUI.ATTACH_DOT_STEP), 1);
+            local count = math.max(math.floor(len / (TCA_AutopsyUI.ATTACH_DOT_STEP * self.g)), 1);
             for k = 0, count do
                 local t = k / count;
                 if t >= work then
                     local x = ax + (bx - ax) * t;
                     local y = ay + (by - ay) * t;
-                    self:drawRect(x - 1, y - 1, 2, 2, 0.85, O_WHITE.r, O_WHITE.g, O_WHITE.b);
+                    self:drawRect(x - self.g, y - self.g, 2 * self.g, 2 * self.g, 0.85, O_WHITE.r, O_WHITE.g, O_WHITE.b);
                 end
             end
             local c = O_WHITE;
@@ -455,7 +455,7 @@ function TCA_AutopsyUI:drawAttaches()
                 c = O_GREEN;
                 haloA = 0.5;
             end
-            self:fillCircleScreen(cx, cy, 3 + pulse * 2, c, haloA);
+            self:fillCircleScreen(cx, cy, (3 + pulse * 2) * self.g, c, haloA);
         end
     end
 end
@@ -521,31 +521,32 @@ function TCA_AutopsyUI:drawOrganTooltip()
     end
     local lines = self:getOrganTooltipLines(organ);
     local tm = getTextManager();
-    local lineH = tm:getFontHeight(UIFont.Small);
+    local k = self.k;
+    local lineH = self.smallH;
     local boxW = 0;
     for _, line in ipairs(lines) do
-        boxW = math.max(boxW, tm:MeasureStringX(UIFont.Small, line.text));
+        boxW = math.max(boxW, tm:MeasureStringX(self.fontSmall, line.text));
     end
-    boxW = boxW + 12;
-    local boxH = #lines * lineH + 8;
+    boxW = boxW + 12 * k;
+    local boxH = #lines * lineH + 8 * k;
     local anchorX = self:getMouseX();
     local anchorY = self:getMouseY();
     if self:isToolShown() then
         anchorX = self.bladeX;
         anchorY = self.bladeY;
     end
-    local x = anchorX + 18;
-    local y = anchorY + 18;
-    if x + boxW > self.width - 4 then
-        x = anchorX - boxW - 12;
+    local x = anchorX + 18 * k;
+    local y = anchorY + 18 * k;
+    if x + boxW > self.width - 4 * k then
+        x = anchorX - boxW - 12 * k;
     end
-    if y + boxH > self.height - 4 then
-        y = anchorY - boxH - 8;
+    if y + boxH > self.height - 4 * k then
+        y = anchorY - boxH - 8 * k;
     end
     self:drawRect(x, y, boxW, boxH, 0.9, 0.05, 0.05, 0.06);
     self:drawRectBorder(x, y, boxW, boxH, 1, 0.45, 0.45, 0.5);
     for i, line in ipairs(lines) do
-        self:drawText(line.text, x + 6, y + 4 + (i - 1) * lineH, line.color.r, line.color.g, line.color.b, 1, UIFont.Small);
+        self:drawText(line.text, x + 6 * k, y + 4 * k + (i - 1) * lineH, line.color.r, line.color.g, line.color.b, 1, self.fontSmall);
     end
 end
 
@@ -557,8 +558,8 @@ function TCA_AutopsyUI:getOrganInstructionText()
 end
 
 function TCA_AutopsyUI:drawOrganInfo(infoY, smallH)
-    self:drawText(getText("IGUI_TCA_OrgansDone", self.organsDone, #TCA.Organs.LIST), 20, infoY, 1, 1, 1, 1, UIFont.Small);
-    self:drawText(getText("IGUI_TCA_OrgansDamaged", self.organDamage + TCA.Autopsy.countPreDamage(self.preDamage)), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+    self:drawText(getText("IGUI_TCA_OrgansDone", self.organsDone, #TCA.Organs.LIST), 20 * self.k, infoY, 1, 1, 1, 1, self.fontSmall);
+    self:drawText(getText("IGUI_TCA_OrgansDamaged", self.organDamage + TCA.Autopsy.countPreDamage(self.preDamage)), 20 * self.k, infoY + smallH, 1, 1, 1, 1, self.fontSmall);
 end
 
 function TCA_AutopsyUI:isOverPlastron(x, y)
@@ -588,7 +589,7 @@ function TCA_AutopsyUI:updatePlastron()
     local drag = self.organDrag;
     drag.dx = self:getMouseX() - drag.grabX;
     drag.dy = self:getMouseY() - drag.grabY;
-    if odist(0, 0, drag.dx, drag.dy) >= TCA_AutopsyUI.EXTRACT_DIST then
+    if odist(0, 0, drag.dx, drag.dy) >= TCA_AutopsyUI.EXTRACT_DIST * self.g then
         self:extractPlastron();
     end
 end
