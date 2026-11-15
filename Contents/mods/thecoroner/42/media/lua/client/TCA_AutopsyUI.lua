@@ -218,6 +218,18 @@ function TCA_AutopsyUI:initialise()
     self.ribDef = nil;
     self.toolCheckTime = 0;
     self.hasForceps = false;
+    self.incisionTool = nil;
+    self.incisionDef = nil;
+    self.incisionParams = nil;
+    self.edge = 1;
+    self.bladeRank = 1;
+    self.preDamage = {};
+    if body then
+        self.edge = A.getEdge(body);
+        self.bladeRank = A.getBladeRank(body);
+        self.preDamage = A.decodePreDamage(body:getModData()["TCA_A_predmg"]);
+    end
+    self.startPreDamage = A.encodePreDamage(self.preDamage);
 
     self.layerOpened = getTexture(TCA_AutopsyUI.LAYER_OPENED);
     self.layerChest = getTexture(TCA_AutopsyUI.LAYER_CHEST);
@@ -348,6 +360,10 @@ function TCA_AutopsyUI:debugGoTo(pos)
     self.startOpenL = opened;
     self.startOpenR = opened;
     self.startTears = 0;
+    self.edge = 1;
+    self.bladeRank = 1;
+    self.preDamage = {};
+    self.startPreDamage = "";
 
     for i = 1, #A.RIBS do
         self.ribs[i] = pos >= 3;
@@ -424,6 +440,9 @@ function TCA_AutopsyUI:refreshTools(force)
     end
     self.toolCheckTime = now;
 
+    if self.stage == "incision" and not self.cutting then
+        self:refreshIncisionTool();
+    end
     if self.stage == "ribs" and not self.cutting then
         self.ribTool, self.ribMode, self.ribDef = TCA.Autopsy.findRibTool(self.character);
     end
@@ -437,6 +456,41 @@ function TCA_AutopsyUI:refreshTools(force)
         self.finishButton:setTitle(getText("IGUI_TCA_Finish"));
     else
         self.finishButton:setTitle(getText("IGUI_TCA_Stop"));
+    end
+end
+
+function TCA_AutopsyUI:refreshIncisionTool()
+    local A = TCA.Autopsy;
+    local item, def = A.findIncisionTool(self.character);
+    self.incisionTool = item;
+    self.incisionDef = def;
+    self.incisionParams = nil;
+    if item then
+        self.incisionParams = A.getIncisionParams(self.character, item, def);
+    end
+end
+
+function TCA_AutopsyUI:getIncisionTolerance()
+    if self.incisionParams then
+        return self.incisionParams.tolMul;
+    end
+    return 1;
+end
+
+function TCA_AutopsyUI:isBladeIncision()
+    return self.incisionDef ~= nil and self.incisionDef.rank > 1;
+end
+
+function TCA_AutopsyUI:markBlade()
+    local p = self.incisionParams;
+    if not p then
+        return;
+    end
+    if p.tearMul < self.edge then
+        self.edge = p.tearMul;
+    end
+    if p.rank > self.bladeRank then
+        self.bladeRank = p.rank;
     end
 end
 
@@ -455,6 +509,9 @@ function TCA_AutopsyUI:getTremorAmplitude()
     end
     if amp < TCA_AutopsyUI.TREMOR_MIN then
         amp = TCA_AutopsyUI.TREMOR_MIN;
+    end
+    if self.stage == "incision" and self.incisionParams then
+        amp = amp * self.incisionParams.tremorMul;
     end
     amp = amp * TCA.BetaBlocker.getTremorFactor(chr);
     return amp * TCA.Sandbox.getTremorMultiplier();
@@ -513,12 +570,39 @@ function TCA_AutopsyUI:currentStartPoint()
     return ax + (bx - ax) * self.segProgress, ay + (by - ay) * self.segProgress;
 end
 
-function TCA_AutopsyUI:slip(reasonKey)
+function TCA_AutopsyUI:slip(reasonKey, incision)
     self.cuts = self.cuts + 1;
     self.cutting = false;
     self.flashTime = getTimestampMs();
     self:addBadMessage(reasonKey);
-    TCA_Client.requestCut(self.character);
+    TCA_Client.requestCut(self.character, incision);
+end
+
+function TCA_AutopsyUI:tryNickOrgan()
+    local A = TCA.Autopsy;
+    local p = self.incisionParams;
+    if not p or p.deepChance <= 0 then
+        return;
+    end
+    local _, by = self:toBody(self.bladeX, self.bladeY);
+    local organ = A.getNickOrgan(self.segIndex, by);
+    if not organ then
+        return;
+    end
+    local n = self.preDamage[organ] or 0;
+    if n >= A.PREDMG_MAX or ZombRand(100) >= p.deepChance then
+        return;
+    end
+    self.preDamage[organ] = n + 1;
+    self:addBadMessageText(getText("IGUI_TCA_IncisionTooDeep", getText("IGUI_TCA_Organ_" .. organ)));
+end
+
+function TCA_AutopsyUI:incisionSlip(reasonKey)
+    if reasonKey == "IGUI_TCA_Slip" and self:isBladeIncision() then
+        reasonKey = "IGUI_TCA_SlipBlade";
+    end
+    self:slip(reasonKey, true);
+    self:tryNickOrgan();
 end
 
 function TCA_AutopsyUI:addPathPoint(screenX, screenY)
@@ -537,23 +621,25 @@ function TCA_AutopsyUI:updateCut()
     end
 
     if self.speed > TCA_AutopsyUI.MAX_SPEED then
-        self:slip("IGUI_TCA_TooFast");
+        self:incisionSlip("IGUI_TCA_TooFast");
         return;
     end
 
     local ax, ay, bx, by = self:getSegmentScreen(self.segIndex);
     local tProj, d = project(self.bladeX, self.bladeY, ax, ay, bx, by);
+    local tol = self:getIncisionTolerance();
 
-    if d > TCA_AutopsyUI.SLIP_DIST then
-        self:slip("IGUI_TCA_Slip");
+    if d > TCA_AutopsyUI.SLIP_DIST * tol then
+        self:incisionSlip("IGUI_TCA_Slip");
         return;
     end
-    if d > TCA_AutopsyUI.WARN_DIST then
+    if d > TCA_AutopsyUI.WARN_DIST * tol then
         self.warn = true;
         return;
     end
 
     if tProj > self.segProgress and tProj - self.segProgress <= TCA_AutopsyUI.MAX_STEP then
+        self:markBlade();
         self.segProgress = tProj;
         self.devSum = self.devSum + d;
         self.devCount = self.devCount + 1;
@@ -616,7 +702,10 @@ function TCA_AutopsyUI:findOpenEdgeAt(x, y)
 end
 
 function TCA_AutopsyUI:addBadMessage(key)
-    local text = getText(key);
+    self:addBadMessageText(getText(key));
+end
+
+function TCA_AutopsyUI:addBadMessageText(text)
     HaloTextHelper.addBadText(self.character, text);
     if not self.messages then
         self.messages = {};
@@ -711,11 +800,12 @@ function TCA_AutopsyUI:updateOpen()
         outwardDX = -self.mouseDX;
     end
     self.pullSpeed = self.pullSpeed * 0.7 + (math.max(outwardDX, 0) / self.dt) * 0.3;
-    if self.pullSpeed > TCA_AutopsyUI.TEAR_SPEED then
+    local tearSpeed = TCA_AutopsyUI.TEAR_SPEED * self.edge;
+    if self.pullSpeed > tearSpeed then
         self:tearSkin();
         return;
     end
-    if self.pullSpeed > TCA_AutopsyUI.TEAR_SPEED * 0.75 then
+    if self.pullSpeed > tearSpeed * 0.75 then
         self.warn = true;
     end
 
@@ -907,7 +997,7 @@ function TCA_AutopsyUI:onMouseDown(x, y)
     if not self.cutting and TCA_UIDrag.begin(self, x, y) then
         return true;
     end
-    if self.stage == "incision" then
+    if self.stage == "incision" and self.incisionTool then
         local sx, sy = self:currentStartPoint();
         if dist(self.bladeX, self.bladeY, sx, sy) <= TCA_AutopsyUI.START_RADIUS then
             self.cutting = true;
@@ -1140,6 +1230,18 @@ function TCA_AutopsyUI:drawScalpel(c)
     self:thickLineScreen(self.bladeX + 10, self.bladeY - 10, self.bladeX + 24, self.bladeY - 24, 4, HANDLE, 1);
 end
 
+function TCA_AutopsyUI:drawKnife(c, rank)
+    local x = self.bladeX;
+    local y = self.bladeY;
+    local len = 14 + (rank - 2) * 7;
+    local width = 2 + (rank - 2);
+    local hx = x + len * 0.71;
+    local hy = y - len * 0.71;
+    self:thickLineScreen(x, y, hx, hy, width, c, 1);
+    self:thickLineScreen(hx - 3, hy - 3, hx + 3, hy + 3, 2, STEEL, 1);
+    self:thickLineScreen(hx, hy, hx + 12, hy - 12, width + 3, HANDLE, 1);
+end
+
 function TCA_AutopsyUI:drawCutter(c)
     local x = self.bladeX;
     local y = self.bladeY;
@@ -1197,7 +1299,11 @@ function TCA_AutopsyUI:drawTool()
         c = RED;
     end
     if self.stage == "incision" then
-        self:drawScalpel(c);
+        if self:isBladeIncision() then
+            self:drawKnife(c, self.incisionDef.rank);
+        elseif self.incisionTool then
+            self:drawScalpel(c);
+        end
     elseif self.stage == "open" then
         if self.hasForceps then
             self:drawForceps(c);
@@ -1269,7 +1375,9 @@ function TCA_AutopsyUI:getInstructionText()
 end
 
 function TCA_AutopsyUI:getMissingToolText()
-    if self.stage == "open" and not self.hasForceps then
+    if self.stage == "incision" and not self.incisionTool then
+        return getText("Tooltip_TCA_NeedBlade");
+    elseif self.stage == "open" and not self.hasForceps then
         return getText("Tooltip_TCA_NeedForceps");
     elseif self.stage == "ribs" and not self.ribMode then
         return getText("Tooltip_TCA_NeedRibTool");
@@ -1334,6 +1442,7 @@ function TCA_AutopsyUI:drawInfo()
         local accuracy = math.floor(self:getAccuracy() * 100);
         self:drawText(getText("IGUI_TCA_Progress", progress .. "%"), 20, infoY, 1, 1, 1, 1, UIFont.Small);
         self:drawText(getText("IGUI_TCA_Accuracy", accuracy .. "%"), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+        self:drawIncisionToolInfo(infoY + smallH * 2);
     else
         local done = TCA.Autopsy.countRibs(self.ribs);
         self:drawText(getText("IGUI_TCA_Ribs", done, #TCA.Autopsy.RIBS), 20, infoY, 1, 1, 1, 1, UIFont.Small);
@@ -1343,6 +1452,27 @@ function TCA_AutopsyUI:drawInfo()
     end
     self:drawTextRight(getText("IGUI_TCA_Cuts", self.cuts), self.width - 20, infoY, 1, 0.6, 0.6, 1, UIFont.Small);
     self:drawTextRight(self:getTremorLabel(self:getTremorAmplitude()), self.width - 20, infoY + smallH, 0.8, 0.8, 1, 1, UIFont.Small);
+end
+
+function TCA_AutopsyUI:drawIncisionToolInfo(y)
+    local tool = self.incisionTool;
+    if not tool then
+        return;
+    end
+    local notes = {};
+    if self:isBladeIncision() then
+        table.insert(notes, getText("IGUI_TCA_BladeImprecise"));
+    end
+    if TCA.Autopsy.isDullBlade(tool) then
+        table.insert(notes, getText("IGUI_TCA_BladeDull"));
+    end
+    local name = tool:getDisplayName();
+    if #notes > 0 then
+        name = name .. " (" .. table.concat(notes, ", ") .. ")";
+        self:drawText(getText("IGUI_TCA_Tool", name), 20, y, WARN_TEXT.r, WARN_TEXT.g, WARN_TEXT.b, 1, UIFont.Small);
+        return;
+    end
+    self:drawText(getText("IGUI_TCA_Tool", name), 20, y, 0.8, 0.8, 0.8, 1, UIFont.Small);
 end
 
 function TCA_AutopsyUI:prerender()
@@ -1368,7 +1498,7 @@ end
 
 function TCA_AutopsyUI:isToolShown()
     if self.stage == "incision" then
-        return true;
+        return self.incisionTool ~= nil;
     end
     if self.stage == "open" then
         return self.hasForceps;
@@ -1440,10 +1570,32 @@ function TCA_AutopsyUI:getReportLines()
     local acc = self:getAccuracy();
     local lines = {};
     table.insert(lines, { label = getText("IGUI_TCA_ReportAccuracy"), value = math.floor(acc * 100) .. " %" });
+    local edgeKey = self:getEdgeKey();
+    if edgeKey then
+        table.insert(lines, { label = getText("IGUI_TCA_ReportEdges"), value = getText(edgeKey) });
+    end
     table.insert(lines, { label = getText("IGUI_TCA_ReportTears"), value = tostring(self.tears) });
+    local nicked = TCA.Autopsy.countPreDamage(self.preDamage);
+    if nicked > 0 then
+        table.insert(lines, { label = getText("IGUI_TCA_ReportNicked"), value = tostring(nicked) });
+    end
     table.insert(lines, { label = getText("IGUI_TCA_ReportOrgans"), value = tostring(self.organDamage) });
     table.insert(lines, { label = getText("IGUI_TCA_ReportCuts"), value = tostring(self.cuts) });
-    return lines, TCA.Autopsy.computeScore(acc, self.tears, self.organDamage, self.cuts);
+    return lines, TCA.Autopsy.computeScore(acc, self.tears, self.organDamage + nicked, self.cuts);
+end
+
+function TCA_AutopsyUI:getEdgeKey()
+    local A = TCA.Autopsy;
+    if self.bladeRank <= 1 or self.edge >= 0.999 then
+        return nil;
+    end
+    if self.edge < A.EDGE_VERY_ROUGH then
+        return "IGUI_TCA_Edge_3";
+    end
+    if self.edge < A.EDGE_ROUGH then
+        return "IGUI_TCA_Edge_2";
+    end
+    return "IGUI_TCA_Edge_1";
 end
 
 function TCA_AutopsyUI:drawReport()
@@ -1496,10 +1648,11 @@ function TCA_AutopsyUI:collectResult()
     result.plastron = self.plastronRemoved and not self.startPlastron;
     result.attach = self:getAttachString();
     result.cuts = self.cuts;
+    result.preDamage = A.encodePreDamage(self.preDamage);
     local organsChanged = result.plastron or self.organsDone > self.startOrgansDone or self.organDamage > self.startOrganDamage or result.attach ~= self.startAttach;
     local newRibs = A.countRibs(self.ribs) > self.startRibCount;
     local openChanged = math.abs(self.openL - self.startOpenL) > 0.0001 or math.abs(self.openR - self.startOpenR) > 0.0001 or self.tears ~= self.startTears;
-    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged or self.cuts > self.startCuts;
+    result.advanced = self:getProgress() > self.startFraction + 0.0001 or openChanged or newRibs or organsChanged or self.cuts > self.startCuts or result.preDamage ~= self.startPreDamage;
     return result;
 end
 

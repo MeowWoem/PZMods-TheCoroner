@@ -14,6 +14,7 @@ A.ORGAN_ITEM_PREFIX = "TCA.Organ_";
 A.CHEST_PLATE_ITEM = "TCA.ChestPlate";
 
 A.SYNC_FLAGS = 0xc00003808b;
+A.SYNC_FLAGS_DEEP = 0xc00007818b;
 
 A.XP_OPEN = 5;
 A.XP_PER_RIB = 1.5;
@@ -295,6 +296,204 @@ function A.findScalpel(character)
     return character:getInventory():getFirstTypeRecurse("Scalpel");
 end
 
+A.FINE_KNIVES = {
+    StraightRazor = true,
+    KnifeParing = true,
+    KnifeFillet = true,
+    SmallKnife = true,
+    KnifePocket = true,
+    SteakKnife = true,
+    SwitchKnife = true,
+    KnifeButterfly = true,
+    KnifeSushi = true,
+};
+
+A.BUTCHER_MITIGATION = 0.5;
+A.DULL_TREMOR = 0.3;
+A.DULL_TOLERANCE = 0.15;
+A.DULL_TEAR = 0.2;
+A.EDGE_ROUGH = 0.8;
+A.EDGE_VERY_ROUGH = 0.65;
+A.PREDMG_MAX = 3;
+
+A.NICK_SEGMENT = 3;
+A.NICK_ZONES = {
+    { y1 = 145, y2 = 175, organ = "stomach" },
+    { y1 = 175, y2 = 212, organ = "intestines" },
+    { y1 = 212, y2 = 235, organ = "bladder" },
+};
+
+function A.getBladeSharpness(item)
+    if not item or not item:hasSharpness() then
+        return 1;
+    end
+    local s = item:getSharpness();
+    if s < 0 then
+        return 0;
+    end
+    if s > 1 then
+        return 1;
+    end
+    return s;
+end
+
+local function compareSharpness(a, b)
+    return A.getBladeSharpness(a) - A.getBladeSharpness(b);
+end
+
+local function isLongBlade(item)
+    local script = item:getScriptItem();
+    return script ~= nil and script:containsWeaponCategory(WeaponCategory.LONG_BLADE);
+end
+
+local function isScalpelBlade(item)
+    return item:getType() == "Scalpel" and isNotBroken(item);
+end
+
+local function isFineBlade(item)
+    return isNotBroken(item) and A.FINE_KNIVES[item:getType()] == true and item:hasTag(ItemTag.SHARP_KNIFE);
+end
+
+local function isKnifeBlade(item)
+    return isNotBroken(item) and item:hasTag(ItemTag.SHARP_KNIFE) and not isLongBlade(item);
+end
+
+local function isLargeBlade(item)
+    return isNotBroken(item) and item:hasTag(ItemTag.SHARP_KNIFE) and isLongBlade(item);
+end
+
+A.INCISION_TOOLS = {
+    { id = "scalpel", rank = 1, predicate = isScalpelBlade, tremorMul = 1, tolMul = 1, tearMul = 1, deepChance = 0, deepWoundChance = 0, xpMul = 1 },
+    { id = "fine", rank = 2, predicate = isFineBlade, tremorMul = 1.1, tolMul = 0.95, tearMul = 0.85, deepChance = 0, deepWoundChance = 0, xpMul = 0.75, wearMul = 1.5 },
+    { id = "knife", rank = 3, predicate = isKnifeBlade, tremorMul = 1.25, tolMul = 0.85, tearMul = 0.7, deepChance = 30, deepWoundChance = 15, xpMul = 0.5, wearMul = 1.5 },
+    { id = "large", rank = 4, predicate = isLargeBlade, tremorMul = 1.4, tolMul = 0.75, tearMul = 0.55, deepChance = 50, deepWoundChance = 35, xpMul = 0.5, wearMul = 1.5 },
+};
+
+function A.getIncisionDef(rank)
+    for _, def in ipairs(A.INCISION_TOOLS) do
+        if def.rank == rank then
+            return def;
+        end
+    end
+    return nil;
+end
+
+function A.findIncisionTool(character)
+    local inv = character:getInventory();
+    for _, def in ipairs(A.INCISION_TOOLS) do
+        local item = inv:getBestEvalRecurse(def.predicate, compareSharpness);
+        if item then
+            return item, def;
+        end
+    end
+    return nil, nil;
+end
+
+function A.getButcheringMitigation(character, def)
+    if not def or def.rank <= 1 then
+        return 0;
+    end
+    local level = math.min(character:getPerkLevel(Perks.Butchering), 10);
+    return level / 10 * A.BUTCHER_MITIGATION;
+end
+
+local function softenUp(mul, mit)
+    return 1 + (mul - 1) * (1 - mit);
+end
+
+local function softenDown(mul, mit)
+    return 1 - (1 - mul) * (1 - mit);
+end
+
+function A.getIncisionParams(character, item, def)
+    local p = {};
+    local dull = 1 - A.getBladeSharpness(item);
+    local mit = A.getButcheringMitigation(character, def);
+    p.rank = def.rank;
+    p.dull = dull;
+    p.tremorMul = softenUp(def.tremorMul, mit) * (1 + dull * A.DULL_TREMOR);
+    p.tolMul = softenDown(def.tolMul, mit) * (1 - dull * A.DULL_TOLERANCE);
+    p.tearMul = softenDown(def.tearMul, mit) * (1 - dull * A.DULL_TEAR);
+    p.deepChance = def.deepChance * (1 - mit) * (1 + dull);
+    p.deepWoundChance = def.deepWoundChance * (1 - mit) * (1 + dull);
+    p.xpMul = def.xpMul;
+    return p;
+end
+
+function A.isDullBlade(item)
+    return item ~= nil and item:isDull();
+end
+
+function A.wearBlade(item, def)
+    if not item or not def or not def.wearMul then
+        return;
+    end
+    item:damageCheck(0, def.wearMul, true);
+    item:syncItemFields();
+end
+
+function A.getNickOrgan(segIndex, bodyY)
+    if segIndex ~= A.NICK_SEGMENT then
+        return nil;
+    end
+    for _, zone in ipairs(A.NICK_ZONES) do
+        if bodyY >= zone.y1 and bodyY < zone.y2 then
+            return zone.organ;
+        end
+    end
+    return nil;
+end
+
+function A.isNickOrgan(organId)
+    for _, zone in ipairs(A.NICK_ZONES) do
+        if zone.organ == organId then
+            return true;
+        end
+    end
+    return false;
+end
+
+function A.decodePreDamage(str)
+    local map = {};
+    for id, n in string.gmatch(tostring(str or ""), "(%a+):(%d+)") do
+        if A.isNickOrgan(id) then
+            map[id] = math.min(tonumber(n) or 0, A.PREDMG_MAX);
+        end
+    end
+    return map;
+end
+
+function A.encodePreDamage(map)
+    local parts = {};
+    for _, zone in ipairs(A.NICK_ZONES) do
+        local n = map[zone.organ] or 0;
+        if n > 0 then
+            table.insert(parts, zone.organ .. ":" .. tostring(n));
+        end
+    end
+    return table.concat(parts, ",");
+end
+
+function A.countPreDamage(map)
+    local total = 0;
+    for _, zone in ipairs(A.NICK_ZONES) do
+        total = total + (map[zone.organ] or 0);
+    end
+    return total;
+end
+
+function A.getPreDamage(body, organId)
+    return A.decodePreDamage(body:getModData()["TCA_A_predmg"])[organId] or 0;
+end
+
+function A.getEdge(body)
+    return tonumber(body:getModData()["TCA_A_edge"]) or 1;
+end
+
+function A.getBladeRank(body)
+    return math.floor(tonumber(body:getModData()["TCA_A_blade"]) or 1);
+end
+
 function A.findForceps(character)
     local inv = character:getInventory();
     for _, itemType in ipairs(A.FORCEPS_TYPES) do
@@ -349,7 +548,7 @@ end
 
 function A.hasToolForStage(character, stage)
     if stage == "incision" then
-        return A.findScalpel(character) ~= nil;
+        return A.findIncisionTool(character) ~= nil;
     elseif stage == "open" then
         return A.findForceps(character) ~= nil;
     elseif stage == "ribs" then
@@ -362,17 +561,34 @@ function A.hasToolForStage(character, stage)
     return false;
 end
 
-function A.applyCut(character)
+function A.getCutDeepChance(character, incision)
+    if not incision then
+        return 0;
+    end
+    local item, def = A.findIncisionTool(character);
+    if not item then
+        return 0;
+    end
+    return A.getIncisionParams(character, item, def).deepWoundChance;
+end
+
+function A.applyCut(character, deepChance)
     local partType = BodyPartType.Hand_L;
     if ZombRand(4) == 0 then
         partType = BodyPartType.Hand_R;
     end
     local bodyPart = character:getBodyDamage():getBodyPart(partType);
-    bodyPart:setCut(true, true);
+    local flags = A.SYNC_FLAGS;
+    if deepChance and deepChance > 0 and ZombRand(100) < deepChance then
+        bodyPart:generateDeepWound();
+        flags = A.SYNC_FLAGS_DEEP;
+    else
+        bodyPart:setCut(true, true);
+    end
     if not character:getClothingItem_Hands() and ZombRand(100) < A.INFECTION_CHANCE then
         bodyPart:setInfectedWound(true);
     end
-    syncBodyPart(bodyPart, A.SYNC_FLAGS);
+    syncBodyPart(bodyPart, flags);
 end
 
 function A.giveXp(character, xp)
@@ -447,6 +663,9 @@ function A.resetBody(body)
     md["TCA_A_cuts"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
+    md["TCA_A_edge"] = nil;
+    md["TCA_A_blade"] = nil;
+    md["TCA_A_predmg"] = nil;
     body:transmitModData();
 end
 
@@ -481,6 +700,9 @@ function A.applyDebugPosition(body, pos)
     md["TCA_A_cuts"] = nil;
     md["TCA_A_attach"] = nil;
     md["TCA_A_ribs"] = nil;
+    md["TCA_A_edge"] = nil;
+    md["TCA_A_blade"] = nil;
+    md["TCA_A_predmg"] = nil;
     if pos >= 1 then
         md["TCA_Autopsied"] = true;
         md["TCA_A_seg"] = #A.INCISION_Y + 1;

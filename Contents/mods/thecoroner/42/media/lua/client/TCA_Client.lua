@@ -26,11 +26,13 @@ local function addTooltip(option, text)
     option.toolTip = tooltip;
 end
 
-function TCA_Client.requestCut(playerObj)
+function TCA_Client.requestCut(playerObj, incision)
     if isClient() then
-        sendClientCommand(playerObj, "TCA", "cut", {});
+        local args = {};
+        args.incision = incision == true;
+        sendClientCommand(playerObj, "TCA", "cut", args);
     else
-        TCA.Autopsy.applyCut(playerObj);
+        TCA.Autopsy.applyCut(playerObj, TCA.Autopsy.getCutDeepChance(playerObj, incision == true));
     end
 end
 
@@ -67,7 +69,7 @@ function TCA_Client.debugSetStep(playerObj, tableObj, pos)
     end
 end
 
-TCA_Client.COMMIT_FIELDS = { "segIndex", "segProgress", "accuracy", "paths", "openL", "openR", "tears", "ribs", "accSamples", "organs", "organDamage", "plastron", "attach", "cuts" };
+TCA_Client.COMMIT_FIELDS = { "segIndex", "segProgress", "accuracy", "paths", "openL", "openR", "tears", "ribs", "accSamples", "organs", "organDamage", "plastron", "attach", "cuts", "preDamage" };
 
 function TCA_Client.commitAutopsy(playerObj, tableObj, result)
     if isClient() then
@@ -670,7 +672,9 @@ function TCA_Client.onAutopsy(playerObj, tableObj)
 end
 
 function TCA_Client.getMissingToolText(stage)
-    if stage == "open" then
+    if stage == "incision" then
+        return getText("Tooltip_TCA_NeedBlade");
+    elseif stage == "open" then
         return getText("Tooltip_TCA_NeedForceps");
     elseif stage == "ribs" then
         return getText("Tooltip_TCA_NeedRibTool");

@@ -25,15 +25,51 @@ local function clamp(v, lo, hi)
     return v;
 end
 
+function TCA_AutopsyResultAction:applyPreDamage(body, params)
+    local A = TCA.Autopsy;
+    if params.deepChance <= 0 then
+        return;
+    end
+    local md = body:getModData();
+    local stored = A.decodePreDamage(md["TCA_A_predmg"]);
+    local sent = A.decodePreDamage(self.preDamage);
+    local changed = false;
+    for _, zone in ipairs(A.NICK_ZONES) do
+        local id = zone.organ;
+        local n = sent[id] or 0;
+        if n > (stored[id] or 0) then
+            stored[id] = n;
+            changed = true;
+        end
+    end
+    if changed then
+        md["TCA_A_predmg"] = A.encodePreDamage(stored);
+        self.changed = true;
+    end
+end
+
+function TCA_AutopsyResultAction:applyBladeMarks(body, params)
+    local md = body:getModData();
+    if params.tearMul < TCA.Autopsy.getEdge(body) then
+        md["TCA_A_edge"] = math.floor(params.tearMul * 1000 + 0.5) / 1000;
+    end
+    if params.rank > TCA.Autopsy.getBladeRank(body) then
+        md["TCA_A_blade"] = params.rank;
+    end
+end
+
 function TCA_AutopsyResultAction:applyIncision(body)
     local A = TCA.Autopsy;
     local md = body:getModData();
     if md["TCA_Autopsied"] then
         return 0;
     end
-    if not A.findScalpel(self.character) then
+    local tool, def = A.findIncisionTool(self.character);
+    if not tool then
         return 0;
     end
+    local params = A.getIncisionParams(self.character, tool, def);
+    self:applyPreDamage(body, params);
 
     local count = #A.INCISION_Y;
     local segIndex = math.floor(clamp(self.segIndex, 1, count + 1));
@@ -48,13 +84,20 @@ function TCA_AutopsyResultAction:applyIncision(body)
         return 0;
     end
 
+    local oldSegs = math.min(stored.segIndex, count + 1) - 1;
+    local newSegs = segIndex - 1;
     if newFraction >= 0.999 then
         md["TCA_Autopsied"] = true;
         md["TCA_A_seg"] = count + 1;
         md["TCA_A_prog"] = 0;
+        newSegs = count;
     else
         md["TCA_A_seg"] = segIndex;
         md["TCA_A_prog"] = segProgress;
+    end
+    self:applyBladeMarks(body, params);
+    for i = oldSegs + 1, newSegs do
+        A.wearBlade(tool, def);
     end
     md["TCA_A_acc"] = accuracy;
     md["TCA_A_accN"] = math.floor(clamp(self.accSamples, 0, 10000000));
@@ -62,7 +105,7 @@ function TCA_AutopsyResultAction:applyIncision(body)
     if string.len(paths) <= A.MAX_PATH_LENGTH then
         md["TCA_A_paths"] = paths;
     end
-    return (A.XP_MIN + (A.XP_MAX - A.XP_MIN) * accuracy) * delta;
+    return (A.XP_MIN + (A.XP_MAX - A.XP_MIN) * accuracy) * delta * params.xpMul;
 end
 
 function TCA_AutopsyResultAction:applyOpen(body)
@@ -185,7 +228,8 @@ function TCA_AutopsyResultAction:giveOrgan(body, organ, damage)
     if not organ then
         return;
     end
-    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, damage or 0, TCA.Wounds.getOrganPathology(body, organ.id));
+    local total = (damage or 0) + TCA.Autopsy.getPreDamage(body, organ.id);
+    self:giveBodyItem(body, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, total, TCA.Wounds.getOrganPathology(body, organ.id));
 end
 
 function TCA_AutopsyResultAction:giveBodyItem(body, fullType, damage, pathology)
@@ -286,10 +330,10 @@ function TCA_AutopsyResultAction:getDuration()
 end
 
 function TCA_AutopsyResultAction.fromResult(character, tableObject, r)
-    return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach, r.cuts);
+    return TCA_AutopsyResultAction:new(character, tableObject, r.segIndex, r.segProgress, r.accuracy, r.paths, r.openL, r.openR, r.tears, r.ribs, r.accSamples, r.organs, r.organDamage, r.plastron, r.attach, r.cuts, r.preDamage);
 end
 
-function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach, cuts)
+function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgress, accuracy, paths, openL, openR, tears, ribs, accSamples, organs, organDamage, plastron, attach, cuts, preDamage)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.tableObject = tableObject;
@@ -307,6 +351,7 @@ function TCA_AutopsyResultAction:new(character, tableObject, segIndex, segProgre
     o.plastron = plastron;
     o.attach = attach;
     o.cuts = cuts;
+    o.preDamage = preDamage;
     o.maxTime = o:getDuration();
     o.stopOnWalk = false;
     o.stopOnRun = false;

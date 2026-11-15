@@ -2,6 +2,7 @@
     "Tooltip_TCA_TableOccupied": "Ya hay un cadáver sobre esta mesa.",
     "Tooltip_TCA_TableTooSmall": "Esta mesa es demasiado pequeña: debe medir al menos 2 casillas de largo.",
     "Tooltip_TCA_NeedScalpel": "Requiere un bisturí.",
+    "Tooltip_TCA_NeedBlade": "Requiere un bisturí o, en su defecto, una navaja de barbero o un cuchillo afilado.",
     "Tooltip_TCA_AlreadyAutopsied": "A este cadáver ya se le ha hecho la autopsia.",
     "Tooltip_TCA_MustUndress": "Primero desviste el cadáver (todavía lleva: %1).",
     "Tooltip_TCA_NeedForceps": "Requiere unas pinzas.",

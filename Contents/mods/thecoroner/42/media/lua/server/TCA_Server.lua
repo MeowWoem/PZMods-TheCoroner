@@ -6,8 +6,9 @@ require "TimedActions/TCA_AutopsyResultAction";
 
 TCA_Server = TCA_Server or {};
 
-function TCA_Server.onCutCommand(player)
-    TCA.Autopsy.applyCut(player);
+function TCA_Server.onCutCommand(player, args)
+    local incision = args ~= nil and args.incision == true;
+    TCA.Autopsy.applyCut(player, TCA.Autopsy.getCutDeepChance(player, incision));
 end
 
 function TCA_Server.onResetCommand(player, args)
@@ -202,7 +203,7 @@ function TCA_Server.onClientCommand(module, command, player, args)
         return;
     end
     if command == "cut" then
-        TCA_Server.onCutCommand(player);
+        TCA_Server.onCutCommand(player, args);
     elseif command == "resetAutopsy" then
         TCA_Server.onResetCommand(player, args);
     elseif command == "debugStep" then

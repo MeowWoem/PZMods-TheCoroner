@@ -328,6 +328,7 @@ function TCA_AutopsyUI:commitProgress()
     self.startOrganDamage = self.organDamage;
     self.startCuts = self.cuts;
     self.startAttach = result.attach;
+    self.startPreDamage = result.preDamage;
     self.startPlastron = self.plastronRemoved;
 end
 
@@ -499,9 +500,13 @@ function TCA_AutopsyUI:getOrganTooltipLines(organ)
         else
             table.insert(lines, { text = getText("IGUI_TCA_OrganFree"), color = O_TIP_STATUS });
         end
-        if (self.organCurrentDamage or 0) > 0 then
-            table.insert(lines, { text = getText("IGUI_TCA_OrganDamagedCount", self.organCurrentDamage), color = O_TIP_DAMAGE });
-        end
+    end
+    local damage = self.preDamage[organ.id] or 0;
+    if organ == self:getCurrentOrgan() then
+        damage = damage + (self.organCurrentDamage or 0);
+    end
+    if damage > 0 then
+        table.insert(lines, { text = getText("IGUI_TCA_OrganDamagedCount", damage), color = O_TIP_DAMAGE });
     end
     return lines;
 end
@@ -553,7 +558,7 @@ end
 
 function TCA_AutopsyUI:drawOrganInfo(infoY, smallH)
     self:drawText(getText("IGUI_TCA_OrgansDone", self.organsDone, #TCA.Organs.LIST), 20, infoY, 1, 1, 1, 1, UIFont.Small);
-    self:drawText(getText("IGUI_TCA_OrgansDamaged", self.organDamage), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
+    self:drawText(getText("IGUI_TCA_OrgansDamaged", self.organDamage + TCA.Autopsy.countPreDamage(self.preDamage)), 20, infoY + smallH, 1, 1, 1, 1, UIFont.Small);
 end
 
 function TCA_AutopsyUI:isOverPlastron(x, y)
