@@ -280,6 +280,7 @@
     "IGUI_TCA_Wound_skinGraft": "Greffe de peau",
     "IGUI_TCA_Wound_sutured": "Plaie suturée",
     "IGUI_TCA_BulletFound": "Projectile retrouvé dans l'organe (%1)",
+    "IGUI_TCA_BloodTypeResult": "Groupe sanguin : %1",
     "IGUI_TCA_BulletCaliber": "Calibre : %1",
     "IGUI_TCA_BulletUnknown": "Calibre indéterminé",
     "IGUI_TCA_ExamZone_w_Hand_L": "Main gauche",

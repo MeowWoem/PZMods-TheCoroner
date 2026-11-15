@@ -6,6 +6,8 @@ require "TimedActions/TCA_RemoveFromTableAction";
 require "TimedActions/TCA_AutopsyAction";
 require "TimedActions/TCA_AutopsyResultAction";
 require "TimedActions/TCA_HarvestMaggotsAction";
+require "TimedActions/TCA_BloodTypeAction";
+require "TCA_BloodType";
 require "TCA_AutopsyUI";
 require "TCA_ReferenceUI";
 require "TCA_Exam";
@@ -184,6 +186,20 @@ function TCA_Client.onHarvestMaggots(playerObj, body)
     end
 end
 
+function TCA_Client.onBloodType(playerObj, body)
+    if not body or not body:getSquare() then
+        return;
+    end
+    local kit = TCA.BloodType.findKit(playerObj);
+    if not kit then
+        return;
+    end
+    ISInventoryPaneContextMenu.transferIfNeeded(playerObj, kit);
+    if luautils.walkAdj(playerObj, body:getSquare(), false) then
+        ISTimedActionQueue.add(TCA_BloodTypeAction:new(playerObj, body:getX(), body:getY(), body:getZ()));
+    end
+end
+
 function TCA_Client.debugWounds(playerObj, body, op, kind, part)
     if not body then
         return;
@@ -332,6 +348,24 @@ function TCA_Client.addBodyOption(context, body, name, target, onSelect, param1,
     return option;
 end
 
+function TCA_Client.addBloodTypeOption(context, playerObj, body)
+    local last = TCA.BloodType.getLastRead(body, playerObj);
+    local name = getText("ContextMenu_TCA_BloodType");
+    if last then
+        name = getText("ContextMenu_TCA_BloodTypeLast", last);
+    end
+    local option = TCA_Client.addBodyOption(context, body, name, playerObj, TCA_Client.onBloodType, body);
+    if not TCA.BloodType.findKit(playerObj) then
+        addTooltip(option, getText("Tooltip_TCA_BloodTypeNoKit"));
+    elseif TCA.isTooDark(playerObj) then
+        addTooltip(option, getText("Tooltip_TCA_TooDark"));
+    else
+        local tooltip = ISWorldObjectContextMenu.addToolTip();
+        tooltip.description = getText("Tooltip_TCA_BloodType");
+        option.toolTip = tooltip;
+    end
+end
+
 function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     local exam = TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_Exam"), playerObj, TCA_Client.onExam, body);
     if TCA.isTooDark(playerObj) then
@@ -339,6 +373,9 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     end
     if TCA.Exam.getHarvestCount(body) > 0 then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_HarvestMaggots"), playerObj, TCA_Client.onHarvestMaggots, body);
+    end
+    if TCA.BloodType.isAvailable() then
+        TCA_Client.addBloodTypeOption(context, playerObj, body);
     end
     if debugMode then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
@@ -454,6 +491,8 @@ function TCA_Client.onServerCommand(module, command, args)
     end
     if command == "xp" and args and args.xp then
         TCA.Autopsy.showXpHalo(getPlayer(), args.xp);
+    elseif command == "bloodType" and args and args.group then
+        TCA.BloodType.showResult(getPlayer(), args.group);
     elseif command == "bullets" and args and args.count then
         TCA.Wounds.showBulletHalo(getPlayer(), tonumber(args.count) or 1);
     elseif command == "causeResult" and args then

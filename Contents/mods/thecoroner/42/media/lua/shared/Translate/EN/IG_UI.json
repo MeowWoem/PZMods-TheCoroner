@@ -280,6 +280,7 @@
     "IGUI_TCA_Wound_skinGraft": "Skin graft",
     "IGUI_TCA_Wound_sutured": "Sutured wound",
     "IGUI_TCA_BulletFound": "Bullet found in the organ (%1)",
+    "IGUI_TCA_BloodTypeResult": "Blood group: %1",
     "IGUI_TCA_BulletCaliber": "Caliber: %1",
     "IGUI_TCA_BulletUnknown": "Undetermined caliber",
     "IGUI_TCA_ExamZone_w_Hand_L": "Left Hand",

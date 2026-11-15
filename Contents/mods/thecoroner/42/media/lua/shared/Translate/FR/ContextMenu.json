@@ -12,6 +12,8 @@
     "ContextMenu_TCA_SawInsertBattery": "Insérer une pile",
     "ContextMenu_TCA_SawRemoveBattery": "Retirer la pile",
     "ContextMenu_TCA_HarvestMaggots": "Récolter les asticots",
+    "ContextMenu_TCA_BloodType": "Déterminer le groupe sanguin",
+    "ContextMenu_TCA_BloodTypeLast": "Déterminer le groupe sanguin (dernier résultat : %1)",
     "ContextMenu_TCA_Menu": "Médecine légale",
     "ContextMenu_TCA_DebugWounds": "[DEBUG] Blessures",
     "ContextMenu_TCA_DebugWoundsShow": "Afficher le relevé",

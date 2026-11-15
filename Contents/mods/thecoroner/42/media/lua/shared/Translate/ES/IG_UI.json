@@ -280,6 +280,7 @@
     "IGUI_TCA_Wound_skinGraft": "Injerto de piel",
     "IGUI_TCA_Wound_sutured": "Herida suturada",
     "IGUI_TCA_BulletFound": "Bala encontrada en el órgano (%1)",
+    "IGUI_TCA_BloodTypeResult": "Grupo sanguíneo: %1",
     "IGUI_TCA_BulletCaliber": "Calibre: %1",
     "IGUI_TCA_BulletUnknown": "Calibre indeterminado",
     "IGUI_TCA_ExamZone_w_Hand_L": "Mano izquierda",

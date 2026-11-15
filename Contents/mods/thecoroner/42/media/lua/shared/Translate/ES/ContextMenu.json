@@ -12,6 +12,8 @@
     "ContextMenu_TCA_SawInsertBattery": "Insertar pila",
     "ContextMenu_TCA_SawRemoveBattery": "Quitar pila",
     "ContextMenu_TCA_HarvestMaggots": "Recoger gusanos",
+    "ContextMenu_TCA_BloodType": "Determinar el grupo sanguíneo",
+    "ContextMenu_TCA_BloodTypeLast": "Determinar el grupo sanguíneo (último resultado: %1)",
     "ContextMenu_TCA_Menu": "Forense",
     "ContextMenu_TCA_DebugWounds": "[DEBUG] Heridas",
     "ContextMenu_TCA_DebugWoundsShow": "Mostrar informe",

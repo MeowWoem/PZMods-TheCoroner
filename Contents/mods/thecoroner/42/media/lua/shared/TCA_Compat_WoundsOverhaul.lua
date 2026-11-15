@@ -1,5 +1,6 @@
 require "TCA_Wounds";
 require "TCA_Shared";
+require "TCA_BloodType";
 
 TCA = TCA or {};
 TCA.Compat = TCA.Compat or {};
@@ -11,6 +12,7 @@ X.MOD_ID = "WoundsOverhaul";
 X.ROOT_KEY = "Wounds";
 X.KEY_EXTRACTED = "TCA_WOExtracted";
 X.COMMAND_MODULE = "TCA_WO";
+X.TYPING_KIT = "Wounds.BloodTypingKit";
 X.KEY_LODGED = "woundsBullets";
 X.PART_ORDER = { "Torso_Upper", "Torso_Lower", "Groin" };
 
@@ -165,6 +167,7 @@ function X.snapshot(player, list)
     X.snapshotSutures(root, names, list);
     X.snapshotTourniquets(root, list);
     X.snapshotConditions(root, list);
+    TCA.BloodType.setTrue(player, root.bloodType);
 end
 
 function X.deathCause(character)
@@ -314,6 +317,12 @@ TCA.Wounds.registerProvider({
     organPathology = X.organPathology,
     removedBullets = X.removedBullets,
     bulletTaken = X.bulletTaken,
+});
+
+TCA.BloodType.registerKit({
+    id = X.MOD_ID,
+    isActive = X.isActive,
+    fullType = X.TYPING_KIT,
 });
 
 if not X.commandRegistered then

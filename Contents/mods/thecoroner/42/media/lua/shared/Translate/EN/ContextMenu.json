@@ -12,6 +12,8 @@
     "ContextMenu_TCA_SawInsertBattery": "Insert battery",
     "ContextMenu_TCA_SawRemoveBattery": "Remove battery",
     "ContextMenu_TCA_HarvestMaggots": "Harvest maggots",
+    "ContextMenu_TCA_BloodType": "Determine blood group",
+    "ContextMenu_TCA_BloodTypeLast": "Determine blood group (last result: %1)",
     "ContextMenu_TCA_Menu": "Coroner",
     "ContextMenu_TCA_DebugWounds": "[DEBUG] Wounds",
     "ContextMenu_TCA_DebugWoundsShow": "Show report",
