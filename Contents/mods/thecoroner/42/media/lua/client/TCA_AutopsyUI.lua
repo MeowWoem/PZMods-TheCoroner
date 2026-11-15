@@ -1480,7 +1480,9 @@ function TCA_AutopsyUI:drawIncisionToolInfo(y)
     if self:isBladeIncision() then
         table.insert(notes, getText("IGUI_TCA_BladeImprecise"));
     end
-    if TCA.Autopsy.isDullBlade(tool) then
+    if TCA.Autopsy.isCrudeBlade(tool) then
+        table.insert(notes, getText("IGUI_TCA_BladeCrude"));
+    elseif TCA.Autopsy.isDullBlade(tool) then
         table.insert(notes, getText("IGUI_TCA_BladeDull"));
     end
     local name = tool:getDisplayName();

@@ -43,6 +43,7 @@
     "IGUI_TCA_Tool": "Tool: %1",
     "IGUI_TCA_BladeImprecise": "less precise",
     "IGUI_TCA_BladeDull": "dull",
+    "IGUI_TCA_BladeCrude": "crude",
     "IGUI_TCA_ModOptionsTitle": "The Coroner",
     "IGUI_TCA_UIScale": "Window size (autopsy, examination)",
     "IGUI_TCA_UIScaleTip": "Auto adapts the windows to your screen height: 100% in 1080p, about 135% in 1440p, 200% in 4K. A window that would not fit on the screen is reduced.",

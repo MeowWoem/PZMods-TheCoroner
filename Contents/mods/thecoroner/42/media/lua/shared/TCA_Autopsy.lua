@@ -296,17 +296,24 @@ function A.findScalpel(character)
     return character:getInventory():getFirstTypeRecurse("Scalpel");
 end
 
-A.FINE_KNIVES = {
-    StraightRazor = true,
-    KnifeParing = true,
-    KnifeFillet = true,
-    SmallKnife = true,
-    KnifePocket = true,
-    SteakKnife = true,
-    SwitchKnife = true,
-    KnifeButterfly = true,
-    KnifeSushi = true,
+A.BLADE_GROUPS = {
+    Scalpel = "scalpel",
+    StraightRazor = "fine",
+    KnifeParing = "fine",
+    KnifeFillet = "fine",
+    SmallKnife = "fine",
+    KnifePocket = "fine",
+    SteakKnife = "fine",
+    SwitchKnife = "fine",
+    KnifeButterfly = "fine",
+    KnifeSushi = "fine",
+    Toothbrush_Shiv = "none",
 };
+A.NO_SHARPNESS_LEVEL = 0.5;
+
+function A.registerIncisionBlade(itemType, group)
+    A.BLADE_GROUPS[itemType] = group;
+end
 
 A.BUTCHER_MITIGATION = 0.5;
 A.DULL_TREMOR = 0.3;
@@ -324,8 +331,11 @@ A.NICK_ZONES = {
 };
 
 function A.getBladeSharpness(item)
-    if not item or not item:hasSharpness() then
+    if not item then
         return 1;
+    end
+    if not item:hasSharpness() then
+        return A.NO_SHARPNESS_LEVEL;
     end
     local s = item:getSharpness();
     if s < 0 then
@@ -341,25 +351,66 @@ local function compareSharpness(a, b)
     return A.getBladeSharpness(a) - A.getBladeSharpness(b);
 end
 
-local function isLongBlade(item)
+local function hasWeaponCategory(item, category)
     local script = item:getScriptItem();
-    return script ~= nil and script:containsWeaponCategory(WeaponCategory.LONG_BLADE);
+    return script ~= nil and script:containsWeaponCategory(category);
+end
+
+local function isSlashBlade(item)
+    if not instanceof(item, "HandWeapon") or not item:hasSharpness() then
+        return false;
+    end
+    if item:getDamageCategory() ~= "Slash" then
+        return false;
+    end
+    if item:hasTag(ItemTag.SCISSORS) or item:hasTag(ItemTag.AWL) then
+        return false;
+    end
+    return hasWeaponCategory(item, WeaponCategory.SMALL_BLADE) or hasWeaponCategory(item, WeaponCategory.LONG_BLADE);
+end
+
+function A.getBladeGroup(item)
+    if not item or item:isBroken() then
+        return nil;
+    end
+    local group = A.BLADE_GROUPS[item:getFullType()] or A.BLADE_GROUPS[item:getType()];
+    if group then
+        if group == "none" then
+            return nil;
+        end
+        return group;
+    end
+    local tagged = item:hasTag(ItemTag.SHARP_KNIFE);
+    if not tagged and not isSlashBlade(item) then
+        return nil;
+    end
+    if hasWeaponCategory(item, WeaponCategory.LONG_BLADE) then
+        if not tagged then
+            return nil;
+        end
+        return "large";
+    end
+    return "knife";
+end
+
+function A.isCrudeBlade(item)
+    return item ~= nil and not item:hasSharpness();
 end
 
 local function isScalpelBlade(item)
-    return item:getType() == "Scalpel" and isNotBroken(item);
+    return A.getBladeGroup(item) == "scalpel";
 end
 
 local function isFineBlade(item)
-    return isNotBroken(item) and A.FINE_KNIVES[item:getType()] == true and item:hasTag(ItemTag.SHARP_KNIFE);
+    return A.getBladeGroup(item) == "fine";
 end
 
 local function isKnifeBlade(item)
-    return isNotBroken(item) and item:hasTag(ItemTag.SHARP_KNIFE) and not isLongBlade(item);
+    return A.getBladeGroup(item) == "knife";
 end
 
 local function isLargeBlade(item)
-    return isNotBroken(item) and item:hasTag(ItemTag.SHARP_KNIFE) and isLongBlade(item);
+    return A.getBladeGroup(item) == "large";
 end
 
 A.INCISION_TOOLS = {
