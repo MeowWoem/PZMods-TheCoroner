@@ -77,3 +77,18 @@ Changed:
 - Amputated limbs are now hidden on the 3D body of the examination and autopsy windows, and Wound Expansion skin marks are shown
 - The examination markers adapt to missing body parts: rigor is tested on the other arm or on a leg when an arm is missing (impossible if no limb is left), the eye test moves to the remaining eye, and on an amputated limb only the highest missing part keeps its wound marker
 [ ------ ]
+
+[ v1.0.8 - 11.16.2026 ]
+Added:
+- The Y incision accepts more tools: a straight razor or a small knife, any sharp knife (including stone knives and shivs) or a machete can be used instead. The cruder the blade, the more your hand shakes and the narrower the path: the skin edges are ragged and tear more easily, a slip on the abdomen can nick the stomach, intestines or bladder, a slip can also cut your hand deeply, the incision gives less XP and the blade wears out. A dull blade makes all of this worse (the scalpel too), and the Butchering skill reduces the penalties. Swords, scissors and disposable razors can't be used
+- Mod Options (new "The Coroner" page): size of the autopsy and examination windows. Auto adapts them to your screen (about 135% in 1440p, 200% in 4K), or pick from 100% to 250%. The text gets larger with the windows (can be turned off). The minigame plays exactly the same at every size
+- Wounds Overhaul compatibility: open fractures, third-degree burns, skin grafts, sutured wounds (neat or poorly stitched), tourniquets, sepsis, blood loss and overdoses are recorded on a dead player's body and can be found during the external examination. Sepsis, blood loss and overdose can now be concluded as causes of death
+- Wounds Overhaul: liver and kidneys damaged by drugs or alcohol keep their lesions when harvested during the autopsy
+- Wounds Overhaul: bullets taken out with its "Take out a bullet" practice are no longer found again during the autopsy, and bullets recovered during the autopsy can no longer be taken out with its practice
+- Blood typing: determine a corpse's blood group from the Coroner submenu with the Wounds Overhaul blood typing kit (one test per use). The reading can be wrong at low First Aid levels, so type it again to be sure. A dead player keeps the blood group they had while alive
+- Portuguese, Korean and Russian localizations
+- For modders: TCA.Autopsy.registerIncisionBlade(itemType, group) lets other mods declare their own incision blades
+
+Changed:
+- Names now match the base game in English, French and Spanish: specimen jars ("Specimen Jar - Heart"), body parts in the Wounds tab, skill and item names in tooltips and sandbox options
+[ ------ ]
