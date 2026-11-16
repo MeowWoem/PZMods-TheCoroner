@@ -414,5 +414,11 @@
     "IGUI_TCA_DbgCan_Mods": "Другие моды",
     "IGUI_TCA_DbgCan_HarvestZ": "Очки безумия HarvestZ",
     "IGUI_TCA_DbgCan_CZATrait": "Каннибал CZA",
-    "IGUI_TCA_DbgCan_CZACraving": "Тяга CZA"
+    "IGUI_TCA_DbgCan_CZACraving": "Тяга CZA",
+    "IGUI_TCA_DebugOrganState_0": "Свежий",
+    "IGUI_TCA_DebugOrganState_1": "Слегка испорченный",
+    "IGUI_TCA_DebugOrganState_2": "Несвежий",
+    "IGUI_TCA_DebugOrganState_3": "Гнилой",
+    "IGUI_TCA_DebugOrganHealthy": "%1, здоровый",
+    "IGUI_TCA_DebugOrganInfected": "%1, заражённый"
 }

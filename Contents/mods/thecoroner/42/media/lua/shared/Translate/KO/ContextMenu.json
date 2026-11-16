@@ -6,6 +6,8 @@
     "ContextMenu_TCA_DebugReference": "[디버그] 1:1 참고 이미지",
     "ContextMenu_TCA_DebugCannibal": "[디버그] 숨겨진 수치 (식인)",
     "ContextMenu_TCA_DebugCannibalOf": "[디버그] 숨겨진 수치: %1",
+    "ContextMenu_TCA_DebugGiveOrgan": "[디버그] 장기 지급",
+    "ContextMenu_TCA_DebugGiveAllOrgans": "모든 장기",
     "ContextMenu_TCA_MorguePowerOn": "서랍 냉장 켜기",
     "ContextMenu_TCA_MorguePowerOff": "서랍 냉장 끄기",
     "ContextMenu_TCA_DebugDeathTime": "[디버그] 사망 시각",

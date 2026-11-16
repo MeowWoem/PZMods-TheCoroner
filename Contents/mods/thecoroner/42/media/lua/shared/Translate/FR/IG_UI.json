@@ -414,5 +414,11 @@
     "IGUI_TCA_DbgCan_Mods": "Autres mods",
     "IGUI_TCA_DbgCan_HarvestZ": "Points de folie HarvestZ",
     "IGUI_TCA_DbgCan_CZATrait": "Cannibale CZA",
-    "IGUI_TCA_DbgCan_CZACraving": "Manque CZA"
+    "IGUI_TCA_DbgCan_CZACraving": "Manque CZA",
+    "IGUI_TCA_DebugOrganState_0": "Frais",
+    "IGUI_TCA_DebugOrganState_1": "Légèrement abîmé",
+    "IGUI_TCA_DebugOrganState_2": "Défraîchi",
+    "IGUI_TCA_DebugOrganState_3": "Pourri",
+    "IGUI_TCA_DebugOrganHealthy": "%1, sain",
+    "IGUI_TCA_DebugOrganInfected": "%1, infecté"
 }

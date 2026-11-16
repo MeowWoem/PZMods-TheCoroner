@@ -199,6 +199,13 @@ function TCA_Server.onExamCauseCommand(player, args)
     end
 end
 
+function TCA_Server.onDebugGiveOrganCommand(player, args)
+    if not args or not player:getRole():hasCapability(Capability.AddItem) then
+        return;
+    end
+    TCA_OrganFood.debugGive(player, args.fullType, args.decay, args.infected == true);
+end
+
 function TCA_Server.onClientCommand(module, command, player, args)
     if module ~= "TCA" then
         return;
@@ -227,6 +234,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA_Server.onDebugWoundsCommand(player, args);
     elseif command == "cannibalDebug" then
         TCA.Cannibal.onDebugCommand(player, args);
+    elseif command == "debugGiveOrgan" then
+        TCA_Server.onDebugGiveOrganCommand(player, args);
     end
 end
 

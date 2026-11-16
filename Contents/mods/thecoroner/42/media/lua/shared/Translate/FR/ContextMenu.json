@@ -6,6 +6,8 @@
     "ContextMenu_TCA_DebugReference": "[DEBUG] Image de référence 1:1",
     "ContextMenu_TCA_DebugCannibal": "[DEBUG] Stats cachées (cannibalisme)",
     "ContextMenu_TCA_DebugCannibalOf": "[DEBUG] Stats cachées : %1",
+    "ContextMenu_TCA_DebugGiveOrgan": "[DEBUG] Donner un organe",
+    "ContextMenu_TCA_DebugGiveAllOrgans": "Tous les organes",
     "ContextMenu_TCA_MorguePowerOn": "Allumer la réfrigération des tiroirs",
     "ContextMenu_TCA_MorguePowerOff": "Éteindre la réfrigération des tiroirs",
     "ContextMenu_TCA_DebugDeathTime": "[DEBUG] Date de mort",

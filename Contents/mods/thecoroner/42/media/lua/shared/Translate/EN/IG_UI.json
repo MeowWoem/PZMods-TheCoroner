@@ -414,5 +414,11 @@
     "IGUI_TCA_DbgCan_Mods": "Other mods",
     "IGUI_TCA_DbgCan_HarvestZ": "HarvestZ insanity points",
     "IGUI_TCA_DbgCan_CZATrait": "CZA cannibal",
-    "IGUI_TCA_DbgCan_CZACraving": "CZA craving"
+    "IGUI_TCA_DbgCan_CZACraving": "CZA craving",
+    "IGUI_TCA_DebugOrganState_0": "Fresh",
+    "IGUI_TCA_DebugOrganState_1": "Slightly decayed",
+    "IGUI_TCA_DebugOrganState_2": "Stale",
+    "IGUI_TCA_DebugOrganState_3": "Rotten",
+    "IGUI_TCA_DebugOrganHealthy": "%1, healthy",
+    "IGUI_TCA_DebugOrganInfected": "%1, infected"
 }

@@ -304,6 +304,20 @@ function C.applyCZA(character, amount, cooked)
     C.addStat(character, CharacterStat.STRESS, -math.min(1, C.CZA_RELIEF / 55) * amount);
 end
 
+function C.getRemaining(item)
+    local base = item:getBaseHunger();
+    local current = item:getHungChange();
+    if base == 0 or current == 0 then
+        return 1;
+    end
+    return math.max(0, math.min(1, current / base));
+end
+
+function C.getPortion(measured, percentage)
+    local portion = math.max(0, math.min(1, tonumber(percentage) or 1));
+    return math.min(portion, measured.remaining or 1);
+end
+
 function C.measure(item)
     local result = {};
     result.organs = 0;
@@ -342,6 +356,7 @@ function C.measure(item)
         result.cooks = tostring(md[C.DISH_COOKS] or "");
     end
     result.cooked = C.isCooked(item);
+    result.remaining = C.getRemaining(item);
     return result;
 end
 
@@ -606,7 +621,7 @@ C.originalEat = C.originalEat or ISEatFoodAction.eat;
 function C.complete(self)
     local measured = C.measure(self.item);
     local result = C.originalComplete(self);
-    C.onEaten(self.character, measured, self.percentage or 1);
+    C.onEaten(self.character, measured, C.getPortion(measured, self.percentage or 1));
     return result;
 end
 
@@ -617,7 +632,7 @@ function C.eat(self, food, percentage)
     if portion > 0.95 then
         portion = 1;
     end
-    C.onEaten(self.character, measured, (self.percentage or 1) * portion);
+    C.onEaten(self.character, measured, C.getPortion(measured, (self.percentage or 1) * portion));
 end
 
 ISEatFoodAction.complete = C.complete;

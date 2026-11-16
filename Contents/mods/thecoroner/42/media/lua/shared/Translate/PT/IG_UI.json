@@ -414,5 +414,11 @@
     "IGUI_TCA_DbgCan_Mods": "Outros mods",
     "IGUI_TCA_DbgCan_HarvestZ": "Pontos de loucura HarvestZ",
     "IGUI_TCA_DbgCan_CZATrait": "Canibal CZA",
-    "IGUI_TCA_DbgCan_CZACraving": "Desejo CZA"
+    "IGUI_TCA_DbgCan_CZACraving": "Desejo CZA",
+    "IGUI_TCA_DebugOrganState_0": "Fresco",
+    "IGUI_TCA_DebugOrganState_1": "Ligeiramente estragado",
+    "IGUI_TCA_DebugOrganState_2": "Passado",
+    "IGUI_TCA_DebugOrganState_3": "Podre",
+    "IGUI_TCA_DebugOrganHealthy": "%1, saudável",
+    "IGUI_TCA_DebugOrganInfected": "%1, infetado"
 }

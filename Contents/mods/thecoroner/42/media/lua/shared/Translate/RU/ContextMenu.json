@@ -6,6 +6,8 @@
     "ContextMenu_TCA_DebugReference": "[ОТЛАДКА] Эталонное изображение 1:1",
     "ContextMenu_TCA_DebugCannibal": "[ОТЛАДКА] Скрытые показатели (каннибализм)",
     "ContextMenu_TCA_DebugCannibalOf": "[ОТЛАДКА] Скрытые показатели: %1",
+    "ContextMenu_TCA_DebugGiveOrgan": "[ОТЛАДКА] Выдать орган",
+    "ContextMenu_TCA_DebugGiveAllOrgans": "Все органы",
     "ContextMenu_TCA_MorguePowerOn": "Включить охлаждение ячеек",
     "ContextMenu_TCA_MorguePowerOff": "Выключить охлаждение ячеек",
     "ContextMenu_TCA_DebugDeathTime": "[ОТЛАДКА] Время смерти",

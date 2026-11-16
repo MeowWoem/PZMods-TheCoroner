@@ -73,6 +73,27 @@ function F.applyExtraction(item, decay, infected)
     end
 end
 
+function F.debugGive(character, fullType, decay, infected)
+    if not character or string.sub(tostring(fullType), 1, 10) ~= "TCA.Organ_" then
+        return nil;
+    end
+    local item = instanceItem(fullType);
+    if not item then
+        return nil;
+    end
+    local md = item:getModData();
+    md["TCA_Damage"] = 0;
+    md["TCA_Decay"] = math.max(0, math.min(3, math.floor(tonumber(decay) or 0)));
+    md["TCA_Infected"] = infected == true;
+    F.applyExtraction(item, md["TCA_Decay"], md["TCA_Infected"]);
+    local inv = character:getInventory();
+    inv:AddItem(item);
+    if isServer() then
+        sendAddItemToContainer(inv, item);
+    end
+    return item;
+end
+
 function F.canInfect()
     if not TCA.Sandbox.areOrgansInfectious() then
         return false;

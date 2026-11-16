@@ -2,6 +2,10 @@ require "ISUI/ISPanel";
 require "ISUI/ISButton";
 require "TCA_UIScale";
 require "TCA_Cannibalism";
+require "TCA_OrganFood";
+require "TCA_Organs";
+require "TCA_Autopsy";
+require "ISUI/ISContextMenu";
 
 TCA_CannibalDebugUI = ISPanel:derive("TCA_CannibalDebugUI");
 
@@ -233,6 +237,61 @@ function D.onOpen(target)
     D.open(target);
 end
 
+D.DECAY_LEVELS = 3;
+
+function D.giveOrgan(playerObj, fullType, decay, infected)
+    if isClient() then
+        local args = {};
+        args.fullType = fullType;
+        args.decay = decay;
+        args.infected = infected;
+        sendClientCommand(playerObj, "TCA", "debugGiveOrgan", args);
+    else
+        TCA_OrganFood.debugGive(playerObj, fullType, decay, infected);
+    end
+end
+
+function D.onGiveOrgan(playerObj, fullType, decay, infected)
+    if fullType == "" then
+        for _, organ in ipairs(TCA.Organs.LIST) do
+            D.giveOrgan(playerObj, TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id, decay, infected);
+        end
+        return;
+    end
+    D.giveOrgan(playerObj, fullType, decay, infected);
+end
+
+function D.getStateLabel(decay, infected)
+    local state = getText("IGUI_TCA_DebugOrganState_" .. decay);
+    if infected then
+        return getText("IGUI_TCA_DebugOrganInfected", state);
+    end
+    return getText("IGUI_TCA_DebugOrganHealthy", state);
+end
+
+function D.addStateMenu(context, parent, name, playerObj, fullType)
+    local option = parent:addOption(name);
+    local states = ISContextMenu:getNew(context);
+    context:addSubMenu(option, states);
+    for decay = 0, D.DECAY_LEVELS do
+        states:addOption(D.getStateLabel(decay, false), playerObj, D.onGiveOrgan, fullType, decay, false);
+    end
+    for decay = 0, D.DECAY_LEVELS do
+        states:addOption(D.getStateLabel(decay, true), playerObj, D.onGiveOrgan, fullType, decay, true);
+    end
+end
+
+function D.addGiveMenu(context, sub, playerObj)
+    local option = sub:addOption(getText("ContextMenu_TCA_DebugGiveOrgan"));
+    local organs = ISContextMenu:getNew(context);
+    context:addSubMenu(option, organs);
+    D.addStateMenu(context, organs, getText("ContextMenu_TCA_DebugGiveAllOrgans"), playerObj, "");
+    for _, organ in ipairs(TCA.Organs.LIST) do
+        local fullType = TCA.Autopsy.ORGAN_ITEM_PREFIX .. organ.id;
+        D.addStateMenu(context, organs, getItemNameFromFullType(fullType), playerObj, fullType);
+    end
+end
+
 function D.onFillWorldObjectContextMenu(player, context, worldobjects, test)
     if test or not TCA_Client or not TCA_Client.isDebug() then
         return;
@@ -243,6 +302,7 @@ function D.onFillWorldObjectContextMenu(player, context, worldobjects, test)
     end
     local sub = TCA_Client.getSubMenu(context);
     sub:addOption(getText("ContextMenu_TCA_DebugCannibal"), playerObj, D.onOpen);
+    D.addGiveMenu(context, sub, playerObj);
     local fetch = ISWorldObjectContextMenu.fetchVars;
     local other = fetch and fetch.clickedPlayer;
     if other and other ~= playerObj and not other:isAnimal() then

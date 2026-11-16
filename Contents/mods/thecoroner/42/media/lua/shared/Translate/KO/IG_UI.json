@@ -414,5 +414,11 @@
     "IGUI_TCA_DbgCan_Mods": "다른 모드",
     "IGUI_TCA_DbgCan_HarvestZ": "HarvestZ 광기 점수",
     "IGUI_TCA_DbgCan_CZATrait": "CZA 식인",
-    "IGUI_TCA_DbgCan_CZACraving": "CZA 갈망"
+    "IGUI_TCA_DbgCan_CZACraving": "CZA 갈망",
+    "IGUI_TCA_DebugOrganState_0": "신선함",
+    "IGUI_TCA_DebugOrganState_1": "약간 상함",
+    "IGUI_TCA_DebugOrganState_2": "오래됨",
+    "IGUI_TCA_DebugOrganState_3": "썩음",
+    "IGUI_TCA_DebugOrganHealthy": "%1, 건강함",
+    "IGUI_TCA_DebugOrganInfected": "%1, 감염됨"
 }
