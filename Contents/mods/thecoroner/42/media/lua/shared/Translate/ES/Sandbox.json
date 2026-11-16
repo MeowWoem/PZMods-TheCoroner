@@ -15,13 +15,13 @@
     "Sandbox_TheCoroner_OrgansEdible": "Órganos comestibles",
     "Sandbox_TheCoroner_OrgansEdible_tooltip": "<BHC> [!] En una partida ya en curso, reinicia el juego o el servidor después de cambiar esta opción. [!] <RGB:1,1,1><br><br>Activado: los órganos se pueden comer crudos o cocinados y añadir a guisos, sopas y salteados.<br>Desactivado: sin opción Comer ni recetas de cocina. Se pueden seguir cocinando, usar como cebo o engodo de pesca y en las recetas del mod.",
     "Sandbox_TheCoroner_OrgansInfectious": "Los órganos infectados transmiten la infección",
-    "Sandbox_TheCoroner_OrgansInfectious_tooltip": "Activado: comer un órgano de un cuerpo infectado te infecta (salvo si la infección está desactivada en Zombie Lore).<br>Desactivado: los órganos infectados son tan seguros como los demás.<br>Los órganos ya extraídos conservan su estado actual.",
+    "Sandbox_TheCoroner_OrgansInfectious_tooltip": "Activado: comer un órgano de un cuerpo infectado te infecta (salvo si la infección está desactivada en «Propiedades zombis»).<br>Desactivado: los órganos infectados son tan seguros como los demás.<br>Los órganos ya extraídos conservan su estado actual.",
     "Sandbox_TheCoroner_MorgueCorpseChance": "Cajones de morgue: probabilidad de cadáver (%)",
     "Sandbox_TheCoroner_MorgueCorpseChance_tooltip": "Probabilidad de que cada cajón de morgue contenga un cuerpo la primera vez que se carga.<br>0 = siempre vacío.",
     "Sandbox_TheCoroner_MorgueCorpseInfectedChance": "Cajones de morgue: probabilidad de cadáver infectado (%)",
     "Sandbox_TheCoroner_MorgueCorpseInfectedChance_tooltip": "Probabilidad de que un cuerpo encontrado en un cajón de morgue esté infectado (mordedura presente, órganos peligrosos).",
-    "Sandbox_TheCoroner_BetaBlockerTremorReduction": "Betabloqueantes: reducción del temblor (%)",
-    "Sandbox_TheCoroner_BetaBlockerTremorReduction_tooltip": "Cuánto reducen los betabloqueantes (pastillas vanilla) el temblor de manos durante el minijuego de autopsia.<br>50 = la mitad de temblor, 100 = manos perfectamente firmes, 0 = sin efecto.",
-    "Sandbox_TheCoroner_BetaBlockerDuration": "Betabloqueantes: duración (horas de juego)",
-    "Sandbox_TheCoroner_BetaBlockerDuration_tooltip": "Cuánto tiempo estabiliza las manos una dosis de betabloqueantes. Una nueva dosis reinicia el tiempo."
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction": "Tranquilizantes: reducción del temblor (%)",
+    "Sandbox_TheCoroner_BetaBlockerTremorReduction_tooltip": "Cuánto reducen los tranquilizantes (betabloqueantes vanilla) el temblor de manos durante el minijuego de autopsia.<br>50 = la mitad de temblor, 100 = manos perfectamente firmes, 0 = sin efecto.",
+    "Sandbox_TheCoroner_BetaBlockerDuration": "Tranquilizantes: duración (horas de juego)",
+    "Sandbox_TheCoroner_BetaBlockerDuration_tooltip": "Cuánto tiempo estabiliza las manos una dosis de tranquilizantes. Una nueva dosis reinicia el tiempo."
 }
