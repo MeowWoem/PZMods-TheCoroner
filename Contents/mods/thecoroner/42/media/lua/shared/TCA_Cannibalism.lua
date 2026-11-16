@@ -16,6 +16,7 @@ C.HIDDEN = "TCA.HiddenMeat";
 C.HIDDEN_INFECTED = "TCA.HiddenMeatInfected";
 C.DISH_COOKS = "TCA_HumanCooks";
 C.DISH_INFECTED = "TCA_HumanInfected";
+C.POISONER_KEY = "addedPoisonBy";
 C.EVOLVED_FACTOR = 0.3;
 C.KEY = "TCA_Cannibal";
 
@@ -596,6 +597,16 @@ function C.onDebugCommand(player, args)
     sendServerCommand(player, "TCA", "cannibalDebug", snapshot);
 end
 
+function C.keepOrganPoison(character, used, poison)
+    if poison <= 0 or used:getHungChange() == 0 or used:getPoisonPower() >= poison then
+        return;
+    end
+    used:setPoisonPower(poison);
+    if isServer() then
+        sendItemStats(used);
+    end
+end
+
 C.originalAddComplete = C.originalAddComplete or ISAddItemInRecipe.complete;
 
 function C.addComplete(self)
@@ -606,8 +617,20 @@ function C.addComplete(self)
         fullType = used:getFullType();
         infected = used:getModData()["TCA_Infected"] == true and TCA_OrganFood.canInfect();
     end
+    local poison = 0;
+    local poisoner = nil;
+    if fullType then
+        poison = used:getPoisonPower();
+        if self.baseItem then
+            poisoner = self.baseItem:getModData()[C.POISONER_KEY];
+        end
+    end
     local result = C.originalAddComplete(self);
     if fullType then
+        C.keepOrganPoison(self.character, used, poison);
+        if self.baseItem and poisoner == nil then
+            self.baseItem:getModData()[C.POISONER_KEY] = nil;
+        end
         C.onOrganAdded(self.character, self.baseItem, self.recipe, fullType, infected);
     end
     return result;
