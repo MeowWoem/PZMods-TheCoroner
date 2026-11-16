@@ -11,9 +11,9 @@ Examine bodies, estimate the time of death, find the cause of death, perform a h
 | **Workshop ID** | `3838129476` |
 | **Mod ID** | `thecoroner` |
 | **Game version** | Build 42 |
-| **Current version** | 1.0.7 |
+| **Current version** | 1.0.8 |
 | **Multiplayer** | Yes (hosted and dedicated servers) |
-| **Languages** | English, French, Spanish |
+| **Languages** | English, French, Spanish, Portuguese, Korean, Russian |
 | **Author** | Amenophis |
 
 ## Documentation
@@ -34,12 +34,14 @@ Everything is in the **[wiki](https://github.com/MeowWoem/PZMods-TheCoroner/wiki
 - [Morgue Drawers](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Morgue-Drawers)
 - [First Aid Training (XP)](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/First-Aid-Training)
 - [Forensic Books & Cheat Sheet](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Forensic-Books)
+- [Blood Typing](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Blood-Typing) (with Wounds Overhaul)
 
 ## Reference
 - [Items](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Items)
 - [Crafting Recipes](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Crafting-Recipes)
 - [Loot Locations](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Loot-Locations)
 - [Sandbox Options](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Sandbox-Options)
+- [Mod Options (window size)](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Mod-Options)
 - [Mod Compatibility](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Mod-Compatibility)
 - [Multiplayer & Servers](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Multiplayer)
 - [FAQ & Troubleshooting](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/FAQ)
@@ -47,7 +49,7 @@ Everything is in the **[wiki](https://github.com/MeowWoem/PZMods-TheCoroner/wiki
 - [Roadmap](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap)
 
 ## Quick start
-1. Find a **table at least 2 tiles long**, a **scalpel**, **forceps or tweezers** and something to cut ribs (**bone saw**, **bolt cutters** or any **saw**).
+1. Find a **table at least 2 tiles long**, a **scalpel** (a sharp knife will do, badly), **forceps or tweezers** and something to cut ribs (**bone saw**, **bolt cutters** or any **saw**).
 2. Make sure there is **light**: a lamp nearby or a lit flashlight.
 3. **Right-click a corpse or the table → Coroner → Place corpse on table**.
 4. **Undress the torso**, then **Coroner → Perform an autopsy**.
