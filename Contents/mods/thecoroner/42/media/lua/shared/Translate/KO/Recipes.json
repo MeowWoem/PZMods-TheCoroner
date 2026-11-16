@@ -24,5 +24,6 @@
     "TCA_Forensics1": "검시관의 메모: 초기 징후",
     "TCA_Forensics2": "검시관의 메모: 사망 경과",
     "TCA_Forensics3": "검시관의 메모: 냉기와 특수 사례",
-    "TCA_MakeDigitalThermometer": "디지털 체온계 만들기"
+    "TCA_MakeDigitalThermometer": "디지털 체온계 만들기",
+    "TCA_MakeOscillatingSaw": "전기 양털 가위를 진동식 골절단기로 개조하기"
 }

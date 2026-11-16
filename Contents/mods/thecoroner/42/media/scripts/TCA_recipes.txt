@@ -23,6 +23,32 @@ module TCA
         }
     }
 
+    craftRecipe TCA_MakeOscillatingSaw
+    {
+        timedAction = MakingElectrical,
+        time = 250,
+        SkillRequired = Electricity:5,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:15,
+        OnCreate = TCA_RecipeCode.keepShearsCharge,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[MayDegradeLight],
+            item 1 tags[base:file] mode:keep flags[MayDegradeLight],
+            item 1 [Base.SheepElectricShears] mode:destroy,
+            item 1 [Base.SmallSawblade;Base.HacksawBlade],
+            item 2 [Base.ElectronicsScrap],
+            item 1 [Base.ElectricWire],
+            item 2 [Base.Screws],
+            item 1 [Base.DuctTape;Base.Glue],
+        }
+        outputs
+        {
+            item 1 TCA.BoneSawOscillating,
+        }
+    }
+
     craftRecipe TCA_CutChestPlate
     {
         timedAction = SawLogs,

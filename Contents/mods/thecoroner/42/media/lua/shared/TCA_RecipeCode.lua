@@ -75,6 +75,28 @@ function R.testSpecimenFormalin(item, character)
     return R.getDecay(item) <= R.SPECIMEN_FORMALIN_MAX_DECAY;
 end
 
+function TCA_RecipeCode.getShearsCharge(craftRecipeData)
+    local consumed = craftRecipeData:getAllConsumedItems();
+    for i = 0, consumed:size() - 1 do
+        local item = consumed:get(i);
+        if item:getFullType() == "Base.SheepElectricShears" and item:IsDrainable() then
+            return item:getCurrentUsesFloat();
+        end
+    end
+    return 0;
+end
+
+function TCA_RecipeCode.keepShearsCharge(craftRecipeData, character)
+    local charge = TCA_RecipeCode.getShearsCharge(craftRecipeData);
+    local items = craftRecipeData:getAllCreatedItems();
+    for i = 0, items:size() - 1 do
+        local item = items:get(i);
+        if item:IsDrainable() then
+            item:setCurrentUsesFloat(charge);
+        end
+    end
+end
+
 function TCA_RecipeCode.emptyBattery(craftRecipeData, character)
     local items = craftRecipeData:getAllCreatedItems();
     for i = 0, items:size() - 1 do
