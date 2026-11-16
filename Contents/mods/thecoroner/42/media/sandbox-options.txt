@@ -106,6 +106,34 @@ option TheCoroner.CannibalTraitMeals
     translation = TheCoroner_CannibalTraitMeals,
 }
 
+option TheCoroner.HideOrgansInDishes
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_HideOrgansInDishes,
+}
+
+option TheCoroner.SuspicionFirstAid
+{
+    type = integer,
+    default = 7,
+    min = 1,
+    max = 11,
+    page = TheCoroner,
+    translation = TheCoroner_SuspicionFirstAid,
+}
+
+option TheCoroner.SuspicionCooking
+{
+    type = integer,
+    default = 8,
+    min = 1,
+    max = 11,
+    page = TheCoroner,
+    translation = TheCoroner_SuspicionCooking,
+}
+
 option TheCoroner.BetaBlockerTremorReduction
 {
     type = integer,

@@ -30,5 +30,7 @@
     "TCA.ForensicsBook2": "Судебная медицина II: хронология смерти",
     "TCA.ForensicsBook3": "Судебная медицина III: холод и особые случаи",
     "TCA.SpentBullet": "Деформированная пуля",
-    "TCA.ThermometerDigital": "Цифровой термометр"
+    "TCA.ThermometerDigital": "Цифровой термометр",
+    "TCA.HiddenMeat": "Говяжий фарш",
+    "TCA.HiddenMeatInfected": "Говяжий фарш"
 }

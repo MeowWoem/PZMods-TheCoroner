@@ -30,5 +30,7 @@
     "TCA.ForensicsBook2": "법의학 II: 사망 경과",
     "TCA.ForensicsBook3": "법의학 III: 냉기와 특수 사례",
     "TCA.SpentBullet": "변형된 탄두",
-    "TCA.ThermometerDigital": "디지털 체온계"
+    "TCA.ThermometerDigital": "디지털 체온계",
+    "TCA.HiddenMeat": "다진 고기",
+    "TCA.HiddenMeatInfected": "다진 고기"
 }

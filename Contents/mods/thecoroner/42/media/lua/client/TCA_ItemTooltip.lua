@@ -81,6 +81,37 @@ function T.getLines(item, character)
     return lines;
 end
 
+function T.isHumanDish(item)
+    if not T.isInventoryItem(item) or T.isBodyItem(item) or not instanceof(item, "Food") or not item:haveExtraItems() then
+        return false;
+    end
+    local measured = TCA.Cannibal.measure(item);
+    return measured.extras > 0;
+end
+
+function T.getDishLines(item, character)
+    local lines = {};
+    local measured = TCA.Cannibal.measure(item);
+    if measured.extras <= 0 or not character then
+        return lines;
+    end
+    local cook = TCA.Cannibal.isCook(character, measured);
+    if measured.visible > 0 then
+        table.insert(lines, { text = getText("IGUI_TCA_DishHuman"), color = T.BAD });
+    elseif cook then
+        table.insert(lines, { text = getText("IGUI_TCA_DishHumanCook"), color = T.BAD });
+    elseif TCA.Cannibal.suspects(character) then
+        table.insert(lines, { text = getText("IGUI_TCA_DishSuspicious"), color = T.BAD });
+        return lines;
+    else
+        return lines;
+    end
+    if measured.infected and character:getPerkLevel(Perks.Doctor) >= T.getDetailLevel() then
+        table.insert(lines, { text = getText("IGUI_TCA_OrganInfected"), color = T.INFECTED });
+    end
+    return lines;
+end
+
 function T.drawExtra(tip, lines)
     local tm = getTextManager();
     local lineH = tm:getFontHeight(T.FONT);
@@ -152,6 +183,9 @@ function T.getItemLines(item, tooltip)
     if TCA.BetaBlocker.isBetaItem(item) then
         return T.getBetaLines(T.getCharacterFor(tooltip));
     end
+    if T.isHumanDish(item) then
+        return T.getDishLines(item, T.getCharacterFor(tooltip));
+    end
     if not T.isBodyItem(item) then
         return nil;
     end
@@ -190,7 +224,7 @@ function T.providerEnabled(item)
     if not T.isInventoryItem(item) then
         return false;
     end
-    return item:getFullType() == T.BULLET_ITEM or TCA.BetaBlocker.isBetaItem(item) or T.isBodyItem(item);
+    return item:getFullType() == T.BULLET_ITEM or TCA.BetaBlocker.isBetaItem(item) or T.isBodyItem(item) or T.isHumanDish(item);
 end
 
 function T.providerCallback(ctx)

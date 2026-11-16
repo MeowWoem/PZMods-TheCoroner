@@ -30,5 +30,7 @@
     "TCA.ForensicsBook2": "Medicina forense II: Cronología de la muerte",
     "TCA.ForensicsBook3": "Medicina forense III: Frío y casos especiales",
     "TCA.SpentBullet": "Proyectil deformado",
-    "TCA.ThermometerDigital": "Termómetro digital"
+    "TCA.ThermometerDigital": "Termómetro digital",
+    "TCA.HiddenMeat": "Carne picada",
+    "TCA.HiddenMeatInfected": "Carne picada"
 }

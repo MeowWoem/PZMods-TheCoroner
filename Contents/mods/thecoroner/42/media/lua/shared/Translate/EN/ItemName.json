@@ -30,5 +30,7 @@
     "TCA.ForensicsBook2": "Forensic Medicine II: Timeline of Death",
     "TCA.ForensicsBook3": "Forensic Medicine III: Cold and Special Cases",
     "TCA.SpentBullet": "Spent Bullet",
-    "TCA.ThermometerDigital": "Digital Thermometer"
+    "TCA.ThermometerDigital": "Digital Thermometer",
+    "TCA.HiddenMeat": "Ground Beef",
+    "TCA.HiddenMeatInfected": "Ground Beef"
 }

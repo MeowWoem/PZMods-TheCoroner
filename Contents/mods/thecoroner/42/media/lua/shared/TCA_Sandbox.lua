@@ -137,6 +137,18 @@ function S.getCannibalTraitMeals()
     return S.getNumber("CannibalTraitMeals", 10, 1, 100);
 end
 
+function S.areOrgansHiddenInDishes()
+    return S.getBoolean("HideOrgansInDishes", true);
+end
+
+function S.getSuspicionFirstAid()
+    return S.getNumber("SuspicionFirstAid", 7, 1, 11);
+end
+
+function S.getSuspicionCooking()
+    return S.getNumber("SuspicionCooking", 8, 1, 11);
+end
+
 function S.getKindXpMultiplier(kind)
     local name = S.XP_OPTIONS[kind];
     if not name then

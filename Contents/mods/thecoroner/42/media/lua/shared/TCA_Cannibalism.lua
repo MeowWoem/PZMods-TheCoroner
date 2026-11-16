@@ -2,6 +2,9 @@ require "TCA_Shared";
 require "TCA_Sandbox";
 require "TCA_Wounds";
 require "TimedActions/ISEatFoodAction";
+require "TimedActions/ISAddItemInRecipe";
+require "TCA_OrganFood";
+require "TCA_Exam";
 
 TCA = TCA or {};
 TCA.Cannibal = TCA.Cannibal or {};
@@ -9,6 +12,10 @@ TCA.Cannibal = TCA.Cannibal or {};
 local C = TCA.Cannibal;
 
 C.ORGAN_PREFIX = "TCA.Organ_";
+C.HIDDEN = "TCA.HiddenMeat";
+C.HIDDEN_INFECTED = "TCA.HiddenMeatInfected";
+C.DISH_COOKS = "TCA_HumanCooks";
+C.DISH_INFECTED = "TCA_HumanInfected";
 C.EVOLVED_FACTOR = 0.3;
 C.KEY = "TCA_Cannibal";
 
@@ -95,8 +102,16 @@ function C.hasOwnTrait(character)
     return trait ~= nil and character:hasTrait(trait);
 end
 
-function C.isHumanFoodType(fullType)
+function C.isOrganType(fullType)
     return fullType ~= nil and string.sub(tostring(fullType), 1, string.len(C.ORGAN_PREFIX)) == C.ORGAN_PREFIX;
+end
+
+function C.isHiddenType(fullType)
+    return fullType == C.HIDDEN or fullType == C.HIDDEN_INFECTED;
+end
+
+function C.isHumanFoodType(fullType)
+    return C.isOrganType(fullType) or C.isHiddenType(fullType);
 end
 
 function C.isCooked(item)
@@ -293,28 +308,85 @@ function C.measure(item)
     local result = {};
     result.organs = 0;
     result.extras = 0;
+    result.visible = 0;
+    result.hidden = 0;
+    result.infected = false;
+    result.cooks = "";
     result.cooked = false;
     if not item or not instanceof(item, "Food") then
         return result;
     end
-    if C.isHumanFoodType(item:getFullType()) then
+    if C.isOrganType(item:getFullType()) then
         result.organs = 1;
     end
     if item:haveExtraItems() then
         local extras = item:getExtraItems();
         for i = 0, extras:size() - 1 do
-            if C.isHumanFoodType(extras:get(i)) then
-                result.extras = result.extras + 1;
+            local fullType = extras:get(i);
+            if C.isOrganType(fullType) then
+                result.visible = result.visible + 1;
+            elseif C.isHiddenType(fullType) then
+                result.hidden = result.hidden + 1;
+                if fullType == C.HIDDEN_INFECTED then
+                    result.infected = true;
+                end
             end
         end
+    end
+    result.extras = result.visible + result.hidden;
+    if result.organs == 0 and result.extras > 0 then
+        local md = item:getModData();
+        if md[C.DISH_INFECTED] == true then
+            result.infected = true;
+        end
+        result.cooks = tostring(md[C.DISH_COOKS] or "");
     end
     result.cooked = C.isCooked(item);
     return result;
 end
 
+function C.getCookKey(character)
+    return TCA.Exam.getObserverKey(character);
+end
+
+function C.isCook(character, measured)
+    if measured.cooks == "" then
+        return false;
+    end
+    local key = C.getCookKey(character);
+    for entry in string.gmatch(measured.cooks, "[^;]+") do
+        if entry == key then
+            return true;
+        end
+    end
+    return false;
+end
+
+function C.suspects(character)
+    local firstAid = TCA.Sandbox.getSuspicionFirstAid();
+    local cooking = TCA.Sandbox.getSuspicionCooking();
+    if firstAid <= 10 and character:getPerkLevel(Perks.Doctor) >= firstAid then
+        return true;
+    end
+    return cooking <= 10 and character:getPerkLevel(Perks.Cooking) >= cooking;
+end
+
+function C.isAware(character, measured)
+    if measured.organs > 0 or measured.visible > 0 then
+        return true;
+    end
+    if measured.hidden <= 0 then
+        return false;
+    end
+    return C.isCook(character, measured) or C.suspects(character);
+end
+
 function C.onEaten(character, measured, portion)
     if not character or (measured.organs <= 0 and measured.extras <= 0) then
         return;
+    end
+    if measured.infected then
+        TCA_OrganFood.infect(character);
     end
     local mod = C.getSupportedMod();
     if mod == "HarvestZCannibalism" then
@@ -327,7 +399,7 @@ function C.onEaten(character, measured, portion)
     end
     if mod == "CZA" then
         C.applyCZA(character, amount, measured.cooked);
-    elseif TCA.Sandbox.areCannibalismEffectsEnabled() then
+    elseif TCA.Sandbox.areCannibalismEffectsEnabled() and C.isAware(character, measured) then
         C.applyOwn(character, amount);
     end
     C.flushStats(character);
@@ -385,6 +457,77 @@ end
 function C.everyTenMinutes()
     C.forEachPlayer(C.tickPlayer);
 end
+
+function C.addCook(dish, character)
+    local md = dish:getModData();
+    local key = C.getCookKey(character);
+    local cooks = tostring(md[C.DISH_COOKS] or "");
+    for entry in string.gmatch(cooks, "[^;]+") do
+        if entry == key then
+            return;
+        end
+    end
+    if cooks == "" then
+        md[C.DISH_COOKS] = key;
+    else
+        md[C.DISH_COOKS] = cooks .. ";" .. key;
+    end
+end
+
+function C.disguise(dish, fullType, infected)
+    local extras = dish:getExtraItems();
+    if not extras then
+        return false;
+    end
+    for i = extras:size() - 1, 0, -1 do
+        if extras:get(i) == fullType then
+            if infected then
+                extras:set(i, C.HIDDEN_INFECTED);
+            else
+                extras:set(i, C.HIDDEN);
+            end
+            return true;
+        end
+    end
+    return false;
+end
+
+function C.onOrganAdded(character, dish, recipe, fullType, infected)
+    if not dish or not instanceof(dish, "Food") then
+        return;
+    end
+    C.addCook(dish, character);
+    if TCA.Sandbox.areOrgansHiddenInDishes() then
+        if C.disguise(dish, fullType, infected) and not dish:isCustomName() then
+            ISAddItemInRecipe.checkName(dish, recipe);
+        end
+    elseif infected then
+        dish:getModData()[C.DISH_INFECTED] = true;
+    end
+    if isServer() then
+        sendItemStats(dish);
+        syncItemModData(character, dish);
+    end
+end
+
+C.originalAddComplete = C.originalAddComplete or ISAddItemInRecipe.complete;
+
+function C.addComplete(self)
+    local used = self.usedItem;
+    local fullType = nil;
+    local infected = false;
+    if used and C.isOrganType(used:getFullType()) then
+        fullType = used:getFullType();
+        infected = used:getModData()["TCA_Infected"] == true and TCA_OrganFood.canInfect();
+    end
+    local result = C.originalAddComplete(self);
+    if fullType then
+        C.onOrganAdded(self.character, self.baseItem, self.recipe, fullType, infected);
+    end
+    return result;
+end
+
+ISAddItemInRecipe.complete = C.addComplete;
 
 C.originalComplete = C.originalComplete or ISEatFoodAction.complete;
 C.originalEat = C.originalEat or ISEatFoodAction.eat;

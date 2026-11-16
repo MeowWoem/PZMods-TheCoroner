@@ -32,6 +32,62 @@ module TCA
         Tags = base:hasmetal,
     }
 
+    item HiddenMeat
+    {
+        DisplayName = Ground Beef,
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.3,
+        Icon = MincedMeat,
+        BadCold = true,
+        BadInMicrowave = true,
+        DangerousUncooked = true,
+        FoodType = Beef,
+        GoodHot = true,
+        IsCookable = true,
+        MinutesToCook = 50,
+        MinutesToBurn = 70,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -35.0,
+        Calories = 200.0,
+        Carbohydrates = 0.0,
+        Lipids = 8.0,
+        Proteins = 30.0,
+        StaticModel = Base.MincedMeat_Ground,
+        WorldStaticModel = Base.MincedMeat_Ground,
+        EvolvedRecipeName = Beef,
+        CookingSound = FryingFood,
+    }
+
+    item HiddenMeatInfected
+    {
+        DisplayName = Ground Beef,
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.3,
+        Icon = MincedMeat,
+        BadCold = true,
+        BadInMicrowave = true,
+        DangerousUncooked = true,
+        FoodType = Beef,
+        GoodHot = true,
+        IsCookable = true,
+        MinutesToCook = 50,
+        MinutesToBurn = 70,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -35.0,
+        Calories = 200.0,
+        Carbohydrates = 0.0,
+        Lipids = 8.0,
+        Proteins = 30.0,
+        StaticModel = Base.MincedMeat_Ground,
+        WorldStaticModel = Base.MincedMeat_Ground,
+        EvolvedRecipeName = Beef,
+        CookingSound = FryingFood,
+    }
+
     item Organ_heart
     {
         DisplayName = Heart,
