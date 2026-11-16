@@ -510,6 +510,77 @@ function C.onOrganAdded(character, dish, recipe, fullType, infected)
     end
 end
 
+function C.getStat(character, stat)
+    return character:getStats():get(stat);
+end
+
+function C.debugSnapshot(character)
+    local s = {};
+    local md = character:getModData();
+    local data = md[C.KEY];
+    if type(data) ~= "table" then
+        data = {};
+    end
+    local now = C.now();
+    local threshold = TCA.Sandbox.getCannibalTraitMeals();
+    local exposure = data.exposure or 0;
+    s.name = character:getDisplayName();
+    s.stress = C.getStat(character, CharacterStat.STRESS);
+    s.unhappy = C.getStat(character, CharacterStat.UNHAPPINESS);
+    s.boredom = C.getStat(character, CharacterStat.BOREDOM);
+    s.sickness = C.getStat(character, CharacterStat.FOOD_SICKNESS);
+    s.morale = C.getStat(character, CharacterStat.MORALE);
+    s.infected = character:getBodyDamage():IsInfected();
+    s.infection = C.getStat(character, CharacterStat.ZOMBIE_INFECTION);
+    s.mod = C.getSupportedMod() or "";
+    s.effects = TCA.Sandbox.areCannibalismEffectsEnabled();
+    s.strength = TCA.Sandbox.getCannibalismStrength();
+    s.trait = C.hasOwnTrait(character);
+    s.traitEnabled = TCA.Sandbox.isCannibalTraitEnabled();
+    s.meals = data.meals or 0;
+    s.threshold = threshold;
+    s.exposure = exposure;
+    s.habit = math.max(C.HABIT_MIN, 1 - exposure / math.max(1, threshold));
+    s.sensitivity = C.getSensitivity(character);
+    s.since = -1;
+    if (data.last or -1) >= 0 then
+        s.since = now - data.last;
+    end
+    s.guilt = math.max(0, (data.guiltUntil or -1) - now);
+    s.guiltFloor = data.guiltFloor or 0;
+    s.craving = 0;
+    if s.trait and s.since > C.CRAVING_START_HOURS then
+        s.craving = math.min(1, (s.since - C.CRAVING_START_HOURS) / (C.CRAVING_FULL_HOURS - C.CRAVING_START_HOURS));
+    end
+    s.firstAid = character:getPerkLevel(Perks.Doctor);
+    s.firstAidReq = TCA.Sandbox.getSuspicionFirstAid();
+    s.cooking = character:getPerkLevel(Perks.Cooking);
+    s.cookingReq = TCA.Sandbox.getSuspicionCooking();
+    s.suspects = C.suspects(character);
+    s.hide = TCA.Sandbox.areOrgansHiddenInDishes();
+    s.hzPoints = tonumber(md.Cannibalism_InsanityPoints) or -1;
+    s.czaTrait = false;
+    local czaTrait = C.getCZATrait();
+    if czaTrait then
+        s.czaTrait = character:hasTrait(czaTrait);
+    end
+    s.czaCraving = tonumber(md.CZA_cravingHours) or -1;
+    return s;
+end
+
+function C.onDebugCommand(player, args)
+    if not player or not args or not player:getRole():hasCapability(Capability.AddItem) then
+        return;
+    end
+    local target = getPlayerByOnlineID(args.id);
+    if not target then
+        return;
+    end
+    local snapshot = C.debugSnapshot(target);
+    snapshot.id = args.id;
+    sendServerCommand(player, "TCA", "cannibalDebug", snapshot);
+end
+
 C.originalAddComplete = C.originalAddComplete or ISAddItemInRecipe.complete;
 
 function C.addComplete(self)

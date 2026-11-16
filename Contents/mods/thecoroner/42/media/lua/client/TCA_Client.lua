@@ -10,6 +10,7 @@ require "TimedActions/TCA_BloodTypeAction";
 require "TCA_BloodType";
 require "TCA_AutopsyUI";
 require "TCA_ReferenceUI";
+require "TCA_CannibalDebugUI";
 require "TCA_Exam";
 require "TCA_Wounds";
 require "TCA_Cold";
@@ -503,6 +504,8 @@ function TCA_Client.onServerCommand(module, command, args)
         TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0, args.tooWide == true);
     elseif command == "cannibalHalo" and args and args.key then
         TCA.Cannibal.showHalo(getPlayer(), args.key);
+    elseif command == "cannibalDebug" and args then
+        TCA_CannibalDebugUI.receive(args);
     elseif command == "autopsyLock" and args and args.x and args.y and args.z then
         TCA_Client.lockReplies[TCA_Client.getLockKey(args.x, args.y, args.z)] = args.ok == true;
     end

@@ -4,6 +4,8 @@
     "ContextMenu_TCA_Autopsy": "Провести вскрытие",
     "ContextMenu_TCA_DebugReset": "[ОТЛАДКА] Сбросить вскрытие",
     "ContextMenu_TCA_DebugReference": "[ОТЛАДКА] Эталонное изображение 1:1",
+    "ContextMenu_TCA_DebugCannibal": "[ОТЛАДКА] Скрытые показатели (каннибализм)",
+    "ContextMenu_TCA_DebugCannibalOf": "[ОТЛАДКА] Скрытые показатели: %1",
     "ContextMenu_TCA_MorguePowerOn": "Включить охлаждение ячеек",
     "ContextMenu_TCA_MorguePowerOff": "Выключить охлаждение ячеек",
     "ContextMenu_TCA_DebugDeathTime": "[ОТЛАДКА] Время смерти",

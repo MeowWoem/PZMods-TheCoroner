@@ -2,6 +2,7 @@ require "TCA_Wounds";
 require "TCA_Shared";
 require "TCA_Autopsy";
 require "TCA_Exam";
+require "TCA_Cannibalism";
 require "TimedActions/TCA_AutopsyResultAction";
 
 TCA_Server = TCA_Server or {};
@@ -224,6 +225,8 @@ function TCA_Server.onClientCommand(module, command, player, args)
         TCA.Exam.useThermometer(player);
     elseif command == "debugWounds" then
         TCA_Server.onDebugWoundsCommand(player, args);
+    elseif command == "cannibalDebug" then
+        TCA.Cannibal.onDebugCommand(player, args);
     end
 end
 

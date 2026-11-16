@@ -4,6 +4,8 @@
     "ContextMenu_TCA_Autopsy": "Realizar una autopsia",
     "ContextMenu_TCA_DebugReset": "[DEBUG] Reiniciar la autopsia",
     "ContextMenu_TCA_DebugReference": "[DEBUG] Imagen de referencia 1:1",
+    "ContextMenu_TCA_DebugCannibal": "[DEBUG] Estadísticas ocultas (canibalismo)",
+    "ContextMenu_TCA_DebugCannibalOf": "[DEBUG] Estadísticas ocultas: %1",
     "ContextMenu_TCA_MorguePowerOn": "Encender la refrigeración de los cajones",
     "ContextMenu_TCA_MorguePowerOff": "Apagar la refrigeración de los cajones",
     "ContextMenu_TCA_DebugDeathTime": "[DEBUG] Hora de la muerte",
