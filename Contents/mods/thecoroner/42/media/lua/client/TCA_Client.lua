@@ -501,6 +501,8 @@ function TCA_Client.onServerCommand(module, command, args)
         TCA.Wounds.showCauseResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0);
     elseif command == "examResult" and args then
         TCA.Exam.showResult(getPlayer(), args.ok == true, tonumber(args.xp) or 0, args.tooWide == true);
+    elseif command == "cannibalHalo" and args and args.key then
+        TCA.Cannibal.showHalo(getPlayer(), args.key);
     elseif command == "autopsyLock" and args and args.x and args.y and args.z then
         TCA_Client.lockReplies[TCA_Client.getLockKey(args.x, args.y, args.z)] = args.ok == true;
     end

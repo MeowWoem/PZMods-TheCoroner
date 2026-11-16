@@ -121,6 +121,22 @@ function S.getLevelXpFactor(level)
     return math.max(S.XP_FACTOR_MIN, factor);
 end
 
+function S.areCannibalismEffectsEnabled()
+    return S.getBoolean("CannibalismEffects", true);
+end
+
+function S.getCannibalismStrength()
+    return S.getNumber("CannibalismStrength", 1, 0, 3);
+end
+
+function S.isCannibalTraitEnabled()
+    return S.getBoolean("CannibalTrait", true);
+end
+
+function S.getCannibalTraitMeals()
+    return S.getNumber("CannibalTraitMeals", 10, 1, 100);
+end
+
 function S.getKindXpMultiplier(kind)
     local name = S.XP_OPTIONS[kind];
     if not name then

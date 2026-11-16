@@ -44,6 +44,8 @@
     "IGUI_TCA_BladeImprecise": "moins précis",
     "IGUI_TCA_BladeDull": "émoussé",
     "IGUI_TCA_BladeCrude": "rudimentaire",
+    "IGUI_TCA_CannibalFirst": "Tu viens de manger de la chair humaine...",
+    "IGUI_TCA_CannibalTraitGained": "Tu t'es habitué au goût de la chair humaine (Cannibale)",
     "IGUI_TCA_ModOptionsTitle": "The Coroner",
     "IGUI_TCA_UIScale": "Taille des fenêtres (autopsie, examen)",
     "IGUI_TCA_UIScaleTip": "Auto adapte les fenêtres à la hauteur de ton écran : 100 % en 1080p, environ 135 % en 1440p, 200 % en 4K. Une fenêtre qui ne tiendrait pas à l'écran est réduite.",

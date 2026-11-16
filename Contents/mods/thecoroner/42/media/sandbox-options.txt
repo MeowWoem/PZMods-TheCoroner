@@ -70,6 +70,42 @@ option TheCoroner.XpDiminishingStartLevel
     translation = TheCoroner_XpDiminishingStartLevel,
 }
 
+option TheCoroner.CannibalismEffects
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_CannibalismEffects,
+}
+
+option TheCoroner.CannibalismStrength
+{
+    type = double,
+    default = 1.0,
+    min = 0.0,
+    max = 3.0,
+    page = TheCoroner,
+    translation = TheCoroner_CannibalismStrength,
+}
+
+option TheCoroner.CannibalTrait
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_CannibalTrait,
+}
+
+option TheCoroner.CannibalTraitMeals
+{
+    type = integer,
+    default = 10,
+    min = 1,
+    max = 100,
+    page = TheCoroner,
+    translation = TheCoroner_CannibalTraitMeals,
+}
+
 option TheCoroner.BetaBlockerTremorReduction
 {
     type = integer,

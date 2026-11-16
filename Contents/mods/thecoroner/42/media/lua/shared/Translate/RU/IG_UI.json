@@ -44,6 +44,8 @@
     "IGUI_TCA_BladeImprecise": "менее точный",
     "IGUI_TCA_BladeDull": "тупой",
     "IGUI_TCA_BladeCrude": "примитивный",
+    "IGUI_TCA_CannibalFirst": "Вы только что съели человеческую плоть...",
+    "IGUI_TCA_CannibalTraitGained": "Вы привыкли к вкусу человеческой плоти (Каннибал)",
     "IGUI_TCA_ModOptionsTitle": "The Coroner",
     "IGUI_TCA_UIScale": "Размер окон (вскрытие, осмотр)",
     "IGUI_TCA_UIScaleTip": "«Авто» подгоняет окна под высоту экрана: 100% при 1080p, около 135% при 1440p, 200% при 4K. Окно, которое не помещается на экране, уменьшается.",

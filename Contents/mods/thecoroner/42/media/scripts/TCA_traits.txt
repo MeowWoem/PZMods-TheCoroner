@@ -1,0 +1,12 @@
+module TCA
+{
+    character_trait_definition TCA:cannibal
+    {
+        CharacterTrait = TCA:cannibal,
+        UIName = UI_trait_TCA_cannibal,
+        UIDescription = UI_trait_TCA_cannibalDesc,
+        Cost = 0,
+        IsProfessionTrait = true,
+        DisabledInMultiplayer = false,
+    }
+}
