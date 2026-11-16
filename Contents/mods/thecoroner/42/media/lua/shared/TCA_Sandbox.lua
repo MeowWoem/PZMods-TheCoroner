@@ -5,6 +5,8 @@ TCA.Sandbox = TCA.Sandbox or {};
 
 local S = TCA.Sandbox;
 
+S.XP_FACTOR_MIN = 0.2;
+
 S.PAGE = "TheCoroner";
 
 S.XP_OPTIONS = {
@@ -100,6 +102,23 @@ end
 
 function S.getBetaBlockerDuration()
     return S.getNumber("BetaBlockerDuration", 4, 0.5, 24);
+end
+
+function S.getXpDiminishingPerLevel()
+    return S.getNumber("XpDiminishingPerLevel", 10, 0, 25);
+end
+
+function S.getXpDiminishingStartLevel()
+    return S.getNumber("XpDiminishingStartLevel", 3, 0, 10);
+end
+
+function S.getLevelXpFactor(level)
+    local over = (tonumber(level) or 0) - S.getXpDiminishingStartLevel();
+    if over <= 0 then
+        return 1;
+    end
+    local factor = 1 - over * S.getXpDiminishingPerLevel() / 100;
+    return math.max(S.XP_FACTOR_MIN, factor);
 end
 
 function S.getKindXpMultiplier(kind)

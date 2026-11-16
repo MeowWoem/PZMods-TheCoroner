@@ -50,6 +50,26 @@ option TheCoroner.TremorMultiplier
     translation = TheCoroner_TremorMultiplier,
 }
 
+option TheCoroner.XpDiminishingPerLevel
+{
+    type = integer,
+    default = 10,
+    min = 0,
+    max = 25,
+    page = TheCoroner,
+    translation = TheCoroner_XpDiminishingPerLevel,
+}
+
+option TheCoroner.XpDiminishingStartLevel
+{
+    type = integer,
+    default = 3,
+    min = 0,
+    max = 10,
+    page = TheCoroner,
+    translation = TheCoroner_XpDiminishingStartLevel,
+}
+
 option TheCoroner.BetaBlockerTremorReduction
 {
     type = integer,

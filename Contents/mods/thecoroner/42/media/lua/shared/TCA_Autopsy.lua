@@ -2,6 +2,7 @@ require "TCA_Shared";
 require "TCA_Organs";
 require "TCA_DeathTime";
 require "TCA_Cold";
+require "TCA_Sandbox";
 
 TCA.Autopsy = TCA.Autopsy or {};
 local A = TCA.Autopsy;
@@ -646,6 +647,7 @@ function A.giveXp(character, xp)
     if not character or not xp or xp <= 0 then
         return 0;
     end
+    xp = xp * TCA.Sandbox.getLevelXpFactor(character:getPerkLevel(Perks.Doctor));
     local before = character:getXp():getXP(Perks.Doctor);
     addXp(character, Perks.Doctor, xp);
     local gained = character:getXp():getXP(Perks.Doctor) - before;
