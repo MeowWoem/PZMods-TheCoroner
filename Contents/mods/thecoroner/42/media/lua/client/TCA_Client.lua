@@ -407,31 +407,65 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     end
 end
 
-function TCA_Client.findFloorBodies(worldobjects)
+function TCA_Client.getMouseSquare(playerObj)
+    if not playerObj then
+        return nil;
+    end
+    local playerNum = playerObj:getPlayerNum();
+    local z = math.floor(playerObj:getZ());
+    local wx = screenToIsoX(playerNum, getMouseX(), getMouseY(), z);
+    local wy = screenToIsoY(playerNum, getMouseX(), getMouseY(), z);
+    return getCell():getGridSquare(math.floor(wx), math.floor(wy), z);
+end
+
+function TCA_Client.addSquareBodies(sq, known, found)
+    local bodies = sq:getDeadBodys();
+    if not bodies then
+        return;
+    end
+    for i = 0, bodies:size() - 1 do
+        local body = bodies:get(i);
+        if body and not known[body] and not body:isAnimal() and TCA.isBodyOnFloor(body) then
+            known[body] = true;
+            table.insert(found, body);
+        end
+    end
+end
+
+function TCA_Client.findFloorBodies(worldobjects, playerObj)
+    local squares = {};
     local seen = {};
-    local known = {};
-    local found = {};
     for _, obj in ipairs(worldobjects) do
         local sq = obj:getSquare();
         if sq and not seen[sq] then
             seen[sq] = true;
-            local bodies = sq:getDeadBodys();
-            if bodies then
-                for i = 0, bodies:size() - 1 do
-                    local body = bodies:get(i);
-                    if body and not known[body] and not body:isAnimal() and TCA.isBodyOnFloor(body) then
-                        known[body] = true;
-                        table.insert(found, body);
-                    end
-                end
+            table.insert(squares, sq);
+        end
+    end
+    local mouseSq = TCA_Client.getMouseSquare(playerObj);
+    if mouseSq then
+        if not seen[mouseSq] then
+            seen[mouseSq] = true;
+            table.insert(squares, mouseSq);
+        end
+        for d = 0, 7 do
+            local adj = mouseSq:getAdjacentSquare(IsoDirections.fromIndex(d));
+            if adj and not seen[adj] then
+                seen[adj] = true;
+                table.insert(squares, adj);
             end
         end
+    end
+    local known = {};
+    local found = {};
+    for _, sq in ipairs(squares) do
+        TCA_Client.addSquareBodies(sq, known, found);
     end
     return found;
 end
 
-function TCA_Client.findFloorBody(worldobjects)
-    return TCA_Client.findFloorBodies(worldobjects)[1];
+function TCA_Client.findFloorBody(worldobjects, playerObj)
+    return TCA_Client.findFloorBodies(worldobjects, playerObj)[1];
 end
 
 function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
@@ -439,7 +473,7 @@ function TCA_Client.onFillFloorBodyMenu(player, context, worldobjects, test)
     if not playerObj or playerObj:getVehicle() or playerObj:isDraggingCorpse() then
         return;
     end
-    local bodies = TCA_Client.findFloorBodies(worldobjects);
+    local bodies = TCA_Client.findFloorBodies(worldobjects, playerObj);
     if #bodies == 0 then
         return;
     end
