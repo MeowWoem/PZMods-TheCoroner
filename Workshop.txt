@@ -80,7 +80,7 @@ description=[*] Your mod list and what you were doing when it happened
 description=[/list]
 description=
 description=[h2]Planned Features[/h2]
-description=Our own blood typing kit, cranial autopsy, controller and split screen support, colorblind settings, more mod support.
+description=[img=https://raw.githubusercontent.com/MeowWoem/PZMods-TheCoroner/refs/heads/main/WorkshopImages/Roadmap.png]
 description=[h3][url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap]Check the full Roadmap[/url][/h3]
 description=
 description=[h2]Credits[/h2]
