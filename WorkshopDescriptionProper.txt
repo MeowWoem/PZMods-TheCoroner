@@ -1,0 +1,88 @@
+[h1]Help other survivors become forensic experts by upvoting my mod. Thanks in advance![/h1]
+
+[h2]Description[/h2]
+Because hacking away at your own arm with a hunting knife in the bathroom just isn't a sustainable long-term workout routine for grinding First Aid, it's time to let someone else do the bleeding.
+
+The Coroner: Autopsy Mod brings a complete forensic pathology system to Project Zomboid, turning corpse management into the ultimate, hands-on training ground for your medical skills. Examine body temperatures, track exact wound histories, perform precision surgical mini-games, and harvest organs... which are edible, though eating a zed's liver is strongly discouraged... unless you're looking to poison your cheating husband. Just remember to pair a nice liver with some fava beans and a bottle of Chianti.
+
+[b]Getting started:[/b] right-click a body or a table and open the [b]Coroner[/b] submenu. The video above walks through everything.
+
+[h2]Features[/h2][list]
+[*] [b]Autopsy on any table:[/b] lay a body on any table at least 2 tiles long.
+[*] [b]Morgue drawers:[/b] a power switch, bodies kept cold when a generator runs them. Pick them up and move them like any furniture, or build your own (Metalworking 5, Electrical 3).
+[*] [b]Surgical mini-game:[/b] Y incision with a Scalpel (or, if you must, a Straight Razor, a Knife or a Machete: cruder blades mean shakier hands, ragged skin, nicked organs and deep cuts), skin pulled back with Forceps, 12 ribs cut with Bolt Cutters or a Saw, Chest Plate lifted, then 11 organs freed and pulled out in order. Your hands shake depending on your First Aid level and your moodles: slip, and you cut yourself. Beta Blockers (vanilla pills) steady your hands for a few hours.
+[*] [b]You need light:[/b] no autopsy or examination in the dark. A nearby lamp or a lit flashlight is enough.
+[*] [b]External examination:[/b] read the clues on a 3D model of the body: temperature, eyes, rigor mortis, livor, decomposition and insect activity (eggs, maggots, pupae). Then estimate the time of death on a timeline: the narrower your correct range, the more XP.
+[*] [b]Wounds & cause of death:[/b] every hit is recorded (blunt, blade, axe, spear, gunshot with caliber, falls, fire, bites...). Examine 17 body parts, tell pre-mortem from post-mortem injuries, and conclude on the cause of death. Missing limbs and eyes are taken into account.
+[*] [b]Thermometers for the living:[/b] take your own temperature, or another player's (they get a confirmation prompt, like the vanilla medical check) to spot hypothermia or a fever.
+[*] [b]Organs & crafting:[/b] organs are food that rots, can be cooked and can be infected. Turn them into Specimen Jars, Catgut, a Bladder Canteen or Liver Tan, and saw the Chest Plate into Human Bones for vanilla bone recipes.
+[*] [b]Blood typing:[/b] determine a corpse's blood group with the Wounds Overhaul Blood Typing Kit (requires Wounds Overhaul). Low First Aid can misread it, so test twice.
+[*] [b]Knowledge progression:[/b] three Forensic Medicine books (or a high First Aid level) unlock a field guide inside the examination window.
+[*] [b]First Aid training:[/b] XP for every autopsy step, every correct time of death estimate and every correct cause of death, instead of self-harming. Skill books, professions and traits apply as usual.
+[/list]
+
+[h2]Full documentation: [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki]The Coroner Wiki[/url][/h2]
+Step-by-step guides, every item, every recipe, loot locations, sandbox options, mod compatibility and FAQ.
+
+[h2]Sandbox Options[/h2]
+XP multipliers, hand tremor, beta blockers, time of death difficulty, edible and infectious organs, morgue bodies. Window size is a personal setting in Mod Options.
+[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Sandbox-Options]Details[/url]
+
+[h2]Added Items[/h2]
+Thermometer, Digital Thermometer, Bone Saw, Oscillating Bone Saw, Formalin, 11 Organs, Chest Plate, Human Bone, Spent Bullet, Bladder Canteen, 9 Specimen Jars, 3 Forensic Medicine books, Morgue Drawers.
+[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Items]Full list[/url]
+
+[h2]Crafting Recipes[/h2]
+Specimen Jars (alcohol or formalin), Catgut, Bladder Canteen, Liver Tan, Human Bones for vanilla bone recipes, Digital Thermometer, buildable Morgue Drawers.
+[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Crafting-Recipes]Full list[/url]
+
+[h2]Save Game Compatibility[/h2]
+Safe to add to an existing save, but new loot won't spawn in containers already visited. No Thermometer left? Craft a Digital Thermometer.
+
+[h2]Recommended Mods[/h2][list]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3801382099]Gurney Transport[/url] - move bodies with almost as much style as a real forensic pathologist.
+[/list]
+
+[h2]Mods Compatibility[/h2]
+Supported:[list]
+[*][b]TooltipLib[/b]
+[*][b]Wounds Overhaul[/b] (injuries, causes of death, diseased organs, bullets, blood typing)
+[*][b]Wound Expansion[/b]
+[*][b]Casualties Undead[/b]
+[*][b]The Only Cure[/b]. Their injuries show up when examining a dead player, with new causes of death: blood loss, sepsis, overdose, exposure, organ failure.
+[/list]
+
+[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Mod-Compatibility]Details[/url]
+
+[h3]Note about NPC's mods[/h3]
+[b]NPC mods (Bandits, Project A-Life) are not tested yet: feedback welcome.
+IMPORTANT: I don't recommend eating an NPC's organ with your main character. It's risky because I don't know what the consequences will be.[/b]
+
+[h2]Multiplayer[/h2]
+Works in Singleplayer and Multiplayer, tested on hosted and dedicated servers.
+
+[h2]Languages[/h2]
+English, French, Spanish, Portuguese, Korean, Russian.
+
+[h2]Reporting a Bug[/h2]
+[b]Please use the [url=https://steamcommunity.com/workshop/filedetails/discussion/3838129476/564799145566635512/]"Bug Reports" discussion[/url]. It's more appropriate than the comments section.[/b]
+"ERROR" alone doesn't let me fix anything. Please include:[list]
+[*] Your [b]console.txt[/b] (in C:\Users\<you>\Zomboid\), or at least the lines mentioning TCA
+[*] Your game version (42.x), singleplayer or multiplayer, new or existing save
+[*] Your mod list and what you were doing when it happened
+[/list]
+
+[h2]Planned Features[/h2]
+Colorblind settings, cranial autopsy, psychological impact of cannibalism, more mod support.
+[h3][url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap]Check the full Roadmap[/url][/h3]
+
+[h2]Credits[/h2]
+[b]Code, design, textures, models & thumbnail:[/b] Amenophis
+
+[hr][/hr]
+Bring true forensic science, deep pathological investigation, and practical medical training to Knox County.
+
+[hr][/hr]
+
+Workshop ID: 3838129476
+Mod ID: thecoroner
