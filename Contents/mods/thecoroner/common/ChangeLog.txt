@@ -114,3 +114,12 @@ Changed:
 - All debug options are grouped in a [DEBUG] submenu of the Coroner menu
 - Corpses on the floor are now found around the mouse cursor: furniture in front of a body no longer hides the Coroner options
 [ ------ ]
+
+[ v1.0.10 - 11.17.2026 ]
+Added:
+- Corpse preview: hovering a corpse in an inventory or a container (morgue drawers, bags, crates...) shows it in 3D next to the tooltip, with all its clothes, blood and dirt. It slowly turns around and follows the size of the Coroner windows. Can be turned off in Mod Options
+- Necroa compatibility: its zombie appearance is no longer treated as clothing to take off. It stays on the 3D body of the examination and autopsy windows and no longer blocks the autopsy
+ 
+Changed:
+- Body temperature now follows where the body has actually been: it cools down step by step with the air around it, and moving a body (dragging it, taking it off the table, out of a cold morgue drawer) no longer makes it read as if it had always been in its new place. Bodies already in your world switch to the new system the first time a player comes near them
+[ ------ ]
