@@ -27,5 +27,6 @@
     "ContextMenu_TCA_DebugWoundsAddPost": "Добавить удар (после смерти)",
     "ContextMenu_TCA_DebugWoundsCause": "Задать причину смерти",
     "ContextMenu_TCA_TakeOwnTemp": "Измерить свою температуру",
-    "ContextMenu_TCA_TakeTempOf": "Измерить температуру: %1"
+    "ContextMenu_TCA_TakeTempOf": "Измерить температуру: %1",
+    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine"
 }

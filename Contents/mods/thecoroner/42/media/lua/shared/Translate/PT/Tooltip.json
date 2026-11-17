@@ -30,5 +30,7 @@
     "Tooltip_TCA_BloodType": "Usa um teste do kit de tipagem sanguínea. Com pouco nível de Primeiros Socorros a leitura pode estar errada: repete o teste para teres a certeza.",
     "Tooltip_TCA_BloodTypeNoKit": "Requer um kit de tipagem sanguínea com testes disponíveis.",
     "Tooltip_TCA_NeedThermometer": "Requer um termómetro.",
-    "Tooltip_TCA_ThermometerDigital": "Mais rápido do que um termómetro de mercúrio. Funciona a pilha (cerca de 50 medições), tanto nos vivos como num corpo durante um exame médico-legal."
+    "Tooltip_TCA_ThermometerDigital": "Mais rápido do que um termómetro de mercúrio. Funciona a pilha (cerca de 50 medições), tanto nos vivos como num corpo durante um exame médico-legal.",
+    "Tooltip_TCA_ZVVNeedTable": "O corpo tem de estar deitado numa mesa.",
+    "Tooltip_TCA_ZVVNeedAutopsy": "Faz primeiro a autópsia."
 }

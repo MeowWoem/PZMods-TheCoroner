@@ -30,5 +30,7 @@
     "Tooltip_TCA_BloodType": "Usa una prueba del kit de tipificación sanguínea. Con poco nivel de Primeros auxilios la lectura puede ser errónea: repite la prueba para asegurarte.",
     "Tooltip_TCA_BloodTypeNoKit": "Requiere un kit de tipificación sanguínea con pruebas restantes.",
     "Tooltip_TCA_NeedThermometer": "Requiere un termómetro.",
-    "Tooltip_TCA_ThermometerDigital": "Más rápido que un termómetro de mercurio. Funciona con una pila (unas cincuenta mediciones), tanto en los vivos como en un cuerpo durante un examen forense."
+    "Tooltip_TCA_ThermometerDigital": "Más rápido que un termómetro de mercurio. Funciona con una pila (unas cincuenta mediciones), tanto en los vivos como en un cuerpo durante un examen forense.",
+    "Tooltip_TCA_ZVVNeedTable": "El cuerpo debe estar tendido sobre una mesa.",
+    "Tooltip_TCA_ZVVNeedAutopsy": "Primero realiza la autopsia."
 }

@@ -17,6 +17,7 @@ require "TCA_Cold";
 require "TCA_ExamUI";
 require "TimedActions/TCA_ExamAction";
 require "TimedActions/TCA_SawBatteryAction";
+require "TCA_Compat_ZVVClient";
 
 TCA_Client = TCA_Client or {};
 
@@ -379,6 +380,9 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
     end
     if TCA.BloodType.isAvailable() then
         TCA_Client.addBloodTypeOption(context, playerObj, body);
+    end
+    if TCA.Compat.ZVV.isActive() then
+        TCA.Compat.ZVVClient.addMenu(context, playerObj, body);
     end
     if debugMode then
         TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);

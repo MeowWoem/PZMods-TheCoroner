@@ -137,6 +137,10 @@ function S.getCannibalTraitMeals()
     return S.getNumber("CannibalTraitMeals", 10, 1, 100);
 end
 
+function S.isZVVAutopsyBlocked()
+    return S.getBoolean("BlockZVVAutopsy", true);
+end
+
 function S.areOrgansHiddenInDishes()
     return S.getBoolean("HideOrgansInDishes", true);
 end

@@ -27,5 +27,6 @@
     "ContextMenu_TCA_DebugWoundsAddPost": "타격 추가 (사망 후)",
     "ContextMenu_TCA_DebugWoundsCause": "사인 지정",
     "ContextMenu_TCA_TakeOwnTemp": "내 체온 재기",
-    "ContextMenu_TCA_TakeTempOf": "%1의 체온 재기"
+    "ContextMenu_TCA_TakeTempOf": "%1의 체온 재기",
+    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine"
 }

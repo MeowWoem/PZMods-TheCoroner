@@ -30,5 +30,7 @@
     "Tooltip_TCA_BloodType": "Uses one test from the blood typing kit. With little First Aid the reading can be wrong: type the blood again to be sure.",
     "Tooltip_TCA_BloodTypeNoKit": "Requires a blood typing kit with tests left.",
     "Tooltip_TCA_NeedThermometer": "Requires a thermometer.",
-    "Tooltip_TCA_ThermometerDigital": "Faster than a mercury thermometer. Runs on a battery (about 50 readings), on the living as well as on a body during a forensic examination."
+    "Tooltip_TCA_ThermometerDigital": "Faster than a mercury thermometer. Runs on a battery (about 50 readings), on the living as well as on a body during a forensic examination.",
+    "Tooltip_TCA_ZVVNeedTable": "The body must be lying on a table.",
+    "Tooltip_TCA_ZVVNeedAutopsy": "Perform the autopsy first."
 }

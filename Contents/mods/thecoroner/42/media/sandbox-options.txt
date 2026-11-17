@@ -134,6 +134,14 @@ option TheCoroner.SuspicionCooking
     translation = TheCoroner_SuspicionCooking,
 }
 
+option TheCoroner.BlockZVVAutopsy
+{
+    type = boolean,
+    default = true,
+    page = TheCoroner,
+    translation = TheCoroner_BlockZVVAutopsy,
+}
+
 option TheCoroner.BetaBlockerTremorReduction
 {
     type = integer,
