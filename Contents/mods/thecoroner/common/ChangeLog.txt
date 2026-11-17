@@ -92,3 +92,25 @@ Added:
 Changed:
 - Names now match the base game in English, French and Spanish: specimen jars ("Specimen Jar - Heart"), body parts in the Wounds tab, skill and item names in tooltips and sandbox options
 [ ------ ]
+
+[ v1.0.9 - 11.17.2026 ]
+Added:
+- Recipe to turn electric sheep shears into an oscillating saw (Electrical 5): screwdriver and file (kept), a small saw blade or a hacksaw blade, electronics scrap, an electric wire, screws and duct tape or glue. The shears' battery charge carries over to the saw
+- Psychological consequences of eating human organs (sandbox options, on by default): stress and unhappiness that linger for a few hours, the first time is the worst and can turn your stomach, and it wears off as you get used to it. Fear of Blood, Cowardly and Weak Stomach make it worse; Brave, Iron Gut, Desensitized, doctors and nurses take it better
+- New Cannibal trait, gained after a number of human meals (default 10): eating human flesh now comforts you, but you get cravings after a day without it
+- Supported cannibalism mods take over: with HarvestZ's Cannibalism, the organs count as human meat for its insanity; with Cannibalism in Zombie Apocalypse, cooked organs ease its cravings. The Coroner's own effects are then turned off
+- Organs hidden in dishes (sandbox option, on by default): a human organ added to a stew, soup or stir fry passes for ground beef in the dish name and its ingredients. Only the cook knows (tooltip line), and experienced characters can grow suspicious (First Aid 7 or Cooking 8 by default, adjustable). Someone who eats it without knowing suffers no psychological effects
+- An infected organ in a dish infects whoever eats it, even when the dish is shared out into bowls, and without showing a poison icon
+- Zombie Virus Vaccine compatibility, first patch (sandbox option, on by default): its autopsy and its morgue table placement are replaced by The Coroner menu > Zombie Virus Vaccine
+  - Collect Blood Samples: same tools, chances, experience and options as Zombie Virus Vaccine, on the ground or on a table
+  - Collect a Body Part: brain, skull, teeth and bones, each once per body, and the body stays. No more choosing between the brain and the skull. Requires a scalpel and any saw, including the bone saw and the oscillating saw
+  - Works on any table, including the ones already on the map
+  - When the option is off, Zombie Virus Vaccine works exactly as usual
+  - A message on the main menu lists the changes the first time both mods are enabled
+- Debug mode: hidden stats window (cannibalism, infection, other mods) and an option to give organs in any state, healthy or infected
+
+Changed:
+- Diminishing First Aid XP from the mod as your level rises (sandbox options): 100% up to level 3, then 10% less per level, never below 20%. Set to 0 to turn it off
+- All debug options are grouped in a [DEBUG] submenu of the Coroner menu
+- Corpses on the floor are now found around the mouse cursor: furniture in front of a body no longer hides the Coroner options
+[ ------ ]
