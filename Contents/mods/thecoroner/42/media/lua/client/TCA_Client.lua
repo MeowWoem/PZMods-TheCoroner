@@ -346,6 +346,21 @@ function TCA_Client.getSubMenu(context)
     return sub;
 end
 
+function TCA_Client.getDebugMenu(context)
+    local name = getText("ContextMenu_TCA_Debug");
+    local option = context:getOptionFromName(name);
+    if option and option.subOption then
+        local existing = context:getSubMenu(option.subOption);
+        if existing then
+            return existing;
+        end
+    end
+    option = context:addOption(name);
+    local sub = ISContextMenu:getNew(context);
+    context:addSubMenu(option, sub);
+    return sub;
+end
+
 function TCA_Client.addBodyOption(context, body, name, target, onSelect, param1, param2)
     local option = context:addOption(name, target, onSelect, param1, param2);
     ISWorldObjectContextMenu.initWorldItemHighlightOption(option, body);
@@ -385,9 +400,10 @@ function TCA_Client.addExamOptions(context, playerObj, body, debugMode)
         TCA.Compat.ZVVClient.addMenu(context, playerObj, body);
     end
     if debugMode then
-        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
-        TCA_Client.addBodyOption(context, body, getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
-        TCA_Client.addDebugWoundsMenu(context, playerObj, body);
+        local debugMenu = TCA_Client.getDebugMenu(context);
+        TCA_Client.addBodyOption(debugMenu, body, getText("ContextMenu_TCA_DebugDeathTime"), playerObj, TCA_Client.onDebugDeathTime, body);
+        TCA_Client.addBodyOption(debugMenu, body, getText("ContextMenu_TCA_DebugExamReset"), playerObj, TCA_Client.onDebugExamReset, body);
+        TCA_Client.addDebugWoundsMenu(debugMenu, playerObj, body);
     end
 end
 
@@ -735,7 +751,7 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
         sub:addOption(getText("ContextMenu_TCA_RemoveFromTable"), playerObj, TCA_Client.onRemoveFromTable, tableObj);
         TCA_Client.addExamOptions(sub, playerObj, body, debugMode);
         if debugMode then
-            sub:addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
+            TCA_Client.getDebugMenu(sub):addOption(getText("ContextMenu_TCA_DebugReset"), playerObj, TCA_Client.onDebugReset, tableObj);
         end
     end
 
@@ -744,7 +760,7 @@ function TCA_Client.onFillWorldObjectContextMenu(player, context, worldobjects, 
     end
 
     if debugMode then
-        sub:addOption(getText("ContextMenu_TCA_DebugReference"), playerObj, TCA_Client.onDebugReference, tableObj);
+        TCA_Client.getDebugMenu(sub):addOption(getText("ContextMenu_TCA_DebugReference"), playerObj, TCA_Client.onDebugReference, tableObj);
     end
 
 end

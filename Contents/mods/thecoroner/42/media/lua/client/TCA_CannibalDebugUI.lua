@@ -300,7 +300,7 @@ function D.onFillWorldObjectContextMenu(player, context, worldobjects, test)
     if not playerObj then
         return;
     end
-    local sub = TCA_Client.getSubMenu(context);
+    local sub = TCA_Client.getDebugMenu(TCA_Client.getSubMenu(context));
     sub:addOption(getText("ContextMenu_TCA_DebugCannibal"), playerObj, D.onOpen);
     D.addGiveMenu(context, sub, playerObj);
     local fetch = ISWorldObjectContextMenu.fetchVars;
@@ -310,4 +310,12 @@ function D.onFillWorldObjectContextMenu(player, context, worldobjects, test)
     end
 end
 
-Events.OnFillWorldObjectContextMenu.Add(D.onFillWorldObjectContextMenu);
+function D.register()
+    if D.registered then
+        return;
+    end
+    Events.OnFillWorldObjectContextMenu.Add(D.onFillWorldObjectContextMenu);
+    D.registered = true;
+end
+
+Events.OnGameStart.Add(D.register);

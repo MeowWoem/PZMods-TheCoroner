@@ -48,7 +48,7 @@ function C.appendLine(option, text)
     if option.toolTip.description ~= "" then
         option.toolTip.description = option.toolTip.description .. " <LINE> ";
     end
-    option.toolTip.description = option.toolTip.description .. "<RGB:1,0.4,0.4> " .. text .. " <RGB:1,1,1> ";
+    option.toolTip.description = option.toolTip.description .. "<RGB:1,0.4,0.4> " .. text;
     option.notAvailable = true;
 end
 
@@ -156,7 +156,7 @@ function C.addPartsMenu(menu, playerObj, body)
 end
 
 function C.addMenu(context, playerObj, body)
-    if not Z.isActive() or not body then
+    if not Z.isActive() or not Z.isMenuBlocked() or not body then
         return;
     end
     local parent = context:addOption(getText("ContextMenu_TCA_ZVV"));
