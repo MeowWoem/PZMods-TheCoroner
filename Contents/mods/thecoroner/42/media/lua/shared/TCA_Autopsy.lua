@@ -794,7 +794,7 @@ function A.getBlockingClothing(body)
     end
     for i = 0, worn:size() - 1 do
         local item = worn:getItemByIndex(i);
-        if item and instanceof(item, "Clothing") then
+        if item and instanceof(item, "Clothing") and not (TCA.Wounds and TCA.Wounds.shouldKeepWornItem(item)) then
             local parts = BloodClothingType.getCoveredParts(item:getBloodClothingType());
             if parts then
                 for j = 0, parts:size() - 1 do
