@@ -77,7 +77,7 @@ English, French, Spanish, Portuguese, Korean, Russian.
 [/list]
 
 [h2]Planned Features[/h2]
-Our own blood typing kit, cranial autopsy, controller and split screen support, colorblind settings, more mod support.
+[img=https://raw.githubusercontent.com/MeowWoem/PZMods-TheCoroner/refs/heads/main/WorkshopImages/Roadmap.png]
 [h3][url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap]Check the full Roadmap[/url][/h3]
 
 [h2]Credits[/h2]
