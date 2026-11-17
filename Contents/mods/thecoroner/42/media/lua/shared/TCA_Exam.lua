@@ -3,6 +3,7 @@ require "TCA_Sandbox";
 require "TCA_DeathTime";
 require "TCA_Cold";
 require "TCA_Autopsy";
+require "TimedActions/ISGrabCorpseAction";
 
 TCA = TCA or {};
 TCA.Exam = TCA.Exam or {};
@@ -152,7 +153,66 @@ function E.coolFrom(startTemp, envTemp, hours)
     return envTemp + (startTemp - envTemp) * math.exp(-E.COOLING_RATE * math.max(0, hours));
 end
 
+E.KEY_HEAT = "TCA_Heat";
+E.HEAT_RADIUS = 20;
+E.HEAT_LEVELS = 1;
+
+function E.getHeat(body)
+    local heat = body:getModData()[E.KEY_HEAT];
+    if type(heat) ~= "table" or heat.t == nil or heat.at == nil then
+        return nil;
+    end
+    return heat;
+end
+
+function E.advanceHeat(body, heat, ambient, at)
+    local plateauEnd = D.get(body) + E.TEMP_PLATEAU;
+    if at <= plateauEnd then
+        return E.BODY_TEMP;
+    end
+    local start = heat.at;
+    local t = heat.t;
+    if start < plateauEnd then
+        start = plateauEnd;
+        t = E.BODY_TEMP;
+    end
+    return E.coolFrom(t, ambient, at - start);
+end
+
+function E.setHeat(body, t, at)
+    local heat = {};
+    heat.t = t;
+    heat.at = at;
+    body:getModData()[E.KEY_HEAT] = heat;
+end
+
+function E.snapshotHeat(body)
+    if not body or body:isAnimal() then
+        return;
+    end
+    E.setHeat(body, E.getBodyTemp(body, E.getAmbient(body)), D.now());
+end
+
+function E.onColdExit(body, coldStay, ambient)
+    local heat = E.getHeat(body);
+    if not heat or not coldStay or coldStay <= 0 then
+        return;
+    end
+    local now = D.now();
+    local entry = math.max(heat.at, now - coldStay);
+    local entryTemp = E.advanceHeat(body, heat, ambient, entry);
+    E.setHeat(body, E.coolFrom(entryTemp, E.FRIDGE_TEMP, now - entry), now);
+end
+
 function E.getBodyTemp(body, ambient)
+    local heat = E.getHeat(body);
+    if heat then
+        return E.advanceHeat(body, heat, ambient, D.now());
+    end
+    return E.getLegacyBodyTemp(body, ambient);
+end
+
+function E.getLegacyBodyTemp(body, ambient)
     local age = D.getHoursSinceDeath(body);
     local left = C.getHoursSinceLeft(body);
     local cold = math.min(C.getColdHours(body), age);
@@ -683,3 +743,79 @@ function E.notifyResult(character, ok, xp, tooWide)
     end
     E.showResult(character, ok, xp, tooWide);
 end
+
+function E.sampleSquare(sq, now)
+    local bodies = sq:getDeadBodys();
+    if not bodies then
+        return;
+    end
+    for i = 0, bodies:size() - 1 do
+        local body = bodies:get(i);
+        if body and not body:isAnimal() then
+            D.ensure(body);
+            local heat = E.getHeat(body);
+            if not heat or heat.at < now then
+                E.setHeat(body, E.getBodyTemp(body, E.getAmbient(body)), now);
+                if isServer() then
+                    body:transmitModData();
+                end
+            end
+        end
+    end
+end
+
+function E.sampleAround(player, now)
+    local cell = getCell();
+    if not cell or not player then
+        return;
+    end
+    local px = math.floor(player:getX());
+    local py = math.floor(player:getY());
+    local pz = math.floor(player:getZ());
+    local r = E.HEAT_RADIUS;
+    for z = pz - E.HEAT_LEVELS, pz + E.HEAT_LEVELS do
+        for x = px - r, px + r do
+            for y = py - r, py + r do
+                local sq = cell:getGridSquare(x, y, z);
+                if sq then
+                    E.sampleSquare(sq, now);
+                end
+            end
+        end
+    end
+end
+
+function E.onHeatTick()
+    if isClient() then
+        return;
+    end
+    local now = D.now();
+    if isServer() then
+        local players = getOnlinePlayers();
+        if players then
+            for i = 0, players:size() - 1 do
+                E.sampleAround(players:get(i), now);
+            end
+        end
+        return;
+    end
+    for i = 0, getNumActivePlayers() - 1 do
+        local player = getSpecificPlayer(i);
+        if player and not player:isDead() then
+            E.sampleAround(player, now);
+        end
+    end
+end
+
+E.originalGrabCorpseComplete = E.originalGrabCorpseComplete or ISGrabCorpseAction.complete;
+
+function E.grabCorpseComplete(self)
+    if not isClient() and self.corpseBody then
+        E.snapshotHeat(self.corpseBody);
+    end
+    return E.originalGrabCorpseComplete(self);
+end
+
+ISGrabCorpseAction.complete = E.grabCorpseComplete;
+
+Events.EveryTenMinutes.Add(E.onHeatTick);

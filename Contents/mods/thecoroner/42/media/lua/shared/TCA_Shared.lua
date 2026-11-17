@@ -526,6 +526,9 @@ function TCA.grabBodyFromTable(body, character)
     if not isClient() and TCA.DeathTime then
         TCA.DeathTime.ensure(body);
     end
+    if not isClient() and TCA.Exam and TCA.Exam.snapshotHeat then
+        TCA.Exam.snapshotHeat(body);
+    end
     local oldData = body:getModData();
     oldData["TCA_OnTable"] = nil;
     oldData["lastPlayerGrabbed"] = nil;

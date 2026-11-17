@@ -54,6 +54,7 @@ function D.record(target, deathTime, known)
     local md = target:getModData();
     md[D.KEY_TIME] = deathTime;
     md[D.KEY_KNOWN] = known;
+    md["TCA_Heat"] = nil;
 end
 
 function D.getRotStage(character)
@@ -220,6 +221,30 @@ function D.onLoadGridsquare(square)
     end
 end
 
+function D.getItemSquare(item)
+    local container = item:getContainer();
+    if not container then
+        return nil;
+    end
+    local parent = container:getParent();
+    if parent and parent.getSquare then
+        local sq = parent:getSquare();
+        if sq then
+            return sq;
+        end
+    end
+    return container:getSourceGrid();
+end
+
+function D.getItemAmbient(item)
+    local climate = getClimateManager();
+    local sq = D.getItemSquare(item);
+    if sq then
+        return climate:getAirTemperatureForSquare(sq);
+    end
+    return climate:getTemperature();
+end
+
 function D.prepareCorpseItem(item, restartClock, viaGrab)
     if not item or not item:isHumanCorpse() then
         return;
@@ -232,6 +257,9 @@ function D.prepareCorpseItem(item, restartClock, viaGrab)
     local coldStay = 0;
     if TCA.Cold then
         coldStay = TCA.Cold.mergeIntoBody(item, body);
+    end
+    if TCA.Exam and TCA.Exam.onColdExit then
+        TCA.Exam.onColdExit(body, coldStay, D.getItemAmbient(item));
     end
     if restartClock then
         if TCA.Rot then
