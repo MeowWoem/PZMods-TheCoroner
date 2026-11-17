@@ -11,7 +11,7 @@ Examine bodies, estimate the time of death, find the cause of death, perform a h
 | **Workshop ID** | `3838129476` |
 | **Mod ID** | `thecoroner` |
 | **Game version** | Build 42 |
-| **Current version** | 1.0.8 |
+| **Current version** | 1.0.10 |
 | **Multiplayer** | Yes (hosted and dedicated servers) |
 | **Languages** | English, French, Spanish, Portuguese, Korean, Russian |
 | **Author** | Amenophis |
@@ -30,6 +30,7 @@ Everything is in the **[wiki](https://github.com/MeowWoem/PZMods-TheCoroner/wiki
 - [External Examination & Time of Death](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/External-Examination): temperature, eyes, rigor, lividity, decomposition, insects
 - [Wounds & Cause of Death](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Wounds-and-Cause-of-Death)
 - [Organs as Food](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Organs-and-Food)
+- [Cannibalism](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Cannibalism): psychological effects, the Cannibal trait, organs hidden in dishes
 - [Thermometers](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Thermometers) (on the dead and on the living)
 - [Morgue Drawers](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Morgue-Drawers)
 - [First Aid Training (XP)](https://github.com/MeowWoem/PZMods-TheCoroner/wiki/First-Aid-Training)
