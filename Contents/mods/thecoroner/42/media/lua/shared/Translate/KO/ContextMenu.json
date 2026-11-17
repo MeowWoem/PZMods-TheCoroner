@@ -28,5 +28,7 @@
     "ContextMenu_TCA_DebugWoundsCause": "사인 지정",
     "ContextMenu_TCA_TakeOwnTemp": "내 체온 재기",
     "ContextMenu_TCA_TakeTempOf": "%1의 체온 재기",
-    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine"
+    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine",
+    "ContextMenu_TCA_ZVVBlood": "혈액 샘플 채취",
+    "ContextMenu_TCA_ZVVParts": "부위 채취 (시체가 사라짐)"
 }

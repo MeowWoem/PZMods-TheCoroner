@@ -28,5 +28,7 @@
     "ContextMenu_TCA_DebugWoundsCause": "Set cause of death",
     "ContextMenu_TCA_TakeOwnTemp": "Take your temperature",
     "ContextMenu_TCA_TakeTempOf": "Take %1's temperature",
-    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine"
+    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine",
+    "ContextMenu_TCA_ZVVBlood": "Collect Blood Samples",
+    "ContextMenu_TCA_ZVVParts": "Collect a Body Part (uses up the body)"
 }

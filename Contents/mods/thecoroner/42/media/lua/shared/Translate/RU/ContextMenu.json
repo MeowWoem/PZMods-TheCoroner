@@ -28,5 +28,7 @@
     "ContextMenu_TCA_DebugWoundsCause": "Задать причину смерти",
     "ContextMenu_TCA_TakeOwnTemp": "Измерить свою температуру",
     "ContextMenu_TCA_TakeTempOf": "Измерить температуру: %1",
-    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine"
+    "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine",
+    "ContextMenu_TCA_ZVVBlood": "Взять образцы крови",
+    "ContextMenu_TCA_ZVVParts": "Взять часть тела (труп будет израсходован)"
 }

@@ -102,7 +102,7 @@ function C.onCollectPart(playerObj, body, itemType)
 end
 
 function C.addAutopsyOption(menu, playerObj, body)
-    local option = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_LabCorpseAutopsy"), playerObj, C.onAutopsy, body);
+    local option = TCA_Client.addBodyOption(menu, body, getText("ContextMenu_TCA_ZVVBlood"), playerObj, C.onAutopsy, body);
     C.setIcon(option, "Base.Scalpel");
     local notFresh = not Z.isFresh(body);
     local notZombie = not body:isZombie();
@@ -118,7 +118,7 @@ function C.addAutopsyOption(menu, playerObj, body)
 end
 
 function C.addPartsMenu(menu, playerObj, body)
-    local parent = menu:addOption(getText("ContextMenu_LabCollectBodyParts"));
+    local parent = menu:addOption(getText("ContextMenu_TCA_ZVVParts"));
     C.setIcon(parent, "Base.Saw");
     local sub = ISContextMenu:getNew(menu);
     menu:addSubMenu(parent, sub);

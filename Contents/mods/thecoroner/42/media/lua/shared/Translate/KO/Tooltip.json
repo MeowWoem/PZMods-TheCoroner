@@ -32,5 +32,5 @@
     "Tooltip_TCA_NeedThermometer": "체온계가 필요합니다.",
     "Tooltip_TCA_ThermometerDigital": "수은 체온계보다 빠릅니다. 건전지로 작동하며 (약 50회 측정) 산 사람에게도, 법의학 검안 중인 시체에도 쓸 수 있습니다.",
     "Tooltip_TCA_ZVVNeedTable": "시체가 테이블 위에 놓여 있어야 합니다.",
-    "Tooltip_TCA_ZVVNeedAutopsy": "먼저 부검을 하세요."
+    "Tooltip_TCA_ZVVNeedAutopsy": "먼저 혈액 샘플을 채취하세요."
 }

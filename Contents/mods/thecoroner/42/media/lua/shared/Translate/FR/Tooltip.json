@@ -32,5 +32,5 @@
     "Tooltip_TCA_NeedThermometer": "Nécessite un thermomètre.",
     "Tooltip_TCA_ThermometerDigital": "Plus rapide qu'un thermomètre à mercure. Fonctionne avec une pile (une cinquantaine de mesures), sur les vivants comme sur un corps pendant un examen médico-légal.",
     "Tooltip_TCA_ZVVNeedTable": "Le corps doit être allongé sur une table.",
-    "Tooltip_TCA_ZVVNeedAutopsy": "Faites d'abord l'autopsie."
+    "Tooltip_TCA_ZVVNeedAutopsy": "Prélevez d'abord du sang."
 }

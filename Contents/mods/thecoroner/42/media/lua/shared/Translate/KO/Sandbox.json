@@ -39,7 +39,7 @@
     "Sandbox_TheCoroner_SuspicionCooking": "수상한 고기: 요리 레벨",
     "Sandbox_TheCoroner_SuspicionCooking_tooltip": "이 요리 레벨부터 캐릭터가 요리 속 고기의 출처가 수상하다는 것을 알아챕니다. 그래도 먹으면 사람 고기를 먹은 심리적 영향을 받습니다.<br>11 = 알아채지 못함.",
     "Sandbox_TheCoroner_BlockZVVAutopsy": "Zombie Virus Vaccine: 부검 막기",
-    "Sandbox_TheCoroner_BlockZVVAutopsy_tooltip": "<BHC> [!] Zombie Virus Vaccine이 켜져 있을 때만 사용됩니다. [!] <RGB:1,1,1><br><br>켜짐: Zombie Virus Vaccine의 부검 메뉴(바닥과 영안실 테이블)와 영안실 테이블에 시체를 올리는 메뉴가 사라집니다. 대신 The Coroner 메뉴의 Zombie Virus Vaccine > 부검 실시를 사용하고, 시체가 테이블 위에 있으면 부위 채취를 하세요.<br>이미 영안실 테이블에 올린 시체는 여전히 치울 수 있고, 테이블도 청소할 수 있습니다.<br>꺼짐: 두 메뉴를 모두 쓸 수 있습니다.",
+    "Sandbox_TheCoroner_BlockZVVAutopsy_tooltip": "<BHC> [!] Zombie Virus Vaccine이 켜져 있을 때만 사용됩니다. [!] <RGB:1,1,1><br><br>켜짐: Zombie Virus Vaccine의 부검 메뉴(바닥과 영안실 테이블)와 영안실 테이블에 시체를 올리는 메뉴가 사라집니다. 대신 The Coroner 메뉴의 Zombie Virus Vaccine > 혈액 샘플 채취를 사용하고, 시체가 테이블 위에 있으면 부위 채취를 하세요.<br>이미 영안실 테이블에 올린 시체는 여전히 치울 수 있고, 테이블도 청소할 수 있습니다.<br>꺼짐: 두 메뉴를 모두 쓸 수 있습니다.",
     "Sandbox_TheCoroner_BetaBlockerTremorReduction": "긴장완화제: 떨림 감소 (%)",
     "Sandbox_TheCoroner_BetaBlockerTremorReduction_tooltip": "긴장완화제(기본 게임의 베타 차단제)가 부검 미니게임 중 손 떨림을 얼마나 줄이는지 정합니다.<br>50 = 떨림 절반, 100 = 전혀 떨리지 않음, 0 = 효과 없음.",
     "Sandbox_TheCoroner_BetaBlockerDuration": "긴장완화제: 지속 시간 (게임 시간)",
