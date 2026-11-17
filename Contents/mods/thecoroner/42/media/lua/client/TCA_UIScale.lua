@@ -27,7 +27,16 @@ function U.createOptions()
         combo:addItem(key, i == 1);
     end
     options:addTickBox("uiScaleFonts", "IGUI_TCA_UIScaleFonts", true, "IGUI_TCA_UIScaleFontsTip");
+    options:addTickBox("corpsePreview", "IGUI_TCA_CorpsePreview", true, "IGUI_TCA_CorpsePreviewTip");
     U.options = options;
+end
+
+function U.isCorpsePreviewEnabled()
+    local option = U.getOption("corpsePreview");
+    if not option then
+        return true;
+    end
+    return option:getValue() ~= false;
 end
 
 function U.getOption(id)

@@ -61,6 +61,8 @@
     "IGUI_TCA_UIScale250": "250%",
     "IGUI_TCA_UIScaleFonts": "Texto maior nas janelas maiores",
     "IGUI_TCA_UIScaleFontsTip": "A partir de 130%, as janelas usam o tamanho de letra seguinte (dois tamanhos acima a partir de 175%). A opção de tamanho de letra do jogo continua a aplicar-se.",
+    "IGUI_TCA_CorpsePreview": "Pré-visualização de cadáveres nas dicas",
+    "IGUI_TCA_CorpsePreviewTip": "Passar o cursor sobre um cadáver num inventário ou contentor mostra-o em 3D ao lado da dica, com toda a roupa.",
     "IGUI_TCA_CutterSlip": "A turquês escorregou da costela",
     "IGUI_TCA_SawSlip": "A serra saltou do corte",
     "IGUI_TCA_SawSlipHurt": "Ai! A serra escorregou",

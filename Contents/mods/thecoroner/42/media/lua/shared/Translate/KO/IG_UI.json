@@ -61,6 +61,8 @@
     "IGUI_TCA_UIScale250": "250%",
     "IGUI_TCA_UIScaleFonts": "큰 창에서는 글자도 크게",
     "IGUI_TCA_UIScaleFontsTip": "130%부터 창이 한 단계 큰 글꼴을 씁니다 (175%부터는 두 단계). 게임의 글꼴 크기 옵션도 그대로 적용됩니다.",
+    "IGUI_TCA_CorpsePreview": "툴팁에 시체 미리보기",
+    "IGUI_TCA_CorpsePreviewTip": "인벤토리나 보관함에서 시체에 마우스를 올리면 툴팁 옆에 모든 옷을 입은 3D 모습이 표시됩니다.",
     "IGUI_TCA_CutterSlip": "절단기가 갈비뼈에서 미끄러졌습니다",
     "IGUI_TCA_SawSlip": "톱이 홈에서 벗어났습니다",
     "IGUI_TCA_SawSlipHurt": "아야! 톱이 미끄러졌습니다",
