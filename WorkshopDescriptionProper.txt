@@ -16,16 +16,17 @@ The Coroner: Autopsy Mod brings a complete forensic pathology system to Project 
 [*] [b]Wounds & cause of death:[/b] every hit is recorded (blunt, blade, axe, spear, gunshot with caliber, falls, fire, bites...). Examine 17 body parts, tell pre-mortem from post-mortem injuries, and conclude on the cause of death. Missing limbs and eyes are taken into account.
 [*] [b]Thermometers for the living:[/b] take your own temperature, or another player's (they get a confirmation prompt, like the vanilla medical check) to spot hypothermia or a fever.
 [*] [b]Organs & crafting:[/b] organs are food that rots, can be cooked and can be infected. Turn them into Specimen Jars, Catgut, a Bladder Canteen or Liver Tan, and saw the Chest Plate into Human Bones for vanilla bone recipes.
+[*] [b]Cannibalism:[/b] eating human organs brings stress and guilt, the first time is the worst, and you get used to it. Eat enough and you gain the Cannibal trait: comfort when you eat, cravings when you don't. Organs added to a stew pass for ground beef: only the cook knows, and an infected organ infects the whole table.
 [*] [b]Blood typing:[/b] determine a corpse's blood group with the Wounds Overhaul Blood Typing Kit (requires Wounds Overhaul). Low First Aid can misread it, so test twice.
 [*] [b]Knowledge progression:[/b] three Forensic Medicine books (or a high First Aid level) unlock a field guide inside the examination window.
-[*] [b]First Aid training:[/b] XP for every autopsy step, every correct time of death estimate and every correct cause of death, instead of self-harming. Skill books, professions and traits apply as usual.
+[*] [b]First Aid training:[/b] XP for every autopsy step, every correct time of death estimate and every correct cause of death, instead of self-harming, with diminishing returns as you level up. Skill books, professions and traits apply as usual.
 [/list]
 
 [h2]Full documentation: [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki]The Coroner Wiki[/url][/h2]
 Step-by-step guides, every item, every recipe, loot locations, sandbox options, mod compatibility and FAQ.
 
 [h2]Sandbox Options[/h2]
-XP multipliers, hand tremor, beta blockers, time of death difficulty, edible and infectious organs, morgue bodies. Window size is a personal setting in Mod Options.
+XP multipliers and diminishing returns, hand tremor, beta blockers, time of death difficulty, edible and infectious organs, cannibalism effects and Cannibal trait, organs hidden in dishes, morgue bodies. Window size is a personal setting in Mod Options.
 [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Sandbox-Options]Details[/url]
 
 [h2]Added Items[/h2]
@@ -33,7 +34,7 @@ Thermometer, Digital Thermometer, Bone Saw, Oscillating Bone Saw, Formalin, 11 O
 [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Items]Full list[/url]
 
 [h2]Crafting Recipes[/h2]
-Specimen Jars (alcohol or formalin), Catgut, Bladder Canteen, Liver Tan, Human Bones for vanilla bone recipes, Digital Thermometer, buildable Morgue Drawers.
+Specimen Jars (alcohol or formalin), Catgut, Bladder Canteen, Liver Tan, Human Bones for vanilla bone recipes, Digital Thermometer, Oscillating Bone Saw (from Electric Sheep Shears), buildable Morgue Drawers.
 [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Crafting-Recipes]Full list[/url]
 
 [h2]Save Game Compatibility[/h2]
@@ -49,8 +50,11 @@ Supported:[list]
 [*][b]Wounds Overhaul[/b] (injuries, causes of death, diseased organs, bullets, blood typing)
 [*][b]Wound Expansion[/b]
 [*][b]Casualties Undead[/b]
-[*][b]The Only Cure[/b]. Their injuries show up when examining a dead player, with new causes of death: blood loss, sepsis, overdose, exposure, organ failure.
+[*][b]The Only Cure[/b]
+[*][b]HarvestZ's Cannibalism[/b] and [b]Cannibalism in Zombie Apocalypse[/b] (organs count as human meat, they handle the consequences)
+[*][b]Zombie Virus Vaccine[/b] (first patch: blood samples and body parts from The Coroner menu, on any table, the body stays)
 [/list]
+Injuries from the medical mods show up when examining a dead player, with new causes of death: blood loss, sepsis, overdose, exposure, organ failure.
 
 [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Mod-Compatibility]Details[/url]
 
@@ -73,7 +77,7 @@ English, French, Spanish, Portuguese, Korean, Russian.
 [/list]
 
 [h2]Planned Features[/h2]
-Colorblind settings, cranial autopsy, psychological impact of cannibalism, more mod support.
+Our own blood typing kit, cranial autopsy, controller and split screen support, colorblind settings, more mod support.
 [h3][url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap]Check the full Roadmap[/url][/h3]
 
 [h2]Credits[/h2]
