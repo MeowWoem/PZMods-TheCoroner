@@ -11,10 +11,11 @@ end
 function TCA_ZVVPartAction:isValid()
     local Z = TCA.Compat.ZVV;
     local inv = self.character:getInventory();
-    if self:getBody() == nil or not Z.findScalpel(inv) or not Z.findSaw(inv) then
+    local body = self:getBody();
+    if body == nil or Z.isPartTaken(body, self.partId) then
         return false;
     end
-    return Z.findSack(inv) ~= nil or Z.findPlastics(inv) ~= nil;
+    return Z.findScalpel(inv) ~= nil and Z.findSaw(inv) ~= nil;
 end
 
 function TCA_ZVVPartAction:waitToStart()
@@ -56,7 +57,7 @@ end
 function TCA_ZVVPartAction:complete()
     local body = self:getBody();
     if body then
-        TCA.Compat.ZVV.collectPart(self.character, body, self.itemType);
+        TCA.Compat.ZVV.collectPart(self.character, body, self.partId);
     end
     return true;
 end
@@ -68,13 +69,13 @@ function TCA_ZVVPartAction:getDuration()
     return TCA.Compat.ZVV.PART_DURATION;
 end
 
-function TCA_ZVVPartAction:new(character, bx, by, bz, itemType)
+function TCA_ZVVPartAction:new(character, bx, by, bz, partId)
     local o = ISBaseTimedAction.new(self, character);
     o.character = character;
     o.bx = bx;
     o.by = by;
     o.bz = bz;
-    o.itemType = itemType;
+    o.partId = partId;
     o.maxTime = o:getDuration();
     o.stopOnWalk = true;
     o.stopOnRun = true;

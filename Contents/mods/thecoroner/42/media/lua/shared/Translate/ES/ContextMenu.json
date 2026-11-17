@@ -30,5 +30,5 @@
     "ContextMenu_TCA_TakeTempOf": "Tomar la temperatura de %1",
     "ContextMenu_TCA_ZVV": "Zombie Virus Vaccine",
     "ContextMenu_TCA_ZVVBlood": "Extraer muestras de sangre",
-    "ContextMenu_TCA_ZVVParts": "Extraer una parte (consume el cuerpo)"
+    "ContextMenu_TCA_ZVVParts": "Extraer una parte"
 }

@@ -32,5 +32,7 @@
     "Tooltip_TCA_NeedThermometer": "Requiere un termómetro.",
     "Tooltip_TCA_ThermometerDigital": "Más rápido que un termómetro de mercurio. Funciona con una pila (unas cincuenta mediciones), tanto en los vivos como en un cuerpo durante un examen forense.",
     "Tooltip_TCA_ZVVNeedTable": "El cuerpo debe estar tendido sobre una mesa.",
-    "Tooltip_TCA_ZVVNeedAutopsy": "Primero extrae muestras de sangre."
+    "Tooltip_TCA_ZVVNeedAutopsy": "Primero extrae muestras de sangre.",
+    "Tooltip_TCA_ZVVNeedSaw": "Requiere una sierra para huesos o una sierra.",
+    "Tooltip_TCA_ZVVPartTaken": "Ya se extrajo de este cuerpo."
 }

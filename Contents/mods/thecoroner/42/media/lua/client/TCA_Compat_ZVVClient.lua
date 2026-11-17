@@ -45,7 +45,10 @@ function C.appendLine(option, text)
     if not option.toolTip then
         option.toolTip = ISWorldObjectContextMenu.addToolTip();
     end
-    option.toolTip.description = option.toolTip.description .. " <LINE> <RGB:1,0.4,0.4> " .. text .. " <RGB:1,1,1> ";
+    if option.toolTip.description ~= "" then
+        option.toolTip.description = option.toolTip.description .. " <LINE> ";
+    end
+    option.toolTip.description = option.toolTip.description .. "<RGB:1,0.4,0.4> " .. text .. " <RGB:1,1,1> ";
     option.notAvailable = true;
 end
 
@@ -83,7 +86,7 @@ function C.onAutopsy(playerObj, body)
     ISTimedActionQueue.add(TCA_ZVVAutopsyAction:new(playerObj, body:getX(), body:getY(), body:getZ(), Z.isOnTable(body)));
 end
 
-function C.onCollectPart(playerObj, body, itemType)
+function C.onCollectPart(playerObj, body, partId)
     if not body or not body:getSquare() then
         return;
     end
@@ -98,7 +101,7 @@ function C.onCollectPart(playerObj, body, itemType)
     end
     C.equip(playerObj, saw, true);
     C.equip(playerObj, scalpel, false);
-    ISTimedActionQueue.add(TCA_ZVVPartAction:new(playerObj, body:getX(), body:getY(), body:getZ(), itemType));
+    ISTimedActionQueue.add(TCA_ZVVPartAction:new(playerObj, body:getX(), body:getY(), body:getZ(), partId));
 end
 
 function C.addAutopsyOption(menu, playerObj, body)
@@ -125,23 +128,29 @@ function C.addPartsMenu(menu, playerObj, body)
     local inv = playerObj:getInventory();
     local hasScalpel = Z.findScalpel(inv) ~= nil;
     local hasSaw = Z.findSaw(inv) ~= nil;
-    local hasSack = Z.findSack(inv) ~= nil;
-    local hasPlastics = Z.findPlastics(inv) ~= nil;
     local onTable = Z.isOnTable(body);
     local done = Z.isAutopsied(body);
     for _, part in ipairs(Z.PARTS) do
-        local option = TCA_Client.addBodyOption(sub, body, getText(part.text), playerObj, C.onCollectPart, body, part.itemType);
+        local option = TCA_Client.addBodyOption(sub, body, getText(part.text), playerObj, C.onCollectPart, body, part.id);
         C.setIcon(option, part.icon);
-        if LabRecipes_CreateCollectPartTooltip then
-            LabRecipes_CreateCollectPartTooltip(option, inv, hasScalpel, hasSaw, hasSack, hasPlastics);
-        elseif not (hasScalpel and hasSaw and (hasSack or hasPlastics)) then
-            option.notAvailable = true;
+        option.toolTip = ISWorldObjectContextMenu.addToolTip();
+        if Z.isPartTaken(body, part.id) then
+            C.appendLine(option, getText("Tooltip_TCA_ZVVPartTaken"));
         end
         if not onTable then
             C.appendLine(option, getText("Tooltip_TCA_ZVVNeedTable"));
         end
         if not done then
             C.appendLine(option, getText("Tooltip_TCA_ZVVNeedAutopsy"));
+        end
+        if not hasScalpel then
+            C.appendLine(option, getText("Tooltip_TCA_NeedScalpel"));
+        end
+        if not hasSaw then
+            C.appendLine(option, getText("Tooltip_TCA_ZVVNeedSaw"));
+        end
+        if not option.notAvailable then
+            option.toolTip = nil;
         end
     end
 end

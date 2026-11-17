@@ -1,6 +1,7 @@
 require "TCA_Wounds";
 require "TCA_Sandbox";
 require "TCA_Rot";
+require "TCA_Autopsy";
 
 TCA = TCA or {};
 TCA.Compat = TCA.Compat or {};
@@ -11,28 +12,26 @@ local Z = TCA.Compat.ZVV;
 Z.MOD_ID = "ZVirusVaccine42BETA";
 Z.MASKS = { "Hat_SurgicalMask", "Hat_DustMask", "Hat_GasMask", "Hat_BuildersRespirator" };
 Z.GLOVES = { "Gloves_Surgical", "Gloves_Dish", "Gloves_LeatherGloves", "Gloves_LeatherGlovesBlack" };
-Z.SACKS = { "Garbagebag", "Bag_TrashBag" };
-Z.PLASTICS = { "Plasticbag", "Plasticbag_Bags", "Plasticbag_Clothing" };
 Z.INFECTED_BLOOD = "LabItems.MatInfectedBlood";
 Z.TAINTED_BLOOD = "LabItems.MatTaintedBlood";
-Z.SACK_REMAINS = "LabItems.LabGarbageBagWithRemains";
-Z.PLASTIC_REMAINS = "LabItems.LabPlasticBagWithRemains";
-Z.BRAIN = "RANDOM_BRAIN";
 Z.BRAIN_HIGH = "LabItems.HumanBrainHigh";
 Z.BRAIN_MID = "LabItems.HumanBrainMid";
 Z.BRAIN_LOW = "LabItems.HumanBrainLow";
+Z.SKULL = "LabItems.LabHumanSkull";
+Z.SKULL_WITH_BRAIN = "LabItems.LabHumanSkullWithBrain";
 Z.PARTS = {
-    { itemType = "RANDOM_BRAIN", text = "ContextMenu_LabCollectBrain", icon = "LabItems.HumanBrainHigh" },
-    { itemType = "LabItems.LabHumanBoneLargeWP", text = "ContextMenu_LabCollectLargeBones", icon = "LabItems.LabHumanBoneLargeWP" },
-    { itemType = "LabItems.LabHumanTeeth", text = "ContextMenu_LabCollectTeeth", icon = "LabItems.LabHumanTeeth" },
-    { itemType = "LabItems.LabHumanSkullWithBrain", text = "ContextMenu_LabCollectSkull", icon = "LabItems.LabHumanSkullWithBrain" },
-    { itemType = "LabItems.LabSmallRandomHumanBones", text = "ContextMenu_LabCollectSmallBones", icon = "LabItems.LabSmallRandomHumanBones" },
-    { itemType = "LabItems.LabRegularHumanBoneWP", text = "ContextMenu_LabCollectRegularBones", icon = "LabItems.LabRegularHumanBoneWP" },
+    { id = "brain", text = "ContextMenu_LabCollectBrain", icon = "LabItems.HumanBrainHigh" },
+    { id = "skull", itemType = Z.SKULL_WITH_BRAIN, text = "ContextMenu_LabCollectSkull", icon = Z.SKULL_WITH_BRAIN },
+    { id = "teeth", itemType = "LabItems.LabHumanTeeth", text = "ContextMenu_LabCollectTeeth", icon = "LabItems.LabHumanTeeth" },
+    { id = "boneLarge", itemType = "LabItems.LabHumanBoneLargeWP", text = "ContextMenu_LabCollectLargeBones", icon = "LabItems.LabHumanBoneLargeWP" },
+    { id = "boneRegular", itemType = "LabItems.LabRegularHumanBoneWP", text = "ContextMenu_LabCollectRegularBones", icon = "LabItems.LabRegularHumanBoneWP" },
+    { id = "boneSmall", itemType = "LabItems.LabSmallRandomHumanBones", text = "ContextMenu_LabCollectSmallBones", icon = "LabItems.LabSmallRandomHumanBones" },
 };
-Z.PART_SET = {};
+Z.PART_BY_ID = {};
 for _, part in ipairs(Z.PARTS) do
-    Z.PART_SET[part.itemType] = true;
+    Z.PART_BY_ID[part.id] = part;
 end
+Z.KEY_PARTS = "TCA_ZVVParts";
 Z.BRAIN_XP = {};
 Z.BRAIN_XP[Z.BRAIN_HIGH] = 1.5;
 Z.BRAIN_XP[Z.BRAIN_MID] = 1.2;
@@ -121,36 +120,11 @@ function Z.notBroken(item)
     return item ~= nil and not item:isBroken();
 end
 
-function Z.isEmptyBag(item)
-    if not item then
-        return false;
-    end
-    if not instanceof(item, "InventoryContainer") then
-        return true;
-    end
-    local inv = item:getInventory();
-    return inv == nil or inv:isEmpty();
-end
-
 function Z.findFirst(inv, types, predicate)
     for _, itemType in ipairs(types) do
         local item = inv:getFirstTypeEvalRecurse(itemType, predicate);
         if item then
             return item;
-        end
-    end
-    return nil;
-end
-
-function Z.collect(inv, types, limit, predicate)
-    local found = {};
-    for _, itemType in ipairs(types) do
-        local list = inv:getAllTypeEvalRecurse(itemType, predicate);
-        for i = 0, list:size() - 1 do
-            table.insert(found, list:get(i));
-            if #found >= limit then
-                return found;
-            end
         end
     end
     return nil;
@@ -165,15 +139,31 @@ function Z.findTweezers(inv)
 end
 
 function Z.findSaw(inv)
-    return inv:getFirstTypeRecurse("Saw");
+    for _, def in ipairs(TCA.Autopsy.RIB_TOOLS) do
+        if def.id ~= "cutter" then
+            local item = TCA.Autopsy.findRibToolItem(inv, def);
+            if item then
+                return item;
+            end
+        end
+    end
+    return nil;
 end
 
-function Z.findSack(inv)
-    return Z.findFirst(inv, Z.SACKS, Z.isEmptyBag);
+function Z.getParts(body)
+    local parts = body:getModData()[Z.KEY_PARTS];
+    if type(parts) ~= "table" then
+        return {};
+    end
+    return parts;
 end
 
-function Z.findPlastics(inv)
-    return Z.collect(inv, Z.PLASTICS, 2, Z.isEmptyBag);
+function Z.isPartTaken(body, id)
+    local parts = Z.getParts(body);
+    if id == "brain" then
+        return parts.brain == true or parts.skull == true;
+    end
+    return parts[id] == true;
 end
 
 function Z.getAutopsyDuration(character, onTable)
@@ -430,6 +420,21 @@ function Z.rollBrain(character)
     return Z.BRAIN_LOW;
 end
 
+function Z.wearSaw(character, saw)
+    if not saw then
+        return;
+    end
+    if saw:IsDrainable() then
+        TCA.Autopsy.useCharge(saw, 1);
+        if isServer() then
+            syncItemFields(character, saw);
+        end
+    end
+    if Z.option("AllowSawDegrade", true) == true then
+        Z.wearTool(character, saw);
+    end
+end
+
 function Z.wearTool(character, item)
     if not item then
         return;
@@ -442,51 +447,42 @@ function Z.wearTool(character, item)
     end
 end
 
-function Z.removeBody(body)
-    local square = body:getSquare();
-    if not square then
-        return;
+function Z.getPartType(character, body, id)
+    if id == "brain" then
+        return Z.rollBrain(character);
+    elseif id == "skull" and Z.getParts(body).brain == true then
+        return Z.SKULL;
     end
-    square:removeCorpse(body, false);
+    return Z.PART_BY_ID[id].itemType;
 end
 
-function Z.collectPart(character, body, itemType)
-    if not character or not body or not Z.PART_SET[itemType] then
+function Z.markPart(body, id)
+    local md = body:getModData();
+    if type(md[Z.KEY_PARTS]) ~= "table" then
+        md[Z.KEY_PARTS] = {};
+    end
+    md[Z.KEY_PARTS][id] = true;
+    if isServer() then
+        body:transmitModData();
+    end
+end
+
+function Z.collectPart(character, body, id)
+    if not character or not body or not Z.PART_BY_ID[id] or Z.isPartTaken(body, id) then
         return false;
     end
     local inv = character:getInventory();
-    if not Z.findScalpel(inv) or not Z.findSaw(inv) then
+    local saw = Z.findSaw(inv);
+    if not Z.findScalpel(inv) or not saw then
         return false;
     end
-    local sack = Z.findSack(inv);
-    local plastics = nil;
-    if not sack then
-        plastics = Z.findPlastics(inv);
-        if not plastics then
-            return false;
-        end
-    end
-    local finalType = itemType;
-    if itemType == Z.BRAIN then
-        finalType = Z.rollBrain(character);
-    end
+    local finalType = Z.getPartType(character, body, id);
     if Z.option("AllowScalpelDegrade", false) == true then
         Z.wearTool(character, Z.findScalpel(inv));
     end
-    if Z.option("AllowSawDegrade", true) == true then
-        Z.wearTool(character, Z.findSaw(inv));
-    end
-    if sack then
-        Z.removeItem(sack);
-        Z.addItem(inv, Z.SACK_REMAINS);
-    else
-        for _, bag in ipairs(plastics) do
-            Z.removeItem(bag);
-        end
-        Z.addItem(inv, Z.PLASTIC_REMAINS);
-        Z.addItem(inv, Z.PLASTIC_REMAINS);
-    end
+    Z.wearSaw(character, saw);
     Z.addItem(inv, finalType);
+    Z.markPart(body, id);
     local xp = tonumber(Z.option("CollectPartXP", 15)) or 15;
     local brainXp = Z.BRAIN_XP[finalType];
     if brainXp then
@@ -497,7 +493,6 @@ function Z.collectPart(character, body, itemType)
     end
     Z.splat(character, 15);
     Z.panic(character);
-    Z.removeBody(body);
     Z.sendFeedback(character, "MorgueFeedback", "action", "BodyPartCollected");
     return true;
 end

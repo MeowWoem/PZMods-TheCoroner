@@ -32,5 +32,7 @@
     "Tooltip_TCA_NeedThermometer": "Нужен термометр.",
     "Tooltip_TCA_ThermometerDigital": "Быстрее ртутного термометра. Работает от батарейки (около 50 измерений) — и на живых, и на теле при судебно-медицинском осмотре.",
     "Tooltip_TCA_ZVVNeedTable": "Тело должно лежать на столе.",
-    "Tooltip_TCA_ZVVNeedAutopsy": "Сначала возьмите образцы крови."
+    "Tooltip_TCA_ZVVNeedAutopsy": "Сначала возьмите образцы крови.",
+    "Tooltip_TCA_ZVVNeedSaw": "Нужна костная пила или пила.",
+    "Tooltip_TCA_ZVVPartTaken": "Уже взято с этого тела."
 }
