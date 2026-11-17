@@ -19,16 +19,17 @@ description=[*] [b]External examination:[/b] read the clues on a 3D model of the
 description=[*] [b]Wounds & cause of death:[/b] every hit is recorded (blunt, blade, axe, spear, gunshot with caliber, falls, fire, bites...). Examine 17 body parts, tell pre-mortem from post-mortem injuries, and conclude on the cause of death. Missing limbs and eyes are taken into account.
 description=[*] [b]Thermometers for the living:[/b] take your own temperature, or another player's (they get a confirmation prompt, like the vanilla medical check) to spot hypothermia or a fever.
 description=[*] [b]Organs & crafting:[/b] organs are food that rots, can be cooked and can be infected. Turn them into Specimen Jars, Catgut, a Bladder Canteen or Liver Tan, and saw the Chest Plate into Human Bones for vanilla bone recipes.
+description=[*] [b]Cannibalism:[/b] eating human organs brings stress and guilt, the first time is the worst, and you get used to it. Eat enough and you gain the Cannibal trait: comfort when you eat, cravings when you don't. Organs added to a stew pass for ground beef: only the cook knows, and an infected organ infects the whole table.
 description=[*] [b]Blood typing:[/b] determine a corpse's blood group with the Wounds Overhaul Blood Typing Kit (requires Wounds Overhaul). Low First Aid can misread it, so test twice.
 description=[*] [b]Knowledge progression:[/b] three Forensic Medicine books (or a high First Aid level) unlock a field guide inside the examination window.
-description=[*] [b]First Aid training:[/b] XP for every autopsy step, every correct time of death estimate and every correct cause of death, instead of self-harming. Skill books, professions and traits apply as usual.
+description=[*] [b]First Aid training:[/b] XP for every autopsy step, every correct time of death estimate and every correct cause of death, instead of self-harming, with diminishing returns as you level up. Skill books, professions and traits apply as usual.
 description=[/list]
 description=
 description=[h2]Full documentation: [url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki]The Coroner Wiki[/url][/h2]
 description=Step-by-step guides, every item, every recipe, loot locations, sandbox options, mod compatibility and FAQ.
 description=
 description=[h2]Sandbox Options[/h2]
-description=XP multipliers, hand tremor, beta blockers, time of death difficulty, edible and infectious organs, morgue bodies. Window size is a personal setting in Mod Options.
+description=XP multipliers and diminishing returns, hand tremor, beta blockers, time of death difficulty, edible and infectious organs, cannibalism effects and Cannibal trait, organs hidden in dishes, morgue bodies. Window size is a personal setting in Mod Options.
 description=[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Sandbox-Options]Details[/url]
 description=
 description=[h2]Added Items[/h2]
@@ -36,7 +37,7 @@ description=Thermometer, Digital Thermometer, Bone Saw, Oscillating Bone Saw, Fo
 description=[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Items]Full list[/url]
 description=
 description=[h2]Crafting Recipes[/h2]
-description=Specimen Jars (alcohol or formalin), Catgut, Bladder Canteen, Liver Tan, Human Bones for vanilla bone recipes, Digital Thermometer, buildable Morgue Drawers.
+description=Specimen Jars (alcohol or formalin), Catgut, Bladder Canteen, Liver Tan, Human Bones for vanilla bone recipes, Digital Thermometer, Oscillating Bone Saw (from Electric Sheep Shears), buildable Morgue Drawers.
 description=[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Crafting-Recipes]Full list[/url]
 description=
 description=[h2]Save Game Compatibility[/h2]
@@ -47,8 +48,22 @@ description=[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=38013
 description=[/list]
 description=
 description=[h2]Mods Compatibility[/h2]
-description=Supported: [b]Wounds Overhaul[/b] (injuries, causes of death, diseased organs, bullets, blood typing), [b]TooltipLib[/b], [b]Wound Expansion[/b], [b]Casualties Undead[/b], [b]The Only Cure[/b]. Their injuries show up when examining a dead player, with new causes of death: blood loss, sepsis, overdose, exposure, organ failure. NPC mods (Bandits, Project A-Life) are not tested yet: feedback welcome.
+description=Supported:[list]
+description=[*][b]TooltipLib[/b]
+description=[*][b]Wounds Overhaul[/b] (injuries, causes of death, diseased organs, bullets, blood typing)
+description=[*][b]Wound Expansion[/b]
+description=[*][b]Casualties Undead[/b]
+description=[*][b]The Only Cure[/b]
+description=[*][b]HarvestZ's Cannibalism[/b] and [b]Cannibalism in Zombie Apocalypse[/b] (organs count as human meat, they handle the consequences)
+description=[*][b]Zombie Virus Vaccine[/b] (first patch: blood samples and body parts from The Coroner menu, on any table, the body stays)
+description=[/list]
+description=Injuries from the medical mods show up when examining a dead player, with new causes of death: blood loss, sepsis, overdose, exposure, organ failure.
+description=
 description=[url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Mod-Compatibility]Details[/url]
+description=
+description=[h3]Note about NPC's mods[/h3]
+description=[b]NPC mods (Bandits, Project A-Life) are not tested yet: feedback welcome.
+description=IMPORTANT: I don't recommend eating an NPC's organ with your main character. It's risky because I don't know what the consequences will be.[/b]
 description=
 description=[h2]Multiplayer[/h2]
 description=Works in Singleplayer and Multiplayer, tested on hosted and dedicated servers.
@@ -65,7 +80,7 @@ description=[*] Your mod list and what you were doing when it happened
 description=[/list]
 description=
 description=[h2]Planned Features[/h2]
-description=Colorblind settings, cranial autopsy, psychological impact of cannibalism, more mod support.
+description=Our own blood typing kit, cranial autopsy, controller and split screen support, colorblind settings, more mod support.
 description=[h3][url=https://github.com/MeowWoem/PZMods-TheCoroner/wiki/Roadmap]Check the full Roadmap[/url][/h3]
 description=
 description=[h2]Credits[/h2]
