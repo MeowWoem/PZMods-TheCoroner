@@ -17,7 +17,7 @@ function S.play(character, name, volume)
     if not emitter then
         return nil;
     end
-    local id = emitter:playSound(name);
+    local id = emitter:playSoundImpl(name, nil);
     if not id or id == 0 then
         return nil;
     end
