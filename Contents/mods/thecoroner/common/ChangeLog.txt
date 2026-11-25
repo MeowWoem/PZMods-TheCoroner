@@ -123,3 +123,9 @@ Added:
 Changed:
 - Body temperature now follows where the body has actually been: it cools down step by step with the air around it, and moving a body (dragging it, taking it off the table, out of a cold morgue drawer) no longer makes it read as if it had always been in its new place. Bodies already in your world switch to the new system the first time a player comes near them
 [ ------ ]
+
+[ v1.0.11 - 11.25.2026 ]
+Fixed:
+- Multiplayer: the autopsy sounds were heard by every player on the server, at full volume and wherever they were. They are now only heard by the player doing the autopsy
+- A corpse could be duplicated by using the vanilla "Grab Corpse" on a body lying on a table, then "Remove corpse from table" (the copy kept the same organs and time of death XP). "Grab Corpse" is now refused on a body lying on a table, with a message pointing to the Coroner option, and moving a body can no longer leave a copy behind
+[ ------ ]
