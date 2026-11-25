@@ -1,3 +1,5 @@
+require "TimedActions/ISGrabCorpseAction";
+
 TCA = TCA or {};
 
 TCA.EXTRA_TABLES = {
@@ -468,6 +470,9 @@ function TCA.relocateBody(body, square, x, y, z, dirX, dirY, onTable)
     if oldSquare then
         oldSquare:removeCorpse(body, false);
     end
+    if body:getStaticMovingObjectIndex() >= 0 then
+        return false;
+    end
 
     newBody:setX(x);
     newBody:setY(y);
@@ -537,6 +542,12 @@ function TCA.grabBodyFromTable(body, character)
         return false;
     end
     local oldSquare = body:getSquare();
+    if oldSquare then
+        oldSquare:removeCorpse(body, false);
+    end
+    if body:getStaticMovingObjectIndex() >= 0 then
+        return false;
+    end
     local newBody = sq:tryAddCorpseToWorld(item, character:getX() - sq:getX(), character:getY() - sq:getY(), false);
     if not newBody then
         return false;
@@ -544,9 +555,6 @@ function TCA.grabBodyFromTable(body, character)
     local newData = newBody:getModData();
     for k, v in pairs(oldData) do
         newData[k] = v;
-    end
-    if oldSquare then
-        oldSquare:removeCorpse(body, false);
     end
     newBody:setFallOnFront(false);
     forceDropHeavyItems(character);
@@ -571,3 +579,29 @@ function TCA.warnTooDark(action)
     action.darkWarned = true;
     HaloTextHelper.addBadText(action.character, getText("IGUI_TCA_TooDark"));
 end
+
+function TCA.isBodyOnTableSurface(body)
+    return body ~= nil and instanceof(body, "IsoDeadBody") and not TCA.isBodyOnFloor(body);
+end
+
+function TCA.grabCorpseIsValid(self)
+    if TCA.isBodyOnTableSurface(self.corpseBody) then
+        if not isServer() and not self.TCA_warned then
+            self.TCA_warned = true;
+            local path = getText("ContextMenu_TCA_Menu") .. " > " .. getText("ContextMenu_TCA_RemoveFromTable");
+            HaloTextHelper.addBadText(self.character, getText("IGUI_TCA_UseRemoveFromTable", path));
+        end
+        return false;
+    end
+    return TCA.originalGrabCorpseIsValid(self);
+end
+
+function TCA.hookGrabCorpse()
+    if TCA.originalGrabCorpseIsValid ~= nil or not ISGrabCorpseAction then
+        return;
+    end
+    TCA.originalGrabCorpseIsValid = ISGrabCorpseAction.isValid;
+    ISGrabCorpseAction.isValid = TCA.grabCorpseIsValid;
+end
+
+TCA.hookGrabCorpse();
